@@ -9,7 +9,6 @@ pipeline {
         AWS_REGION = 'ap-northeast-2'
         S3_BUCKET = 'gandalp-s3'
         CLOUDFRONT_DIST_ID = 'E1JTO3ZBAXZFKE'
-        AWS_CREDENTIALS_ID = 'gandalp_aws_credentials'
     }
     stages {
         stage('Checkout') {
@@ -32,30 +31,22 @@ pipeline {
 
         stage('Deploy to S3') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: "${env.AWS_CREDENTIALS_ID}"
-                ]]) {
-                    sh '''
-                        aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
-                    '''
-                }
+                // IAM Role이 EC2에서 자동으로 인증을 처리하므로 credentialsId 제거
+                sh '''
+                    aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
+                '''
             }
         }
 
         stage('Invalidate CloudFront Cache') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: "${env.AWS_CREDENTIALS_ID}"
-                ]]) {
-                    sh '''
-                        aws cloudfront create-invalidation \
-                        --distribution-id $CLOUDFRONT_DIST_ID \
-                        --paths "/*" \
-                        --region $AWS_REGION
-                    '''
-                }
+                // IAM Role이 EC2에서 자동으로 인증을 처리하므로 credentialsId 제거
+                sh '''
+                    aws cloudfront create-invalidation \
+                    --distribution-id $CLOUDFRONT_DIST_ID \
+                    --paths "/*" \
+                    --region $AWS_REGION
+                '''
             }
         }
     }
