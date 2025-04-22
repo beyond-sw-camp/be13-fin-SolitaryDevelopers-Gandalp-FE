@@ -10,7 +10,7 @@ pipeline {
         S3_BUCKET = 'gandalp-s3'
         CLOUDFRONT_DIST_ID = 'E1JTO3ZBAXZFKE'
         AWS_CREDENTIALS_ID = 'awd_credentials'
-
+    }
     stages {
         stage('Checkout') {
             steps {
