@@ -9,7 +9,7 @@ pipeline {
         AWS_REGION = 'ap-northeast-2'
         S3_BUCKET = 'gandalp-s3'
         CLOUDFRONT_DIST_ID = 'E1JTO3ZBAXZFKE'
-        AWS_CREDENTIALS_ID = 'awd_credentials'
+        AWS_CREDENTIALS_ID = 'aws_credentials'
     }
     stages {
         stage('Checkout') {
