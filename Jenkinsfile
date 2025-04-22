@@ -9,6 +9,7 @@ pipeline {
         AWS_REGION = 'ap-northeast-2'
         S3_BUCKET = 'gandalp-s3'
         CLOUDFRONT_DIST_ID = 'E1JTO3ZBAXZFKE'
+        AWS_CREDENTIALS_ID = 'aws-credentials'  // <- 환경 변수로 자격 증명 ID 등록
     }
 
     stages {
@@ -30,40 +31,4 @@ pipeline {
             }
         }
 
-        stage('Deploy to S3') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'AWS_CREDENTIALS_ID'
-                ]]) {
-                    sh '''
-                        cd frontend
-                        aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
-                    '''
-                }
-            }
-        }
-
-        stage('Invalidate CloudFront Cache') {
-            steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'AWS_CREDENTIALS_ID'
-                ]]) {
-                    sh '''
-                        aws cloudfront create-invalidation \
-                        --distribution-id $CLOUDFRONT_DIST_ID \
-                        --paths "/*" \
-                        --region $AWS_REGION
-                    '''
-                }
-            }
-        }
-    }
-    post {
-        always {
-            echo "Cleaning up workspace"
-            deleteDir()
-        }
-    }
-}
+        stage('
