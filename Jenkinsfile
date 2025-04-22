@@ -21,11 +21,11 @@ pipeline {
         stage('Vue3 Build') {
             steps {
                 script {
-                    def status = sh(script: 'cd frontend && npm install', returnStatus: true)
+                    def status = sh(script: 'npm install', returnStatus: true)
                     if (status != 0) {
                         error("npm install failed")
                     }
-                    sh 'cd frontend && npm run build'
+                    sh 'npm run build'
                 }
             }
         }
