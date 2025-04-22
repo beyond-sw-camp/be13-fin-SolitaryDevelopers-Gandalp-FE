@@ -5,6 +5,12 @@ pipeline {
         }
     }
 
+    environment {
+        AWS_REGION = 'ap-northeast-2'
+        S3_BUCKET = 'gandalp-s3'
+        CLOUDFRONT_DIST_ID = 'E1JTO3ZBAXZFKE'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -14,31 +20,43 @@ pipeline {
 
         stage('Vue3 Build') {
             steps {
-                sh '''
-                    cd frontend
-                    npm install
-                    npm run build
-                '''
+                script {
+                    def status = sh(script: 'cd frontend && npm install', returnStatus: true)
+                    if (status != 0) {
+                        error("npm install failed")
+                    }
+                    sh 'cd frontend && npm run build'
+                }
             }
         }
 
         stage('Deploy to S3') {
             steps {
-                sh '''
-                    cd frontend
-                    aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
-                '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'AWS_CREDENTIALS_ID'
+                ]]) {
+                    sh '''
+                        cd frontend
+                        aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
+                    '''
+                }
             }
         }
 
         stage('Invalidate CloudFront Cache') {
             steps {
-                sh '''
-                    aws cloudfront create-invalidation \
-                    --distribution-id $CLOUDFRONT_DIST_ID \
-                    --paths "/*" \
-                    --region $AWS_REGION
-                '''
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding',
+                    credentialsId: 'AWS_CREDENTIALS_ID'
+                ]]) {
+                    sh '''
+                        aws cloudfront create-invalidation \
+                        --distribution-id $CLOUDFRONT_DIST_ID \
+                        --paths "/*" \
+                        --region $AWS_REGION
+                    '''
+                }
             }
         }
     }
@@ -48,5 +66,4 @@ pipeline {
             deleteDir()
         }
     }
-    
 }
