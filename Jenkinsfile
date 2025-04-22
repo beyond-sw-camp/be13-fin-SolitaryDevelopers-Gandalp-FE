@@ -37,7 +37,6 @@ pipeline {
                     credentialsId: "${env.AWS_CREDENTIALS_ID}"  // <- 환경변수로 참조
                 ]]) {
                     sh '''
-                        cd frontend
                         aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
                     '''
                 }
