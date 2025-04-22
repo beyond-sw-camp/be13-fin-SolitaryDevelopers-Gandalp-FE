@@ -21,11 +21,11 @@ pipeline {
         stage('Vue3 Build') {
             steps {
                 script {
-                    def status = sh(script: 'cd frontend && npm install', returnStatus: true)
+                    def status = sh(script: 'npm install', returnStatus: true)
                     if (status != 0) {
                         error("npm install failed")
                     }
-                    sh 'cd frontend && npm run build'
+                    sh 'npm run build'
                 }
             }
         }
@@ -34,7 +34,7 @@ pipeline {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: "${env.AWS_CREDENTIALS_ID}"  // <- 환경변수로 참조
+                    credentialsId: "${env.AWS_CREDENTIALS_ID}"
                 ]]) {
                     sh '''
                         aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
@@ -47,7 +47,7 @@ pipeline {
             steps {
                 withCredentials([[
                     $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: "${env.AWS_CREDENTIALS_ID}"  // <- 환경변수로 참조
+                    credentialsId: "${env.AWS_CREDENTIALS_ID}"
                 ]]) {
                     sh '''
                         aws cloudfront create-invalidation \
