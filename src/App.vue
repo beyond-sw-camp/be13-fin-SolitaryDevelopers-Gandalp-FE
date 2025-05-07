@@ -1,19 +1,15 @@
-<template>
-  <div>
-
-    <RouterView/>
-  </div>
+<template lang="pug">
+documentation(:class="{ prod: isProduction }")
 </template>
 
 <script setup>
-  import { useAuthStore } from './stores/auth';
-// export default {
-//   name: "App",
-// };
-  const authStore = useAuthStore();
+import { onMounted, inject } from 'vue'
+import { useAppStore } from '@/store'
+import Documentation from '@/documentation/index.vue'
 
-  authStore.checkLogin();
+const $waveui = inject('$waveui')
+const store = useAppStore()
+const isProduction = import.meta.env.PROD
+
+onMounted(() => store.applyTheme(localStorage.theme || $waveui.preferredTheme))
 </script>
-
-<style>
-</style>

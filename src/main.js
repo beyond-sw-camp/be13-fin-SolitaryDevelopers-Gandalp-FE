@@ -1,20 +1,42 @@
-
-
 import { createApp } from 'vue'
-import App from './App.vue'
-import 'bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import router from './router'
 import { createPinia } from 'pinia'
+import router from './router'
+import WaveUI from 'wave-ui'
+import 'wave-ui/dist/wave-ui.css'
+import SshPre from 'simple-syntax-highlighter'
+import 'simple-syntax-highlighter/dist/sshpre.css'
+import App from './app.vue'
+import TitleLink from '@/documentation/components/title-link.vue'
+import Example from '@/documentation/components/example.vue'
+import Alert from '@/documentation/components/alert.vue'
+import './scss/index.scss' 
 
-// 💡 임시 memberId 설정 (로그인 없을 때)
-// if (!localStorage.getItem('memberId')) {
-//     localStorage.setItem('memberId', '1'); // 교수 ID로 가정
-//     localStorage.setItem('role', 'PROFESSOR'); // 필요 시 role도
-// }
+import '@mdi/font/css/materialdesignicons.min.css'
 
-const app = createApp(App);
-app.use(createPinia());
-app.use(router);
-app.mount('#app');
+const app = createApp(App)
+const pinia = createPinia()
 
+app.use(router)
+app.use(pinia)
+app.use(WaveUI, {
+  colors: {
+    light: {
+      primary: '#3f73a6',
+      secondary: '#2c3e50',
+      lightgrey: '#eee'
+    },
+    dark: {
+      primary: '#82afc9',
+      secondary: '#fff',
+      lightgrey: '#444'
+    }
+  },
+  theme: 'auto'
+})
+
+app.component('TitleLink', TitleLink)
+app.component('Example', Example)
+app.component('SshPre', SshPre)
+app.component('Alert', Alert)
+
+app.mount('#app')
