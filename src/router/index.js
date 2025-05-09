@@ -14,7 +14,7 @@ const routes = [
         path: 'ex',
         name: 'ex',
         component: Ex
-      }
+      },
     ],
   },
   {
@@ -23,21 +23,12 @@ const routes = [
     component: CalendarBaseLayout,
     children: [
       {
-        path: 'examples',
-        name: 'examples',
-        component: () => import('@/documentation/examples/index.vue'),
-        // redirect: '/examples/playground',
-        children: [
-          {
-            path: 'playground',
-            name: 'playground',
-            component: () => import('@/documentation/examples/playground.vue')
-          }
-        ]
+        path: '',
+        name: 'playground',
+        component: () => import('@/documentation/examples/playground.vue')
       }
     ],
   },
-
 ]
 
 export default createRouter({
