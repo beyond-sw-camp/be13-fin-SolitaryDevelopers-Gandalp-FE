@@ -1,21 +1,10 @@
 <template lang="pug">
-//- w-switch.theme-switch(
-//-   :model-value="store.darkMode"
-//-   @update:modelValue="store.toggleDarkMode")
-//-   template(#thumb)
-//-     w-icon mdi {{ store.darkMode ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}
 
 w-toolbar.top-bar.pa0(:class="{ fixed }")
   .top-bar__title
     span.top-bar__title-line
     span.top-bar__title-line
     component.w-flex.align-center.primary.px5.mb0.title1(:is="$route.name === 'home' ? 'h1' : 'div'")
-      router-link.top-bar__logo-link.w-flex.align-center.no-grow.gap4(:to="{ name: 'home', hash: '#top' }")
-        .logo.top-bar__logo {{ todayDate < 10 ? `0${todayDate}` : todayDate }}
-        .top-bar__logo-title
-          | Vue Cal
-          .version(v-html="`v.${version}`")
-      span.intro Vue.js full cal&nbsp; #[span.code --no-deps --no-bs]&nbsp; :metal:
 
   .top-bar__items.fill-height.mr3
     w-button(
