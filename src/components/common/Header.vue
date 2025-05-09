@@ -48,7 +48,10 @@ const logout = () => {
   padding: 14px 40px;
   background-color: white;
   border-bottom: 1px solid #ddd;
+  box-shadow: 0 1px 5px 0 rgba(107, 119, 172, 0.2);
   font-weight: bold;
+  position: relative;
+  z-index: 10;
 }
 
 .logo {

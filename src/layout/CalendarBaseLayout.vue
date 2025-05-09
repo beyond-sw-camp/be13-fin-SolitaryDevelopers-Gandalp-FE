@@ -3,7 +3,7 @@
     <Sidebar class="sidebar" />
 
     <div class="right-section">
-      <Header class="header" />
+      <Header />
       <main class="main-content">
         <router-view />
       </main>
@@ -24,10 +24,13 @@ import Sidebar from '@/components/common/Sidebar.vue'
 
 .sidebar {
   width: 270px;
-  border-right: 1px solid #ccc;
-  padding: 16px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 20px;
+  box-sizing: border-box;
   height: 100vh;
   overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 }
 
@@ -37,12 +40,6 @@ import Sidebar from '@/components/common/Sidebar.vue'
   flex-grow: 1;
   height: 100vh;
   overflow: hidden;
-}
-
-.header {
-  height: 60px;
-  border-bottom: 1px solid #ccc;
-  flex-shrink: 0;
 }
 
 .main-content {
