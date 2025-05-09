@@ -72,7 +72,7 @@ const timeCells = computed(() => {
   position: relative;
   display: flex;
   flex: 1 0 auto;
-  font-size: 0.85em;
+  font-size: 0.70em;
   height: var(--vuecal-time-cell-height);
 
   &:before {

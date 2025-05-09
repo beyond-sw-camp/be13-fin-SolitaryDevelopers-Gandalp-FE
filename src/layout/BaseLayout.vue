@@ -23,17 +23,18 @@ import Sidebar from '@/components/common/Sidebar.vue'
   overflow: hidden;
 }
 
-/* 왼쪽 사이드바: 전체 높이 */
 .sidebar {
   width: 270px;
-  border-right: 1px solid #ccc;
-  padding: 16px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 20px;
   box-sizing: border-box;
   height: 100vh;
   overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
 }
 
-/* 오른쪽 콘텐츠: 헤더 + 본문 */
 .right-content {
   display: flex;
   flex-direction: column;
@@ -42,7 +43,6 @@ import Sidebar from '@/components/common/Sidebar.vue'
   overflow: hidden;
 }
 
-/* 본문 영역 */
 .page-container {
   flex: 1;
   padding: 24px;
