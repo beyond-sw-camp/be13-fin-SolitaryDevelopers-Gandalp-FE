@@ -5,4 +5,4 @@ const apiClient = axios.create({
   timeout: 1000,
 });
 
-export default apiClient;
+export default apiClient; // ✅ 만들어놓은 인스턴스를 export

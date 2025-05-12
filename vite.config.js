@@ -67,5 +67,13 @@ export default defineConfig({
       plugins: [autoprefixer]
     }
   },
-  build: process.env.BUNDLE ? bundlingConf : { outDir: 'docs' }
+  build: process.env.BUNDLE ? bundlingConf : { outDir: 'docs' },
+  server: {
+    proxy: {
+      'api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      }
+    }
+  }
 })
