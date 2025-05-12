@@ -23,7 +23,6 @@ const router = useRouter()
 const login = async () => {
     try{
         const res = await apiClient.post('/auth/login', {
-            withCredentials: true,
             accountId: accountId.value,
             password: password.value,
         })
