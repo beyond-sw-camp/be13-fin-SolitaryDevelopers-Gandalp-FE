@@ -11,7 +11,7 @@
       <div class="dropdown" @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
         <span class="menu-title">근무 관리 ▾</span>
         <div class="dropdown-menu" v-if="showDropdown">
-          <RouterLink to="/off">오프</RouterLink>
+          <RouterLink to="/showOff">오프</RouterLink>
           <RouterLink to="/off-management">오프 관리</RouterLink>
           <RouterLink to="/work-management">근무 관리</RouterLink>
         </div>
@@ -92,7 +92,7 @@ cursor: pointer;
 }
 .dropdown-menu {
   position: absolute;
-  top: 30px;
+  top: 25px;
   left: 0;
   background: white;
   border: 1px solid #ccc;

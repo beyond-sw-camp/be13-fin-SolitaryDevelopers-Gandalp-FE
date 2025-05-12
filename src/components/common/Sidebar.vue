@@ -1,6 +1,8 @@
 <template>
   <div class="sidebar">
-    <div class="logo">간&nbsp;달&nbsp;프</div>
+    <div class="logo">
+      <img :src="gandalpLogo" alt="GANDALP 로고" />
+    </div>
 
     <div class="notice-section">
       <h4 class="notice-title">📌 공지사항</h4>
@@ -45,6 +47,9 @@
     </div>
   </div>
 </template>
+<script setup>
+import gandalpLogo from '@/assets/sidebar/gandalp_logo.png'
+</script>
 
 <style scoped>
 .sidebar {
@@ -61,9 +66,19 @@
 }
 
 .logo {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 8px;
+  display: flex;
+  justify-content: center;   /* 가운데 정렬 */
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 16px;       /* 여백 살짝 늘리기 */
+  height: 100px;           /* 로고 영역 고정 높이 */
+  width: 200px;
+}
+
+.logo img {
+  max-height: 130%;
+  max-width: 130%;
+  object-fit: contain;
 }
 
 .notice-section,
