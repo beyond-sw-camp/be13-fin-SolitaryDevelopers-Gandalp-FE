@@ -3,6 +3,7 @@ import BaseLayout from '../layout/BaseLayout.vue'
 import CalendarBaseLayout from '../layout/CalendarBaseLayout.vue'
 import ShowOffVue from '../views/showOff.vue'
 import Ex from '@/views/Ex.vue'
+import Login from '@/views/Login.vue'
 
 
 const routes = [
@@ -35,6 +36,11 @@ const routes = [
       }
     ],
   },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login
+  }
 
 ]
 
