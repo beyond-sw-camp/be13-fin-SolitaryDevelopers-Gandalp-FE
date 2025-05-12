@@ -22,9 +22,9 @@
   </thead>
   <tbody>
     <tr v-for="item in scheduleList" :key="item.offScheduleTempId">
-      <td>{{ formatDate(item.startTime) }} ~ {{ formatDate(item.endTime) }}</td>
-      <td>{{ item.nurseName }}</td>
-      <td>{{ formatDateTime(item.updatedAt) }}</td>
+    <td>{{ formatRange(item.startTime, item.endTime) }}</td> <!-- 🟡 날짜 범위 포맷 적용 -->
+    <td>{{ item.nurseName }}</td>
+    <td>{{ formatDateTime(item.updatedAt) }}</td>
     </tr>
   </tbody>
 </table>
@@ -57,51 +57,65 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue'
-  import apiClient from '@/api/axios'
-  
-  const totalPages = ref(1); // 혹은 적절한 기본값
-  const searchType = ref('')
-  const searchKeyword = ref('')
-  const scheduleList = ref([])
-  const currentPage = ref(1)
-  const hasMore = ref(true)
-  
-  const fetchList = async () => {
-  const { data } = await apiClient.get('/off/temp', {
+import { ref, onMounted } from 'vue'
+import apiClient from '@/api/axios'
+import dayjs from 'dayjs'
+
+const totalPages = ref(1)
+const searchType = ref('')
+const searchKeyword = ref('')
+const scheduleList = ref([])
+const currentPage = ref(1)
+const hasMore = ref(true)
+
+const fetchList = async () => {
+  const { data } = await apiClient.get('/schedules/off/temp', {
     params: {
       type: searchType.value,
       keyword: searchKeyword.value,
       page: currentPage.value,
     },
-  });
+  })
 
-  console.log('💡 API 응답:', data); // 전체 응답 확인
-
-  scheduleList.value = data.items;
-  hasMore.value = data.hasMore;
-
-  console.log('📋 scheduleList:', scheduleList.value); // 리스트 확인
+  scheduleList.value = data.items
+  hasMore.value = data.hasMore
 }
-  
-  const formatDate = (dateStr) => dateStr?.slice(5)
-  const formatDateTime = (dtStr) => dtStr?.replace('T', ' ').slice(0, 16)
-  
-  const prevPage = () => {
-    if (currentPage.value > 1) {
-      currentPage.value--
-      fetchList()
-    }
+
+// ✅ 날짜 포맷 함수: "05월 12일"
+const formatKoreanDate = (dateStr) => {
+  if (!dateStr) return '-'
+  return dayjs(dateStr).format('MM월 DD일')
+}
+
+// ✅ 날짜 범위 포맷 함수: "05월 12일 ~ 05월 14일"
+const formatRange = (start, end) => {
+  if (!start || !end) return '-'
+  return `${formatKoreanDate(start)} ~ ${formatKoreanDate(end)}`
+}
+
+// ✅ 날짜+시간 포맷: "2025-05-12 14:00"
+const formatDateTime = (dtStr) => {
+  if (!dtStr) return '-'
+  return dayjs(dtStr).format('YYYY-MM-DD HH:mm')
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+    fetchList()
   }
-  const nextPage = () => {
-    if (hasMore.value) {
-      currentPage.value++
-      fetchList()
-    }
+}
+
+const nextPage = () => {
+  if (hasMore.value) {
+    currentPage.value++
+    fetchList()
   }
-  
-  onMounted(fetchList)
-  </script>
+}
+
+onMounted(fetchList)
+</script>
+
   
   <style scoped>
   .off-schedule-page {
