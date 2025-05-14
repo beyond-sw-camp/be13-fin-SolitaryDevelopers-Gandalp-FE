@@ -1,23 +1,38 @@
 <template>
   <header class="header">
-    
 
+
+<!--    관리자인 경우 계정 생성, 계정 목록 조회됨 -->
     <nav class="nav">
-      <RouterLink to="/calendar">캘린더</RouterLink>
-      <RouterLink to="/shift-request">근무 교대 신청</RouterLink>
-      <RouterLink to="/bed-info">병상 수용 정보</RouterLink>
-      <RouterLink to="/surgery-reservation">수술실 예약</RouterLink>
 
-      <div class="dropdown" @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
-        <span class="menu-title">근무 관리 ▾</span>
-        <div class="dropdown-menu" v-if="showDropdown">
-          <RouterLink to="/showOff">오프</RouterLink>
-          <RouterLink to="/off-management">오프 관리</RouterLink>
-          <RouterLink to="/work-management">근무 관리</RouterLink>
-        </div>
+
+      <div v-if ="!isAdmin">
+        <RouterLink to="/joinMember">계정 생성</RouterLink>
+        <RouterLink to="/memberList">계정 목록</RouterLink>
+
       </div>
 
-      <RouterLink to="/analytics">분석 차트</RouterLink>
+      <div v-else>
+
+
+        <RouterLink to="/calendar">캘린더</RouterLink>
+        <RouterLink to="/shift-request">근무 교대 신청</RouterLink>
+        <RouterLink to="/bed-info">병상 수용 정보</RouterLink>
+        <RouterLink to="/surgery-reservation">수술실 예약</RouterLink>
+
+        <div class="dropdown" @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
+          <span class="menu-title">근무 관리 ▾</span>
+          <div class="dropdown-menu" v-if="showDropdown">
+            <RouterLink to="/showOff">오프</RouterLink>
+            <RouterLink to="/off-management">오프 관리</RouterLink>
+            <RouterLink to="/work-management">근무 관리</RouterLink>
+          </div>
+        </div>
+
+        <RouterLink to="/analytics">분석 차트</RouterLink>
+
+      </div>
+
     </nav>
 
     <div class="auth-btn">
@@ -67,7 +82,7 @@ const logout = () => {
   color: #1b9aaa;
 }
 
-.nav {
+.nav >*{
   display: flex;
   gap: 24px;
   align-items: center;

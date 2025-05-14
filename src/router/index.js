@@ -4,6 +4,9 @@ import CalendarBaseLayout from '../layout/CalendarBaseLayout.vue'
 import ShowOffVue from '../views/showOff.vue'
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
+import JoinMember from "@/views/JoinMember.vue"
+import MemberList from "@/views/MemberList.vue"
+
 
 
 const routes = [
@@ -19,9 +22,20 @@ const routes = [
       },
       {
         path: 'showOff',
-        path: 'showOff',
+        name: 'showOff',
         component: ShowOffVue
       },
+      {
+        path: '/joinMember',
+        name: 'joinMember',
+        component: JoinMember
+      },
+      {
+        path: '/memberList',
+        name: 'memberList',
+        component: MemberList
+      },
+
     ],
   },
   {
@@ -40,7 +54,8 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login
-  }
+  },
+
 
 ]
 
