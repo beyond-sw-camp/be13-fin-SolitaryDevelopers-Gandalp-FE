@@ -2,9 +2,11 @@
     <div class="login-wrapper">
         <div class="login-box">
             <h2 class="title">로그인</h2>
-            <input v-model="accountId" placeholder="아이디" class="input-box" />
-            <input v-model="password" placeholder="비밀번호" type ="password" class="input-box" />
-            <button class="login-btn" @click="login">확인</button>
+            <form @submit.prevent="login">
+              <input v-model="accountId" placeholder="아이디" class="input-box" />
+              <input v-model="password" placeholder="비밀번호" type ="password" class="input-box" />
+              <button type="submit" class="login-btn">확인</button>
+            </form>
         </div>
 
     </div>
@@ -14,25 +16,22 @@
 
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import apiClient from '@/api/axios'
+import { useAuthStore } from '@/stores/auth'
 
 const accountId = ref('')
 const password = ref('')
 const router = useRouter()
+const auth = useAuthStore()
+
 
 const login = async () => {
     try{
-        const res = await apiClient.post('/auth/login', {
-            accountId: accountId.value,
-            password: password.value,
-        })
-
-    
-
-
-        router.push('/') // 로그인 성공하면 홈으로 이동
+      await auth.login({
+        accountId: accountId.value,
+        password: password.value,
+      })
     }catch (err){
-        console.error(err) // ← 추가
+        console.error(err) 
         alert(err.response?.data?.message || '로그인 실패') 
     }
 }

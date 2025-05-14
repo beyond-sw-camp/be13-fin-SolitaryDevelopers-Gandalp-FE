@@ -9,7 +9,7 @@ import Login from '@/views/Login.vue'
 const routes = [
   {
     path: '/',
-    name: 'base',
+    name: 'home',
     component: BaseLayout,
     children: [
       {
@@ -40,7 +40,7 @@ const routes = [
     path: '/login',
     name: 'login',
     component: Login
-  }
+  },
 
 ]
 

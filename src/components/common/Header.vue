@@ -21,23 +21,35 @@
     </nav>
 
     <div class="auth-btn">
-      <button @click="logout">로그아웃</button>
+      <button v-if="isLoggedIn"  @click="logout">로그아웃</button>
+      <button v-else @click="login">로그인</button>
     </div>
   </header>
 </template>
 
 <script setup>
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const showDropdown = ref(false)
 
-const logout = () => {
-  // 예시: 로컬스토리지 제거 후 이동
-  localStorage.removeItem('token')
-  router.push('/login')
+const auth = useAuthStore()
+const {isLoggedIn} = storeToRefs(auth)
+
+const login = () => {
+  router.push("/login")
 }
+
+const logout = () => {
+  auth.logout();
+  router.push("/login");
+
+}
+
+
 </script>
 
 <style scoped>
