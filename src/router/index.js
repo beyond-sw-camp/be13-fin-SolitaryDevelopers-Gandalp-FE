@@ -5,6 +5,7 @@ import ShowOffVue from '../views/showOff.vue'
 import OffCalendarVue from '../views/OffCalendar.vue'
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
+import ManageOff from '@/views/ManageOff.vue'
 
 
 const routes = [
@@ -27,6 +28,11 @@ const routes = [
         path: 'offCalendar',
         name: 'OffCalendar',
         component: OffCalendarVue
+      },
+      {
+        path: 'manageOff',
+        name: 'manageOff',
+        component: ManageOff
       },
     ],
   },
