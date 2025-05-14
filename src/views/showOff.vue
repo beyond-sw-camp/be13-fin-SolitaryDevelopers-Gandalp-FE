@@ -44,9 +44,9 @@
     </tr>
   </tbody>
 </table>
-<button class="create-off">
-  오프 신청
-</button>
+  <button class="create-off" v-on:click="goToOffCalendar">
+    오프 신청
+  </button>
   
   <div class="pagination">
   <button
@@ -79,6 +79,9 @@
 import { ref, onMounted } from 'vue'
 import apiClient from '@/api/axios'
 import dayjs from 'dayjs'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const totalPages = ref(1)
 const searchType = ref('')
@@ -86,6 +89,10 @@ const searchKeyword = ref('')
 const scheduleList = ref([])
 const currentPage = ref(1)
 const hasMore = ref(true)
+
+const goToOffCalendar = () => {
+  router.push({ path: '/OffCalendar' })
+}
 
 const deleteOff = async (scheduleTempId) => {
   const confirmed = confirm('정말로 이 오프 신청을 취소하시겠습니까?')
