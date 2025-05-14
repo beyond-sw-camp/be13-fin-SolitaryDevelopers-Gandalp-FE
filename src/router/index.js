@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import BaseLayout from '../layout/BaseLayout.vue'
 import CalendarBaseLayout from '../layout/CalendarBaseLayout.vue'
 import ShowOffVue from '../views/showOff.vue'
+import OffCalendarVue from '../views/OffCalendar.vue'
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
 
@@ -19,8 +20,13 @@ const routes = [
       },
       {
         path: 'showOff',
-        path: 'showOff',
+        name: 'showOff',
         component: ShowOffVue
+      },
+      {
+        path: 'offCalendar',
+        name: 'OffCalendar',
+        component: OffCalendarVue
       },
     ],
   },
