@@ -4,7 +4,7 @@
       <img :src="gandalpLogo" alt="GANDALP 로고" />
     </div>
 
-<!--    <div v-if="isAdmin">-->
+    <div v-if="isAdmin">
       <div class="notice-section" >
         <h4 class="notice-title">📌 공지사항</h4>
         <div class="notice-box">
@@ -46,7 +46,7 @@
           </li>
         </ul>
       </div>
-<!--    </div>-->
+    </div>
 
   </div>
 </template>
