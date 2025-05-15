@@ -16,7 +16,7 @@
 
 
         <RouterLink to="/calendar">캘린더</RouterLink>
-        <RouterLink to="/shift-request">근무 교대 신청</RouterLink>
+        <RouterLink to="/shifts">근무 교대 신청</RouterLink>
         <RouterLink to="/bed-info">병상 수용 정보</RouterLink>
         <RouterLink to="/surgery-reservation">수술실 예약</RouterLink>
 

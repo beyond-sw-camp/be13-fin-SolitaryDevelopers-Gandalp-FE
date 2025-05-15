@@ -8,6 +8,8 @@ import Login from '@/views/Login.vue'
 import JoinMember from "@/views/JoinMember.vue"
 import MemberList from "@/views/MemberList.vue"
 import ManageOff from '@/views/ManageOff.vue'
+import ShowShifts from '@/views/Shift/ShowShifts.vue'
+import CreateShiftChange from '@/views/Shift/CreateShiftChange.vue'
 
 
 import UpdateNurse from '@/views/nurse/UpdateNurse.vue'
@@ -30,6 +32,16 @@ const routes = [
         path: 'showOff',
         name: 'showOff',
         component: ShowOffVue
+      },
+      {
+        path: 'shifts',
+        name: 'shift-list',
+        component: ShowShifts
+      },
+      {
+        path: 'shifts/create',
+        name: 'create-shiftchange',
+        component: CreateShiftChange
       },
       {
         path: '/joinMember',
