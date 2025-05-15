@@ -5,7 +5,10 @@ import ShowOffVue from '../views/showOff.vue'
 import OffCalendarVue from '../views/OffCalendar.vue'
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
+import JoinMember from "@/views/JoinMember.vue"
+import MemberList from "@/views/MemberList.vue"
 import ManageOff from '@/views/ManageOff.vue'
+
 
 
 const routes = [
@@ -25,6 +28,17 @@ const routes = [
         component: ShowOffVue
       },
       {
+        path: '/joinMember',
+        name: 'joinMember',
+        component: JoinMember
+      },
+      {
+        path: '/memberList',
+        name: 'memberList',
+        component: MemberList
+      },
+
+
         path: 'offCalendar',
         name: 'OffCalendar',
         component: OffCalendarVue
@@ -53,6 +67,7 @@ const routes = [
     name: 'login',
     component: Login
   },
+
 
 ]
 

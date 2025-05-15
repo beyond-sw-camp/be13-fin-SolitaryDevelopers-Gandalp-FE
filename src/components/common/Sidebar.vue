@@ -4,47 +4,50 @@
       <img :src="gandalpLogo" alt="GANDALP 로고" />
     </div>
 
-    <div class="notice-section">
-      <h4 class="notice-title">📌 공지사항</h4>
-      <div class="notice-box">
-        <div class="notice-content">
-          <p>간달프 시스템 점검 예정</p>
-          <p>29일 10시 수술실 예약</p>
-          <p>5월 1일 근무자 일정 업데이트</p>
-          <p>5월 1일 근무자 일정 업데이트</p>
-          <p>5월 1일 근무자 일정 업데이트</p>
-          <p>5월 1일 근무자 일정 업데이트</p>
-          <p>5월 1일 근무자 일정 업데이트</p>
-          <p>5월 1일 근무자 일정 업데이트</p>
+    <div v-if="isAdmin">
+      <div class="notice-section" >
+        <h4 class="notice-title">📌 공지사항</h4>
+        <div class="notice-box">
+          <div class="notice-content">
+            <p>간달프 시스템 점검 예정</p>
+            <p>29일 10시 수술실 예약</p>
+            <p>5월 1일 근무자 일정 업데이트</p>
+            <p>5월 1일 근무자 일정 업데이트</p>
+            <p>5월 1일 근무자 일정 업데이트</p>
+            <p>5월 1일 근무자 일정 업데이트</p>
+            <p>5월 1일 근무자 일정 업데이트</p>
+            <p>5월 1일 근무자 일정 업데이트</p>
+          </div>
         </div>
+      </div>
+
+      <div class="status-section">
+        <h4 class="status-title">👩‍⚕️ 근무 현황</h4>
+        <ul class="status-list">
+          <li>
+            <span class="nurse-name">간호사1</span>
+            <span class="dot pink"></span>
+            <span class="status-text">수술 중</span>
+          </li>
+          <li>
+            <span class="nurse-name">간호사2</span>
+            <span class="dot blue"></span>
+            <span class="status-text">근무 중</span>
+          </li>
+          <li>
+            <span class="nurse-name">간호사3</span>
+            <span class="dot blue"></span>
+            <span class="status-text">근무 중</span>
+          </li>
+          <li>
+            <span class="nurse-name">간호사4</span>
+            <span class="dot gray"></span>
+            <span class="status-text">오프</span>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <div class="status-section">
-      <h4 class="status-title">👩‍⚕️ 근무 현황</h4>
-      <ul class="status-list">
-        <li>
-          <span class="nurse-name">간호사1</span>
-          <span class="dot pink"></span>
-          <span class="status-text">수술 중</span>
-        </li>
-        <li>
-          <span class="nurse-name">간호사2</span>
-          <span class="dot blue"></span>
-          <span class="status-text">근무 중</span>
-        </li>
-        <li>
-          <span class="nurse-name">간호사3</span>
-          <span class="dot blue"></span>
-          <span class="status-text">근무 중</span>
-        </li>
-        <li>
-          <span class="nurse-name">간호사4</span>
-          <span class="dot gray"></span>
-          <span class="status-text">오프</span>
-        </li>
-      </ul>
-    </div>
   </div>
 </template>
 <script setup>
