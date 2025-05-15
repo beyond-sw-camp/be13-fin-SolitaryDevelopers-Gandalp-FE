@@ -5,8 +5,8 @@ import ShowOffVue from '../views/showOff.vue'
 import OffCalendarVue from '../views/OffCalendar.vue'
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
-import JoinMember from "@/views/JoinMember.vue"
-import MemberList from "@/views/MemberList.vue"
+import JoinMember from "@/views/admin/JoinMember.vue"
+import MemberList from "@/views/admin/MemberList.vue"
 import ManageOff from '@/views/ManageOff.vue'
 import ShowShifts from '@/views/Shift/ShowShifts.vue'
 import CreateShiftChange from '@/views/Shift/CreateShiftChange.vue'
