@@ -4,7 +4,9 @@
       <img :src="gandalpLogo" alt="GANDALP 로고" />
     </div>
 
+
     <div v-if="isAdmin">
+
       <div class="notice-section" >
         <h4 class="notice-title">📌 공지사항</h4>
         <div class="notice-box">
@@ -20,6 +22,7 @@
           </div>
         </div>
       </div>
+
 
       <div class="status-section">
         <h4 class="status-title">👩‍⚕️ 근무 현황</h4>
@@ -49,9 +52,17 @@
     </div>
 
   </div>
+
+        <!--  -->
+        <NurseStatusSidebar/>
+    </div>
+
 </template>
 <script setup>
 import gandalpLogo from '@/assets/sidebar/gandalp_logo.png'
+import NurseStatusSidebar from './NurseStatusSidebar.vue';
+
+
 </script>
 
 <style scoped>

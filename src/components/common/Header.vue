@@ -16,7 +16,7 @@
 
 
         <RouterLink to="/calendar">캘린더</RouterLink>
-        <RouterLink to="/shift-request">근무 교대 신청</RouterLink>
+        <RouterLink to="/shifts">근무 교대 신청</RouterLink>
         <RouterLink to="/bed-info">병상 수용 정보</RouterLink>
         <RouterLink to="/surgery-reservation">수술실 예약</RouterLink>
 
@@ -24,7 +24,7 @@
           <span class="menu-title">근무 관리 ▾</span>
           <div class="dropdown-menu" v-if="showDropdown">
             <RouterLink to="/showOff">오프</RouterLink>
-            <RouterLink to="/off-management">오프 관리</RouterLink>
+            <RouterLink to="/manageOff">오프 관리</RouterLink>
             <RouterLink to="/work-management">근무 관리</RouterLink>
           </div>
 
