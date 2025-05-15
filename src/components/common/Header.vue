@@ -55,7 +55,6 @@ const showDropdown = ref(false)
 const auth    = useAuthStore()
 const isAdmin = computed(() => auth.type === 'ADMIN')
 
-const auth = useAuthStore()
 const {isLoggedIn} = storeToRefs(auth)
 
 const login = () => {
