@@ -31,9 +31,17 @@
         </div>
 
         <RouterLink to="/analytics">분석 차트</RouterLink>
+        
 
+        <div class="dropdown" v-if="isHeadNurse"  @mouseenter="showNurseDropDown = true" @mouseleave="showNurseDropDown = false">
+          <span class="menu-title">간호사 관리 ▾</span>
+          <div class="dropdown-menu" v-if="showNurseDropDown">
+            <RouterLink to="/nurses">간호사 생성</RouterLink>
+            <RouterLink to="/nurseList">간호사 목록</RouterLink>
+          </div>
       </div>
 
+    </div>
     </nav>
 
     <div class="auth-btn">
@@ -45,7 +53,7 @@
 
 <script setup>
 
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
@@ -53,10 +61,15 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const showDropdown = ref(false)
 const auth    = useAuthStore()
-const isAdmin = computed(() => auth.type === 'ADMIN')
+const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
 
-const auth = useAuthStore()
+const isHeadNurse = computed(() => auth.userInfo.type === 'HEAD_NURSE') 
+const showNurseDropDown = ref(false)
+
+
 const {isLoggedIn} = storeToRefs(auth)
+
+
 
 const login = () => {
   router.push("/login")
@@ -71,7 +84,19 @@ const logout = () => {
 
 </script>
 
+
 <style scoped>
+.nav a,
+.menu-title {
+  font-size: 15px;
+  padding: 6px 10px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  box-sizing: border-box;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -140,6 +165,8 @@ cursor: pointer;
 .dropdown-menu a:hover {
   background-color: #f0f0f0;
 }
+
+
 
 .auth-btn button {
   padding: 6px 12px;
