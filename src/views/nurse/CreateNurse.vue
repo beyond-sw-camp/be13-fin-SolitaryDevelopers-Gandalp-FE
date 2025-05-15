@@ -25,6 +25,11 @@
     import { ref } from 'vue'
     import apiClient from '@/api/axios'
 
+    import { useRouter } from 'vue-router'
+
+    const router = useRouter();
+
+
     const form = ref({
     name: '',
     email: '',
@@ -36,6 +41,7 @@
         await apiClient.post('/nurses', form.value)
         alert('간호사 계정이 생성되었습니다.')
         form.value = { name: '', email: '', password: '' }
+        router.push('/nurseList')
     } catch (err) {
         alert(`생성 실패: ${err.response?.data || err.message}`)
     }
