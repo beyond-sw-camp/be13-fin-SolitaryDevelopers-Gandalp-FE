@@ -1,107 +1,139 @@
 <template>
+  <div class="member-list-page">
+    <h2 class="title">계정 목록</h2>
 
-  <div class="join-content">
-
-
-    <div class="title-container">
-      <h2 class="title">계정 목록 조회</h2>
-
+    <div class="search-bar">
+      <input v-model="keyword" placeholder="검색어를 입력하세요" />
+      <button @click="fetchMembers">검색</button>
     </div>
 
-    <div class="select-job">
-      <label class="radio-box">
-        <input type="radio" name="option" value="A" checked>
-        <span class="box-label">구급대원</span>
-      </label>
+    <table class="member-table">
+      <thead>
+      <tr>
+        <th>병원명</th>
+        <th>분류</th>
+        <th>진료과</th>
+        <th>아이디</th>
+      </tr>
+      </thead>
+      <tbody>
+      <MemberItem
+        v-for="(m, idx) in members"
+        :key="m.id"
+        :member="m"
+        :index="offset + idx + 1"
+        @deleted="fetchMembers"
+        @updated="fetchMembers"
+      />
+      </tbody>
+    </table>
 
-      <label class="radio-box">
-        <input type="radio" name="option" value="A" checked>
-        <span class="box-label">간호사</span>
-      </label>
-
-      <label class="radio-box">
-        <input type="radio" name="option" value="A" checked>
-        <span class="box-label">수 간호사</span>
-      </label>
+    <div class="pagination">
+      <button :disabled="page===1" @click="changePage(page-1)">&lt;</button>
+      <button
+        v-for="p in totalPages"
+        :key="p"
+        :class="{ active: page===p }"
+        @click="changePage(p)"
+      >{{ p }}</button>
+      <button :disabled="page===totalPages" @click="changePage(page+1)">&gt;</button>
     </div>
-
-    <div>
-
-      <label class="hospital-label">
-        <span class="hospital-label">병원</span>
-        <input type="text">
-      </label>
-
-      <label class="hospital-label">
-        <span class="hospital-label">진료과</span>
-        <input type="text">
-      </label>
-
-      <label class="hospital-label">
-        <span class="hospital-label">이름</span>
-        <input type="text">
-      </label>
-
-      <label class="hospital-label">
-        <span class="hospital-label">비밀번호</span>
-        <input type="password">
-      </label>
-
-    </div>
-
-
-    <div class="btn-box">
-      <button @click="enroll">등록</button>
-    </div>
-
-    <div v-if="message" class="alert">
-      {{message}}
-    </div>
-
-
   </div>
-
 </template>
 
 <script setup>
-import Sidebar from "@/components/common/Sidebar.vue";
-import Header from "@/components/common/Header.vue";
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import apiClient from '@/api/axios'
+import { ref, computed, onMounted } from 'vue'
+import apiClient         from '@/api/axios'
+import MemberItem        from './MemberItem.vue'
 
-const type = ref('');
-const hospital = ref('');
-const accountId = ref('');
-const password = ref('');
-const department = ref('');
-const message = ref('');
+const members    = ref([])
+const keyword    = ref('')
+const page       = ref(1)
+const size       = ref(10)
+const totalPages = ref(1)
 
-const enroll = async() =>{
+const offset = computed(() => (page.value - 1) * size.value)
 
-  try{
-    await apiClient.post('/auth/join',{
+const fetchMembers = async () => {
+  const { data } = await apiClient.get('/api/v1/members', {
+    params: { page: page.value, size: size.value, keyword: keyword.value }
+  })
+  members.value    = data.items
+  totalPages.value = data.totalPages
+}
 
-      type : type.value,
-      hospital : hospital.value,
-      department : department.value,
-      accountId : accountId.value,
-      password: password.value
-    })
+const changePage = (p) => {
+  page.value = p
+  fetchMembers()
+}
 
-    message.value = '계정 생성이 완료되었습니다.'
-  }catch(err){
-    message.value = err.response?.data?.message || "계정을 생성할 수 없습니다.";
-  }
-
-};
-
-
+onMounted(fetchMembers)
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+.member-list-page {
+  padding: 24px;
+}
 
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  border-bottom: none;
+}
 
+.search-bar {
+  max-width: 500px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 30px;
+  margin-left: auto;
 
+}
 
+.search-bar input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-bar button {
+  padding: 8px 16px;
+  background: #1b9aaa;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.member-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.member-table th,
+.member-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.page-btn, .pagination button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+.pagination button.active {
+  background: #1b9aaa;
+  color: white;
+}
 </style>

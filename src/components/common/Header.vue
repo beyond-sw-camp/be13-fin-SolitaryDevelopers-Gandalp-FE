@@ -42,11 +42,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore }  from '@/stores/auth'
 
 const router = useRouter()
 const showDropdown = ref(false)
+const auth    = useAuthStore()
+const isAdmin = computed(() => auth.type === 'ADMIN')
 
 const logout = () => {
   // 예시: 로컬스토리지 제거 후 이동
