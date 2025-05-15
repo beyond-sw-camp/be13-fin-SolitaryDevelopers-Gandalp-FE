@@ -42,16 +42,15 @@
           <label class="name-label">
             <span class="name-label">아이디</span>
             <input type="text" v-model="accountId"
-                   required
                    :placeholder="isParamedic
-                  ? 'ID 를 입력하세요 (구급대원 예시 : 동작소방서1호차)'
-                  : 'ID 를 입력하세요'"
+                  ? 'ID 를 입력하세요 (구급대원 예시 : 동작 소방서 1호차)'
+                  : 'ID 를 입력하세요 (수간호사/간호사 예시 : 중앙대학교광명병원 가정의학과 (수)간호사)'"
             />
           </label>
 
           <label class="password-label">
             <span class="password-label">비밀번호</span>
-            <input type="password" v-model="password" required placeholder="비밀번호 4자리를 입력하세요" />
+            <input type="password" v-model="password" placeholder="비밀번호 4자리를 입력하세요" />
           </label>
 
         </div>
@@ -61,18 +60,17 @@
           <button @click="enroll">등록</button>
         </div>
 
-        <div v-if="message" :class="['alert', success ? 'success' : 'error']">
-          {{ message }}
-        </div>
+        <div v-if="message" class="alert">{{ message }}</div>
+
 
       </div>
 
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import apiClient from '@/api/axios.js'
+import apiClient from '@/api/axios'
 
 const type = ref('PARAMEDIC')
 const hospital = ref('')
@@ -82,26 +80,9 @@ const department = ref('')
 const message = ref('')
 // PARAMEDIC인지 확인
 const isParamedic = computed(() => type.value === 'PARAMEDIC')
-const success = ref(false)
 
-
-// 타입 변경 시 폼 초기화
-watch(type, () => {
-  hospital.value = ''
-  department.value = ''
-  accountId.value = ''
-  password.value = ''
-  message.value = ''
-  success.value = false
-})
 
 const enroll = async() =>{
-
-
-  if (!accountId.value || !password.value) {
-    alert('아이디와 비밀번호를 모두 입력해주세요.')
-    return
-  }
 
   try{
      await apiClient.post('/auth/join',{
@@ -114,11 +95,10 @@ const enroll = async() =>{
     })
 
     message.value = '계정 생성이 완료되었습니다'
-    success.value = true
 
   }catch(err){
     message.value = err.response?.data?.message || "계정을 생성할 수 없습니다";
-    success.value = false
+
   }
 
 };
@@ -156,7 +136,6 @@ const enroll = async() =>{
   display: flex;
   align-items: center;
   cursor: pointer;
-  user-select: none;
 
   /* input 숨기기 */
   input {
@@ -238,14 +217,7 @@ const enroll = async() =>{
 .alert {
   margin-top: 16px;
   font-size: 14px;
+  color: red;
   user-select: none;
-}
-
-.alert.success {
-  color : green;
-}
-
-.alert.error {
-  color : red;
 }
 </style>

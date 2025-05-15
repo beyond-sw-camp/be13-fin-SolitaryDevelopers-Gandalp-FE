@@ -14,7 +14,7 @@
 
 <script setup>
 import { defineEmits, defineProps } from 'vue'
-import apiClient                       from '@/api/axios.js'
+import apiClient                       from '@/api/axios'
 
 const props = defineProps({
   member: Object,

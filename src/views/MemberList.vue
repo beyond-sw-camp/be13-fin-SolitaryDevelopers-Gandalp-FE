@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import apiClient         from '@/api/axios.js'
+import apiClient         from '@/api/axios'
 import MemberItem        from './MemberItem.vue'
 
 const members    = ref([])
