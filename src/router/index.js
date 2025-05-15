@@ -10,6 +10,10 @@ import MemberList from "@/views/MemberList.vue"
 import ManageOff from '@/views/ManageOff.vue'
 
 
+import UpdateNurse from '@/views/nurse/UpdateNurse.vue'
+import CreateNurse from '@/views/nurse/CreateNurse.vue'
+import NurseList from '@/views/nurse/NurseList.vue'
+
 
 const routes = [
   {
@@ -37,8 +41,7 @@ const routes = [
         name: 'memberList',
         component: MemberList
       },
-
-
+      {
         path: 'offCalendar',
         name: 'OffCalendar',
         component: OffCalendarVue
@@ -48,6 +51,21 @@ const routes = [
         name: 'manageOff',
         component: ManageOff
       },
+      {
+        path: '/nurses',
+        name: 'CreateNurse',
+        component: CreateNurse
+      },
+      {
+        path: `/nurses/:id`,
+        name: 'UpdateNurse',
+        component: UpdateNurse
+      },
+      {
+        path: '/nurseList',
+        name: 'NurseList',
+        component: NurseList
+      }
     ],
   },
   {
