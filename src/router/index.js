@@ -2,17 +2,19 @@ import { createRouter, createWebHistory } from 'vue-router'
 import BaseLayout from '../layout/BaseLayout.vue'
 import CalendarBaseLayout from '../layout/CalendarBaseLayout.vue'
 import ShowOffVue from '../views/showOff.vue'
+import OffCalendarVue from '../views/OffCalendar.vue'
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
 import JoinMember from "@/views/JoinMember.vue"
 import MemberList from "@/views/MemberList.vue"
+import ManageOff from '@/views/ManageOff.vue'
 
 
 
 const routes = [
   {
     path: '/',
-    name: 'base',
+    name: 'home',
     component: BaseLayout,
     children: [
       {
@@ -36,6 +38,16 @@ const routes = [
         component: MemberList
       },
 
+
+        path: 'offCalendar',
+        name: 'OffCalendar',
+        component: OffCalendarVue
+      },
+      {
+        path: 'manageOff',
+        name: 'manageOff',
+        component: ManageOff
+      },
     ],
   },
   {

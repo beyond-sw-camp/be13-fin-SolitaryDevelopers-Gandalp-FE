@@ -6,7 +6,7 @@
     <nav class="nav">
 
 
-      <div v-if ="!isAdmin">
+      <div v-if ="isAdmin">
         <RouterLink to="/joinMember">계정 생성</RouterLink>
         <RouterLink to="/memberList">계정 목록</RouterLink>
 
@@ -27,6 +27,7 @@
             <RouterLink to="/off-management">오프 관리</RouterLink>
             <RouterLink to="/work-management">근무 관리</RouterLink>
           </div>
+
         </div>
 
         <RouterLink to="/analytics">분석 차트</RouterLink>
@@ -36,26 +37,38 @@
     </nav>
 
     <div class="auth-btn">
-      <button @click="logout">로그아웃</button>
+      <button v-if="isLoggedIn"  @click="logout">로그아웃</button>
+      <button v-else @click="login">로그인</button>
     </div>
   </header>
 </template>
 
 <script setup>
+
 import { ref, computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import { useAuthStore }  from '@/stores/auth'
 
 const router = useRouter()
 const showDropdown = ref(false)
 const auth    = useAuthStore()
 const isAdmin = computed(() => auth.type === 'ADMIN')
 
-const logout = () => {
-  // 예시: 로컬스토리지 제거 후 이동
-  localStorage.removeItem('token')
-  router.push('/login')
+const auth = useAuthStore()
+const {isLoggedIn} = storeToRefs(auth)
+
+const login = () => {
+  router.push("/login")
 }
+
+const logout = () => {
+  auth.logout();
+  router.push("/login");
+
+}
+
+
 </script>
 
 <style scoped>

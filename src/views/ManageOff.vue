@@ -19,7 +19,7 @@
       <th>작성자</th>
       <th>완료 여부</th>
       <th>최근 수정일자</th>
-      <th>취소</th>
+      <th>승인</th>
     </tr>
   </thead>
   <tbody>
@@ -40,13 +40,10 @@
       </span>
     </td>
     <td>{{ formatDateTime(item.updatedAt) }}</td>
-    <td><button v-if="item.codeLabel !== '반려'" class="cancel-btn" v-on:click="deleteOff(item.offScheduleTempId)">취소</button></td>
+    <td><button v-if="item.codeLabel === '대기중'" class="cancel-btn" v-on:click="acceptOff(item.offScheduleTempId)">승인</button></td>
     </tr>
   </tbody>
 </table>
-  <button class="create-off" v-on:click="goToOffCalendar">
-    오프 신청
-  </button>
   
   <div class="pagination">
   <button
@@ -90,16 +87,12 @@ const scheduleList = ref([])
 const currentPage = ref(1)
 const hasMore = ref(true)
 
-const goToOffCalendar = () => {
-  router.push({ path: '/OffCalendar' })
-}
-
-const deleteOff = async (scheduleTempId) => {
-  const confirmed = confirm('정말로 이 오프 신청을 취소하시겠습니까?')
+const acceptOff = async (scheduleTempId) => {
+  const confirmed = confirm('이 오프 신청을 승인하시겠습니까?')
   if (!confirmed) return
   try {
-    await apiClient.delete(`/schedules/off/temp/${scheduleTempId}`)
-    alert('취소되었습니다.')
+    await apiClient.post(`/schedules/acceptOff/${scheduleTempId}`)
+    alert('승인태] 되었습니다.')
     
      // 검색 조건이 있을 경우만 검색 API 호출
     if (searchType.value && searchKeyword.value) {
@@ -110,8 +103,8 @@ const deleteOff = async (scheduleTempId) => {
 
 
   } catch (err) {
-    console.error('삭제 실패:', err)
-    alert('삭제 중 오류가 발생했습니다.')
+    console.error('승인 실패:', err)
+    alert('승인 중 오류가 발생했습니다.')
   }
 }
 
@@ -248,28 +241,6 @@ onMounted(fetchList)
   background-color: #fff7e6; /* 옅은 노랑 */
   color: #f39c12;
 }
-
-.create-off{
-  width: 6%;
-  height: 36px;
-  margin-left: 94%;
-  background: linear-gradient(to right, #ADDDF9 0%, #C2EBFF 100%);
-  border: none;
-  color: #000;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  line-height: 1;
-  padding: 0 8px;
-  transition: all 0.2s ease-in-out;
-}
-.create-off:hover {
-  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
-}
   .search-btn {
   width: 5%;
   height: 36px;
@@ -337,7 +308,7 @@ onMounted(fetchList)
 .cancel-btn{
   width: 50%;
   height: 36px;
-  background: linear-gradient(to right, #F2A39F 0%, #F5B8B4 100%);
+  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
   border: none;
   color: #000;
   font-size: 13px;
@@ -350,7 +321,7 @@ onMounted(fetchList)
   transition: all 0.2s ease-in-out;
 }
 .cancel-btn:hover {
-  background: linear-gradient(to right, #F2A39F 0%, #F5B8B4 100%);
+  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
 }
