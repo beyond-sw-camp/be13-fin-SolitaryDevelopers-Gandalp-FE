@@ -35,13 +35,12 @@ import NurseStatusSidebar from './NurseStatusSidebar.vue';
 .sidebar {
   width: 240px;
   padding: 16px;
-  background: linear-gradient(180deg, #ADDDF9 34%, #C2EBFF 67%);
-  border-right: 1px solid #ccc;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
+  background-color: #f5f5f5;
   box-sizing: border-box;
+  border: none;              /* ✅ 테두리 없음 */
   display: flex;
   flex-direction: column;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   gap: 20px;
 }
 
@@ -61,7 +60,15 @@ import NurseStatusSidebar from './NurseStatusSidebar.vue';
   object-fit: contain;
 }
 
-.notice-section,
+.notice-section {
+  background-color: white;
+    border: #ddd solid 1px;
+  border-radius: 10px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding-top: 10px;
+    padding-left: 10px;
+
+}
 .status-section {
   display: flex;
   flex-direction: column;
@@ -73,17 +80,17 @@ import NurseStatusSidebar from './NurseStatusSidebar.vue';
   margin: 0;
   font-size: 16px;
   font-weight: bold;
-  color: #333;
+  
 }
 
 .notice-box {
-  background-color: #f4f4f4;
+  
   padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   font-size: 14px;
   max-height: 200px;
   overflow-y: auto;
+
+
 }
 
 .notice-content p {

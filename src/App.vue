@@ -30,4 +30,12 @@
     auth.checkLogin()
   })
   </script>
+  <style>
+    @font-face {
+      font-family: 'NanumSquareRound';
+      src: url('src\assets\fonts\NanumFontSetup_OTF_SQUARE\NanumSquareOTF_acR.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
+  </style>  
   
