@@ -254,17 +254,17 @@ onMounted(fetchList)
 
 /* 상태별 색상 */
 .approved {
-  background-color: #d9f5ef; /* 옅은 민트 */
+  /* background-color: #d9f5ef; */
   color: #26a69a; /* 진한 민트 */
 }
 
 .rejected {
-  background-color: #fbeaea; /* 옅은 빨강 */
+  /* background-color: #fbeaea;  */
   color: #e74c3c;
 }
 
 .pending {
-  background-color: #fff7e6; /* 옅은 노랑 */
+  /* background-color: #fff7e6;  */
   color: #f39c12;
 }
   .search-btn {

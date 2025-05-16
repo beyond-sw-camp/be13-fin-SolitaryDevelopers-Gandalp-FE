@@ -1,4 +1,5 @@
 <template>
+  <div class="status-border">
   <div class="status-header">
     <div class="status-title-box" @click="toggleOpen">
       <span class="arrow">{{ isOpen ? '▾' : '▸' }}</span>
@@ -45,15 +46,12 @@
 
       <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
-      <div class="modal-actions">
-        <button @click="submitStatus">확인</button>
-        <button @click="closeModal">취소</button>
+        <div class="modal-actions">
+          <button @click="submitStatus">확인</button>
+          <button @click="closeModal">취소</button>
+        </div>
       </div>
     </div>
-  </div>
-
-  <!-- 토스트 알림 -->
-  <div v-if="toastMessage" class="toast">{{ toastMessage }}</div>
 
 </template>
 
@@ -136,6 +134,13 @@ onMounted(fetchStatus)
 </script>
 
 <style>
+.status-border {
+  border: #ddd solid 1px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+
+}
 .status-header {
   display: flex;
   justify-content: space-between;
@@ -144,7 +149,11 @@ onMounted(fetchStatus)
 }
 
 .arrow {
-  font-size: 14px;
+  margin-left: 13px;
+  font-size: 18px;
+}
+.status-title-box {
+  padding-top: 10px;
 }
 .status-title {
   font-size: 16px;
@@ -152,20 +161,23 @@ onMounted(fetchStatus)
 }
 .status-list li {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   margin-bottom: 10px;
+  font-size: 12px;
 }
 .nurse-name {
-  font-weight: bold;
+  font-weight: normal;
+  font-size: 11px;
 }
 .status-indicator {
   display: flex;
   align-items: center;
+  margin-right: 40px;
   gap: 10px;
 }
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
 .pink {
@@ -189,7 +201,7 @@ onMounted(fetchStatus)
   cursor: pointer;
 }
 .edit-btn .icon {
-  font-size: 20px;
+  font-size: 20px; /* 원하는 크기로 조절 (예: 24px, 28px 등) */
   display: flex;
   align-items: center;
   justify-content: center;

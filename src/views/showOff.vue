@@ -1,15 +1,19 @@
 <template>
     <div class="off-schedule-page">
-      <h2 class="title">오프 일정 조회</h2>
+      <h2 class="title" style="color: black;">오프 일정 조회</h2>
   
       <div class="search-bar">
-        <select v-model="searchType">
+        <select class="search-option" v-model="searchType">
           <option disabled value="">검색 기준 선택</option>
           <option value="email">이메일</option>
           <option value="name">이름</option>
         </select>
-        <input v-model="searchKeyword" placeholder="검색어를 입력하세요" />
-        <button class="search-btn" @click="fetchListByEmailOrName(searchType, searchKeyword)">검색</button>
+        <input class="search-input" v-model="searchKeyword" placeholder="검색어를 입력하세요" />
+        <button class="search-btn" @click="fetchListByEmailOrName(searchType, searchKeyword)">
+          <!-- <div style="color: #a0adb4;"> -->
+            검색
+          <!-- </div> -->
+        </button>
       </div>
   
       <table class="schedule-table">
@@ -22,7 +26,7 @@
       <th>취소</th>
     </tr>
   </thead>
-  <tbody>
+  <tbody class="tbody">
     <tr v-for="item in scheduleList" :key="item.offScheduleTempId">
     <td style="text-align: left
     ;">{{ formatKoreanDate(item.startTime) }}</td> <!-- 🟡 날짜 범위 포맷 적용 -->
@@ -44,9 +48,9 @@
     </tr>
   </tbody>
 </table>
-  <button class="create-off" v-on:click="goToOffCalendar">
-    오프 신청
-  </button>
+<div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+  <button class="create-off" @click="goToOffCalendar">오프 신청</button>
+</div>
   
   <div class="pagination">
   <button
@@ -195,11 +199,21 @@ onMounted(fetchList)
 
   
   <style scoped>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
   .off-schedule-page {
     padding: 24px;
+    background: white;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+                -2px -2px 5px rgba(255, 255, 255, 0.8); /* 양쪽 그림자 효과 */
+    border-radius: 10px;
+  }
+  .tbody {
+    font-family: 'Noto-sans KR', sans-serif;
+    font-size: 12px;
   }
   .title {
-    font-size: 20px;
+    text-align: center;
+    font-size: 18px;
     font-weight: bold;
     margin-bottom: 16px;
     margin-top: 5px;
@@ -208,18 +222,49 @@ onMounted(fetchList)
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
+    margin-left:957px;
+  }
+  .search-input {
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+                -2px -2px 5px rgba(255, 255, 255, 0.8); /* 양쪽 그림자 효과 */
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 11px;
+    transition: all 0.2s ease-in-out;
+    outline: none;
+  }
+  .search-option {
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+                -2px -2px 5px rgba(255, 255, 255, 0.8); /* 양쪽 그림자 효과 */
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 11px;
+    transition: all 0.2s ease-in-out;
+    outline: none;
   }
   .thead{
-    background: linear-gradient(to right, #ADDDF9 0%, #C2EBFF 100%);
+    /* background: linear-gradient(to right, #dee5ef 0%, #dee5ef 100%); */
+    background: rgb(36, 36, 36);
     border: none;
-    color: #000;
-    font-size: 13px;
-    font-weight: bold;
+    color: #fff;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+    
     line-height: 1;
     padding: 0 8px;
+
+    height: 40px;
+
+    font-family: "Noto Sans KR", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 13px; 
   }
+
   .schedule-table {
     width: 100%;
     border-collapse: collapse;
@@ -235,66 +280,68 @@ onMounted(fetchList)
 
 /* 상태별 색상 */
 .approved {
-  background-color: #d9f5ef; /* 옅은 민트 */
+  /* background-color: #d9f5ef; */
   color: #26a69a; /* 진한 민트 */
 }
 
 .rejected {
-  background-color: #fbeaea; /* 옅은 빨강 */
+  /* background-color: #fbeaea;  */
   color: #e74c3c;
 }
 
 .pending {
-  background-color: #fff7e6; /* 옅은 노랑 */
+  /* background-color: #fff7e6;  */
   color: #f39c12;
 }
+.create-off {
+  height: 36px;
+  background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%);
+  border: none;
+  color: #000;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  line-height: 1;
+  padding: 0 16px;
+  transition: all 0.2s ease-in-out;
+  align-self: flex-end;
+}
 
-.create-off{
-  width: 6%;
-  height: 36px;
-  margin-left: 94%;
-  background: linear-gradient(to right, #ADDDF9 0%, #C2EBFF 100%);
-  border: none;
-  color: #000;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  line-height: 1;
-  padding: 0 8px;
-  transition: all 0.2s ease-in-out;
-}
 .create-off:hover {
-  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
+  /* background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%); */
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
+  transform: translateY(-1px);
 }
-  .search-btn {
-  width: 5%;
-  height: 36px;
-  background: linear-gradient(to right, #ADDDF9 0%, #C2EBFF 100%);
-  border: none;
-  color: #000;
-  font-size: 13px;
-  font-weight: bold;
+
+.search-btn {
+  height: 32px;
+  min-width: 70px;
+  background: white;
+  border: 1.3px solid #a0adb4;
+  font-size: 0.85rem;
+  font-weight: normal;
   cursor: pointer;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   line-height: 1;
-  padding: 0 8px;
+  padding: 0 12px;
   transition: all 0.2s ease-in-out;
+  margin-top: 2px;
 }
 
 .search-btn:hover {
-  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
+  background-color: rgba(0, 0, 0, 0.2) ;
+  color: white  !important;
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
+  transform: translateY(-1px);
 }
+
+
 
   .schedule-table th,
   .schedule-table td {
-    border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
   }
@@ -318,13 +365,13 @@ onMounted(fetchList)
 }
 
 .page-btn:hover:not(:disabled) {
-  border-color: #409eff;
-  color: #409eff;
+  border-color: #a9adb4;
+  color: #a9adb4;
 }
 
 .page-btn.active {
-  border: 2px solid #409eff;
-  color: #409eff;
+  border: 2px solid #a9adb4;
+  color: #a9adb4;
   font-weight: bold;
 }
 
@@ -333,26 +380,26 @@ onMounted(fetchList)
   border-color: #eee;
   cursor: not-allowed;
 }
-
-.cancel-btn{
-  width: 50%;
-  height: 36px;
-  background: linear-gradient(to right, #F2A39F 0%, #F5B8B4 100%);
+.cancel-btn {
+  height: 25px;
+  min-width: 60px;
+  background: linear-gradient(to right, #f1dfdf 0%, #f1dfdf  100%);
   border: none;
   color: #000;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  line-height: 1;
   padding: 0 8px;
   transition: all 0.2s ease-in-out;
 }
+
 .cancel-btn:hover {
-  background: linear-gradient(to right, #F2A39F 0%, #F5B8B4 100%);
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
+  transform: translateY(-1px);
 }
+
+
   </style>
   
