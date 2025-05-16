@@ -19,7 +19,7 @@
       <th>작성자</th>
       <th>완료 여부</th>
       <th>최근 수정일자</th>
-      <th>승인</th>
+      <th>관리</th>
     </tr>
   </thead>
   <tbody>
@@ -40,7 +40,10 @@
       </span>
     </td>
     <td>{{ formatDateTime(item.updatedAt) }}</td>
-    <td><button v-if="item.codeLabel === '대기중'" class="cancel-btn" v-on:click="acceptOff(item.offScheduleTempId)">승인</button></td>
+    <td>
+      <button v-if="item.codeLabel === '대기중'" class="accept-btn" v-on:click="acceptOff(item.offScheduleTempId)">승인</button>
+      <button v-if="item.codeLabel === '승인'" class="reject-btn" v-on:click="rejectOff(item.offScheduleTempId)">반려</button>
+    </td>
     </tr>
   </tbody>
 </table>
@@ -92,7 +95,7 @@ const acceptOff = async (scheduleTempId) => {
   if (!confirmed) return
   try {
     await apiClient.post(`/schedules/acceptOff/${scheduleTempId}`)
-    alert('승인태] 되었습니다.')
+    alert('승인되었습니다.')
     
      // 검색 조건이 있을 경우만 검색 API 호출
     if (searchType.value && searchKeyword.value) {
@@ -105,6 +108,29 @@ const acceptOff = async (scheduleTempId) => {
   } catch (err) {
     console.error('승인 실패:', err)
     alert('승인 중 오류가 발생했습니다.')
+  }
+}
+
+const rejectOff = async (scheduleTempId) => {
+  console.log(scheduleTempId);
+  
+  const confirmed = confirm('이 오프를 반려하시겠습니까?')
+  if (!confirmed) return
+  try {
+    await apiClient.put(`/schedules/rejectOff/${scheduleTempId}`)
+    alert('반려되었습니다.')
+    
+     // 검색 조건이 있을 경우만 검색 API 호출
+    if (searchType.value && searchKeyword.value) {
+      fetchListByEmailOrName(searchType.value, searchKeyword.value)
+    } else {
+      fetchList() // 전체 목록 새로고침
+    }
+
+
+  } catch (err) {
+    console.error('반려 실패:', err)
+    alert('반려 중 오류가 발생했습니다.')
   }
 }
 
@@ -305,7 +331,7 @@ onMounted(fetchList)
   cursor: not-allowed;
 }
 
-.cancel-btn{
+.accept-btn{
   width: 50%;
   height: 36px;
   background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
@@ -320,8 +346,29 @@ onMounted(fetchList)
   padding: 0 8px;
   transition: all 0.2s ease-in-out;
 }
-.cancel-btn:hover {
+.accept-btn:hover {
   background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
+}
+
+.reject-btn {
+  width: 50%;
+  height: 36px;
+  background: linear-gradient(to right, #F2A39F 0%, #F5B8B4 100%);
+  border: none;
+  color: #000;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  line-height: 1;
+  padding: 0 8px;
+  transition: all 0.2s ease-in-out;
+}
+.reject-btn:hover {
+  background: linear-gradient(to right, #F2A39F 0%, #F5B8B4 100%);
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
 }

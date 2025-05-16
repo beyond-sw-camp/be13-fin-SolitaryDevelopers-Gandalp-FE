@@ -33,7 +33,7 @@
               {{ item.boardStatusLabel }}
             </span>
           </td>
-          <td>{{ formatDateTime(item.createdAt) }}</td>
+          <td>{{ formatDateTime(item.updatedAt) }}</td>
         </tr>
       </tbody>
     </table>
