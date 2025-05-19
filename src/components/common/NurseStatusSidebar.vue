@@ -1,8 +1,8 @@
 <template>
+  <div class="status-border">
   <div class="status-header">
-    <div class="status-title-box" @click="toggleOpen">
-      <span class="arrow">{{ isOpen ? '▾' : '▸' }}</span>
-      <span class="status-title">근무 현황</span>
+    <div class="status-title-box" >
+      <span class="status-title"> 근무 현황</span>
     </div>
     <button class="edit-btn" @click="showModal = true"> 
       <span class="icon">⚙️</span> 
@@ -10,8 +10,8 @@
   </div>
 
 
-  <ul v-if="isOpen" class="status-list">
-    <li v-for="nurse in nurses" :key="nurse.name">
+  <ul class="status-list">
+    <li v-for="nurse in nurses" :key="nurse.id">
       <span class="nurse-name">{{ nurse.name }}</span>
       <span class="status-indicator">
         <span class="dot" :class="getColor(nurse.workingStatus)"></span>
@@ -21,20 +21,29 @@
   </ul>
 
     <!-- 모달 팝업 -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal">
-        <h4>근무 상태 수정</h4>
-        <div class="modal-content">
-          <input type="text" v-model="form.email" placeholder="간호사 이메일" />
-          <input type="password" v-model="form.password" placeholder="비밀번호" />
-          <select v-model="form.workingStatus">
-            <option value="ON">근무 중</option>
-            <option value="OFF">오프</option>
-            <option value="IN_SURGERY">수술 중</option>
-          </select>
-        </div>
+  <div v-if="showModal" class="modal-overlay">
+    <div class="modal">
+      <h4>근무 상태 수정</h4>
 
-        <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
+        <!-- 간호사 선택 드롭다운  -->
+        <select v-model="selectedNurseId">
+          <option disabled :value="null">간호사를 선택하세요 </option>
+          <option v-for="nurse in nurses" :key="nurse.id" :value="nurse.id">
+            {{ nurse.name }}
+          </option>
+        </select>
+
+        <!-- 비밀번호 입력 -->
+        <input type="password" v-model="form.password" placeholder="비밀번호" />
+
+        <!-- 상태 선택 -->
+        <select v-model="form.workingStatus">
+          <option value="ON">근무 중</option>
+          <option value="OFF">오프</option>
+          <option value="IN_SURGERY">수술 중</option>
+        </select>
+
+      <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
         <div class="modal-actions">
           <button @click="submitStatus">확인</button>
@@ -42,24 +51,27 @@
         </div>
       </div>
     </div>
-
+  </div>
+  <div v-if="toastMessage" class="toast">{{ toastMessage }}</div>
 </template>
+
+
 <script setup>
 
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import apiClient from '@/api/axios'
 
 const nurses = ref([])
-const isOpen = ref(true)
 const showModal = ref(false)
 const errorMessage = ref('')
-const form = ref({
-  email: '',
+const toastMessage = ref('')
+const selectedNurseId = ref(null)
+
+
+const form = reactive({
   password: '',
   workingStatus: 'ON',
 })
-
-const toggleOpen = () => (isOpen.value = !isOpen.value)
 
 const fetchStatus = async () => {
   const res = await apiClient.get('/nurses/status')
@@ -79,27 +91,58 @@ const getLabel = (status) => {
 
 const closeModal = () => {
   showModal.value = false
-  form.value = { email: '', password: '', workingStatus: 'ON' }
+  selectedNurseId.value = null
+  form.password = ''
+  form.workingStatus = 'ON'
   errorMessage.value = ''
+}
+
+const showToast = (message) => {
+  toastMessage.value = message;
+  setTimeout(() => {
+    toastMessage.value = ''
+  }, 2500)
 }
 
 const submitStatus = async () => {
   try {
-    const res = await apiClient.post('/nurses/status', form.value)
+
+
+    const payload = {
+      nurseId: selectedNurseId.value,
+      password: form.password,
+      workingStatus: form.workingStatus
+    }
+
+    console.log(payload)
+    const res = await apiClient.post('/nurses/status', payload)
+
     if (res.status === 200) {
       await fetchStatus()
       closeModal()
+      showToast('근무 상태가 수정되었습니다! ')
     }
   } catch (err) {
-    errorMessage.value = '⚠️ 비밀번호가 틀렸거나 오류가 발생했습니다.'
+    if(err.response && err.response.status === 401 ){
+      errorMessage.value = '비밀번호가 틀렸습니다.'
+    } else{
+      errorMessage.value = '오류가 발생했습니다.'
+    }
+    
   }
 }
 
 onMounted(fetchStatus)
 </script>
 
-
 <style>
+.status-border {
+  border: #ddd solid 1px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+
+}
 .status-header {
   display: flex;
   justify-content: space-between;
@@ -108,41 +151,57 @@ onMounted(fetchStatus)
 }
 
 .arrow {
-  font-size: 14px;
+  margin-left: 13px;
+  font-size: 18px;
+}
+.status-title-box {
+  padding-top: 10px;
 }
 .status-title {
   font-size: 16px;
   font-weight: bold;
-}
-.status-list li {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  padding-left: 16px;
 }
 
+
+.status-label {
+  width: 60px;
+  
+}
+
+
+.status-list li {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 10px;
+  font-size: 12px;
+  align-items: center;
+  gap: 20px;
+  padding-left: 10%;
+}
 .nurse-name {
-  font-weight: bold;
+  font-weight: normal;
+  font-size: 11px;
 }
 .status-indicator {
+  padding-left: 15%;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
 }
-.pink { background-color: #f06292; }
-.blue { background-color: #64b5f6; }
-.gray { background-color: #b0bec5; }
-
-
-.status-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+.pink {
+  background-color: #f06292;
+}
+.blue {
+  background-color: #64b5f6;
+}
+.gray {
+  background-color: #b0bec5;
 }
 
 .edit-btn {
@@ -155,9 +214,6 @@ onMounted(fetchStatus)
   border-radius: 6px;
   cursor: pointer;
 }
-.edit-btn:hover {
-  background: transparent;
-}
 .edit-btn .icon {
   font-size: 20px; /* 원하는 크기로 조절 (예: 24px, 28px 등) */
   display: flex;
@@ -165,8 +221,6 @@ onMounted(fetchStatus)
   justify-content: center;
 }
 
-
-/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -187,13 +241,11 @@ onMounted(fetchStatus)
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s ease;
 }
-
 .modal h4 {
   margin-top: 10px;
   font-size: 18px;
   font-weight: bold;
 }
-
 .modal input,
 .modal select {
   width: 100%;
@@ -202,15 +254,12 @@ onMounted(fetchStatus)
   border-radius: 6px;
   border: 1px solid #ccc;
   font-size: 14px;
-  box-sizing: border-box;
 }
-
 .modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
-
 .modal-actions button {
   padding: 8px 14px;
   border: none;
@@ -218,17 +267,14 @@ onMounted(fetchStatus)
   cursor: pointer;
   font-weight: 600;
 }
-
 .modal-actions button:first-child {
   background-color: #64b5f6;
   color: white;
 }
-
 .modal-actions button:last-child {
   background-color: #eee;
   color: #333;
 }
-
 .error-msg {
   color: red;
   font-size: 13px;
@@ -236,9 +282,28 @@ onMounted(fetchStatus)
   text-align: center;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+/* ✅ 토스트 메시지 */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #4caf50;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 9999;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 </style>
