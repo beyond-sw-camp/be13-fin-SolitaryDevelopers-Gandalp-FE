@@ -5,17 +5,20 @@ import ShowOffVue from '../views/showOff.vue'
 import OffCalendarVue from '../views/OffCalendar.vue'
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
-import JoinMember from "@/views/JoinMember.vue"
-import MemberList from "@/views/MemberList.vue"
+import JoinMember from "@/views/admin/JoinMember.vue"
+import MemberList from "@/views/admin/MemberList.vue"
 import ManageOff from '@/views/ManageOff.vue'
 import ShowShifts from '@/views/Shift/ShowShifts.vue'
 import CreateShiftChange from '@/views/Shift/CreateShiftChange.vue'
-
 
 import UpdateNurse from '@/views/nurse/UpdateNurse.vue'
 import CreateNurse from '@/views/nurse/CreateNurse.vue'
 import NurseList from '@/views/nurse/NurseList.vue'
 
+import StatisticTabsView from "@/views/statistic/StatisticTabsView.vue";
+
+import ShowHospitalList from "@/views/hospital/ShowHospitalList.vue";
+import UpdateEr from "@/views/hospital/UpdateEr.vue";
 
 const routes = [
   {
@@ -77,7 +80,12 @@ const routes = [
         path: '/nurseList',
         name: 'NurseList',
         component: NurseList
-      }
+      },
+      {
+        path: '/statistics',
+        name: 'Statistics',
+        component: StatisticTabsView
+      },
     ],
   },
   {
@@ -97,6 +105,16 @@ const routes = [
     name: 'login',
     component: Login
   },
+  {
+    path: '/hospitalList',
+    name: 'ShowHospitalList',
+    component: ShowHospitalList
+  },
+  {
+    path: '/updateEr',
+    name: 'UpdateEr',
+    component: UpdateEr
+  }
 
 
 ]

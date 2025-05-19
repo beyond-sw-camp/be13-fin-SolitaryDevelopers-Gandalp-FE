@@ -1,0 +1,283 @@
+<template>
+  <div class="member-list-page">
+    <h2 class="title">계정 목록</h2>
+
+    <form class="search-bar"
+          @submit.prevent="fetchMembers"
+          @keydown.enter.prevent="fetchMembers"
+    >
+
+      <select v-model="selectedType">
+        <option value="">전체 타입</option>
+        <option v-for="t in types" :key="t" :value="t">
+          {{ t }}
+        </option>
+      </select>
+
+      <select v-model="selectedOption">
+        <option value="">전체 검색</option>
+        <option v-for="opt in options" :key="opt.value" :value="opt.value">
+          {{ opt.label }}
+        </option>
+      </select>
+
+
+      <input v-model="keyword"
+             placeholder="검색어를 입력하세요" />
+
+      <button class=search-btn type="submit">검색</button>
+    </form>
+
+    <div class="table-container">
+      <table class="member-table">
+        <thead>
+        <tr>
+          <th></th>
+          <th>병원명</th>
+          <th>분류</th>
+          <th>진료과</th>
+          <th>아이디</th>
+          <th></th>
+        </tr>
+        </thead>
+        <tbody v-if="loading">
+        <tr>
+          <td :colspan="6" class="loading-cell">데이터를 불러오는 중...</td>
+        </tr>
+        </tbody>
+        <tbody v-else>
+        <MemberItem
+          v-for="(m, idx) in members"
+          :key="m.id"
+          :member="m"
+          :index="offset + idx + 1"
+          @deleted="fetchMembers"
+          @edit="onMemberEdit"
+        />
+
+        <tr v-if="!loading && members.length === 0">
+          <td :colspan="6" class="empty-cell">검색 결과가 없습니다.</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <div v-if="loading" class="overlay">
+        <div class="spinner">로딩 중</div>
+      </div>
+    </div>
+
+
+    <MemberUpdateModal
+           v-if="editingMember"
+           :model-value="editingMember"
+           @update:modelValue="editingMember = $event"
+           @saved="fetchMembers"
+           @closed="editingMember = null"
+         />
+
+    <div class="pagination">
+      <button :disabled="page===1" @click="changePage(page-1)">&lt;</button>
+      <button
+        v-for="p in totalPages"
+        :key="p"
+        :class="{ active: page===p }"
+        @click="changePage(p)"
+      >{{ p }}</button>
+      <button :disabled="page===totalPages" @click="changePage(page+1)">&gt;</button>
+    </div>
+
+
+
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import apiClient         from '@/api/axios.js'
+import MemberItem        from './MemberItem.vue'
+import MemberUpdateModal from './MemberUpdateModal.vue'
+
+
+const members    = ref([])
+const editingMember = ref(null)
+const keyword    = ref('')
+const page       = ref(1)
+const size       = ref(10)
+const totalPages = ref(1)
+const selectedType  = ref('')
+const selectedOption= ref('')
+const types = ['ADMIN','PARAMEDIC','HEAD_NURSE','NURSE']
+const options = [
+  { value: 'HOSPITAL',    label: '병원명' },
+  { value: 'DEPARTMENT',  label: '진료과' },
+  { value: 'ACCOUNT_ID',  label: '아이디' },
+]
+
+const offset = computed(() => (page.value - 1) * size.value)
+
+const loading = ref(false)
+
+const onMemberEdit = (member) => {
+  // 기존 데이터 들어있음
+  editingMember.value = { ...member }
+}
+
+const fetchMembers = async () => {
+
+  if (!members.value.length) loading.value = true
+
+
+  try {
+    const response = await apiClient.get('/members', {
+      params: {
+        page: page.value - 1,
+        size: size.value,
+        keyword: keyword.value || undefined,
+        type:      selectedType.value || undefined,
+        option:    selectedOption.value || undefined,
+      }
+    })
+
+    console.log('[fetchMembers] response:', response)
+    console.log('[fetchMembers] data:', response.data)
+
+    const { content, number, totalPages: tp } = response.data
+    members.value = response.data.content // 리스트
+    totalPages.value = response.data.totalPages // 총 페이지 수
+    page.value = response.data.number + 1 // 기본 0이라 1로
+  } catch (err) {
+    members.value = []
+    console.error('[fetchMembers] error:', err)
+    if (err.response) {
+      console.error(
+        `[fetchMembers] status ${err.response.status}`,
+        err.response.data
+      )
+    }
+  } finally{
+    loading.value = false
+  }
+}
+const changePage = (p) => {
+  if(p < 1 || p > totalPages.value) return
+  page.value = p
+  fetchMembers()
+}
+
+onMounted(fetchMembers)
+</script>
+
+<style scoped>
+.member-list-page {
+  padding: 24px;
+}
+
+.search-bar select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-right: 8px;
+  background: white;
+  font-size: 14px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  border-bottom: none;
+}
+
+.search-bar {
+  height: 40px;
+  max-width: 600px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 30px;
+  margin-left: auto;
+
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: horizontal-tb;
+  width:100px;
+  padding: 8px 16px;
+  background: #1b9aaa;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.loading-cell,
+.empty-cell {
+  text-align: center;
+  padding: 24px;
+  color: #666;
+}
+.table-container { position: relative; } /* [UPDATED] */
+
+.overlay { /* [UPDATED] */
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.member-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 16px;
+}
+
+.member-table thead th {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 2px solid #ddd; /* 헤더 아래 가로선 */
+  border-left: none;
+  border-right: none;
+}
+
+
+.member-table tbody td {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid #ddd; /* 본문 각 행 사이 가로선 */
+  border: none;
+}
+
+.member-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.page-btn, .pagination button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+.pagination button.active {
+  background: #1b9aaa;
+  color: white;
+}
+</style>
