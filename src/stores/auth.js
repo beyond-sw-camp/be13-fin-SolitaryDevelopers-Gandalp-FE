@@ -47,7 +47,14 @@ export const useAuthStore = defineStore('auth', () => {
             }
 
         }catch (e){
-            console.log(e);
+            console.log('error: ', e);
+
+            // 서버에서 에러 메시지를 보냈다면 그걸 alert에 출력
+            if (e.response && e.response.data) {
+                alert(e.response.data);
+            } else {
+                alert('알 수 없는 오류가 발생했습니다.');
+            }
         }        
     }
 
