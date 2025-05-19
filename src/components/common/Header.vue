@@ -12,6 +12,12 @@
 
       </div>
 
+
+      <!-- 응급대원인 경우 지도 검색만 볼 수 있음 -->
+<!--      <div v-else-if="isParamedic">-->
+<!--        <RouterLink to="/hospitalList">병상 수용 정보</RouterLink>-->
+<!--      </div>-->
+
       <div v-else>
 
 
@@ -30,8 +36,11 @@
 
         </div>
 
-        <RouterLink to="/analytics">분석 차트</RouterLink>
-        
+        <RouterLink to="/statistics">분석 차트</RouterLink>
+
+        <RouterLink to="/updateEr">병상 수용 정보</RouterLink>
+
+
 
         <div class="dropdown" v-if="isHeadNurse"  @mouseenter="showNurseDropDown = true" @mouseleave="showNurseDropDown = false">
           <span class="menu-title">간호사 관리 ▾</span>
@@ -62,8 +71,8 @@ const router = useRouter()
 const showDropdown = ref(false)
 const auth    = useAuthStore()
 const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
-
-const isHeadNurse = computed(() => auth.userInfo.type === 'HEAD_NURSE') 
+const isParamedic  = computed(() => auth.userInfo.type === 'PARAMEDIC')
+const isHeadNurse = computed(() => auth.userInfo.type === 'HEAD_NURSE')
 const showNurseDropDown = ref(false)
 
 

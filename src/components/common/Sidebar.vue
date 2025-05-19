@@ -4,7 +4,7 @@
       <img :src="gandalpLogo" alt="GANDALP 로고" />
     </div>
 
-      <div class="notice-section" >
+      <div class="notice-section"  v-if ="!isAdmin">
         <h4 class="notice-title">📌 공지사항</h4>
         <div class="notice-box">
           <div class="notice-content">
@@ -21,12 +21,18 @@
       </div>
 
         <!--  -->
-        <NurseStatusSidebar/>
+        <NurseStatusSidebar v-if="!isAdmin"/>
     </div>
 </template>
 <script setup>
 import gandalpLogo from '@/assets/sidebar/gandalp_logo.png'
 import NurseStatusSidebar from './NurseStatusSidebar.vue';
+import {useAuthStore} from "@/stores/auth.js";
+import {computed} from "vue";
+
+
+const auth    = useAuthStore()
+const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
 
 
 </script>
