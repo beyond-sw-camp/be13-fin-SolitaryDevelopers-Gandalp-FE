@@ -56,8 +56,8 @@
     </nav>
    </div>
     <div class="auth-btn">
-      <button v-if="isLoggedIn"  @click="logout">Logout</button>
-      <button v-else @click="login">Login</button>
+        <button v-if="auth.isLoggedIn"  @click="logout">Logout</button>
+        <button v-else @click="login">Login</button>
     </div>
  
   </header>
@@ -79,8 +79,6 @@ const isHeadNurse = computed(() => auth.userInfo.type === 'HEAD_NURSE')
 const showNurseDropDown = ref(false)
 
 
-const {isLoggedIn} = storeToRefs(auth)
-
 
 
 const login = () => {
@@ -88,8 +86,11 @@ const login = () => {
 }
 
 const logout = () => {
-  auth.logout();
-  router.push("/login");
+  if( confirm('정말로 로그아웃하시겠습니까?') ){
+    auth.logout();
+  }
+
+
 
 }
 

@@ -7,7 +7,6 @@ import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
 
-
 export const useAuthStore = defineStore('auth', () => {
     
     // 페이지 이동하기 위해서 router를 추가.
@@ -56,15 +55,11 @@ export const useAuthStore = defineStore('auth', () => {
     const checkLogin = () => {
 
         const accessToken = localStorage.getItem('accessToken');
-        if( accessToken){
-
-            isLoggedIn.value = true;
-
+        if(accessToken){
             const parseToken = parseJwt(accessToken);
             userInfo.username = parseToken.username;
             userInfo.type = parseToken.type;
-
-
+            isLoggedIn.value = true;
         }else{
             isLoggedIn.value = false;
         }
@@ -79,15 +74,15 @@ export const useAuthStore = defineStore('auth', () => {
                 alert('다시 로그인 해주세요');
 
                 logoutUser();
-
                 return;
             }
 
-            const response = await apiClient.post('auth/logout', {},{headers: {
+            const response = await apiClient.post('/auth/logout', {},{headers: {
                 Authorization: `Bearer ${localStorage.getItem('accessToken')}`
             }})
 
-            if(response.status === 204){
+            console.log('response: ', response);
+            if(response.status === 200){
                 logoutUser();
             }
 
@@ -127,7 +122,6 @@ export const useAuthStore = defineStore('auth', () => {
         userInfo.username = '';
         userInfo.type = '';
 
-
         // 로그인 페이지로 리다이렉트 
         router.push({name: 'login'});
     }
@@ -144,6 +138,7 @@ export const useAuthStore = defineStore('auth', () => {
             return false;
         }
     }
+    
 
 
 
