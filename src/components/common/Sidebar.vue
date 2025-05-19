@@ -5,7 +5,7 @@
     </div>
 
       <div class="notice-section" >
-        <h4 class="notice-title">📌 공지사항</h4>
+        <h4 class="notice-title"> 공지사항</h4>
         <div class="notice-box">
           <div class="notice-content">
             <p>간달프 시스템 점검 예정</p>
@@ -80,7 +80,7 @@ import NurseStatusSidebar from './NurseStatusSidebar.vue';
   margin: 0;
   font-size: 16px;
   font-weight: bold;
-  
+  padding-left: 10px;
 }
 
 .notice-box {
