@@ -1,9 +1,8 @@
 <template>
   <div class="status-border">
   <div class="status-header">
-    <div class="status-title-box" @click="toggleOpen">
-      <span class="arrow">{{ isOpen ? '▾' : '▸' }}</span>
-      <span class="status-title">근무 현황</span>
+    <div class="status-title-box" >
+      <span class="status-title"> 근무 현황</span>
     </div>
     <button class="edit-btn" @click="showModal = true"> 
       <span class="icon">⚙️</span> 
@@ -11,8 +10,8 @@
   </div>
 
 
-  <ul v-if="isOpen" class="status-list">
-    <li v-for="nurse in nurses" :key="nurse.name">
+  <ul class="status-list">
+    <li v-for="nurse in nurses" :key="nurse.id">
       <span class="nurse-name">{{ nurse.name }}</span>
       <span class="status-indicator">
         <span class="dot" :class="getColor(nurse.workingStatus)"></span>
@@ -52,7 +51,8 @@
         </div>
       </div>
     </div>
-
+  </div>
+  <div v-if="toastMessage" class="toast">{{ toastMessage }}</div>
 </template>
 
 
@@ -62,7 +62,6 @@ import { ref, onMounted, reactive } from 'vue'
 import apiClient from '@/api/axios'
 
 const nurses = ref([])
-const isOpen = ref(true)
 const showModal = ref(false)
 const errorMessage = ref('')
 const toastMessage = ref('')
@@ -73,8 +72,6 @@ const form = reactive({
   password: '',
   workingStatus: 'ON',
 })
-
-const toggleOpen = () => (isOpen.value = !isOpen.value)
 
 const fetchStatus = async () => {
   const res = await apiClient.get('/nurses/status')
@@ -126,7 +123,12 @@ const submitStatus = async () => {
       showToast('근무 상태가 수정되었습니다! ')
     }
   } catch (err) {
-    errorMessage.value = '⚠️ 비밀번호가 틀렸거나 오류가 발생했습니다.'
+    if(err.response && err.response.status === 401 ){
+      errorMessage.value = '비밀번호가 틀렸습니다.'
+    } else{
+      errorMessage.value = '오류가 발생했습니다.'
+    }
+    
   }
 }
 
@@ -158,21 +160,33 @@ onMounted(fetchStatus)
 .status-title {
   font-size: 16px;
   font-weight: bold;
+  padding-left: 16px;
 }
+
+
+.status-label {
+  width: 60px;
+  
+}
+
+
 .status-list li {
   display: flex;
   justify-content: space-around;
   margin-bottom: 10px;
   font-size: 12px;
+  align-items: center;
+  gap: 20px;
+  padding-left: 10%;
 }
 .nurse-name {
   font-weight: normal;
   font-size: 11px;
 }
 .status-indicator {
+  padding-left: 15%;
   display: flex;
   align-items: center;
-  margin-right: 40px;
   gap: 10px;
 }
 .dot {
