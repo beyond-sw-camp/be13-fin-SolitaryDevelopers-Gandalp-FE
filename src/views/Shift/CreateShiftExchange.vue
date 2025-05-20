@@ -16,49 +16,72 @@
       </select>
     </div>
     <div class="btns">
-      <button class="submit-btn" @click="submitShift">확인</button>
+      <button class="submit-btn" @click="openUserCheckModal">확인</button>
       <button class="cancel-btn" @click="resetForm">취소</button>
     </div>
   </div>
+
+  <!-- 사용자 확인 모달 -->
+  <UserCheckModal
+    v-if="showModal"
+    @close="showModal = false"
+    @submit="handleSubmit"
+  />
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import apiClient from '@/api/axios'
+import UserCheckModal from '@/components/UserCheckModal.vue'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
-// 월, 일, 타임 옵션
+const showModal = ref(false)
+const nurseInfo = ref(null)
+
 const months = Array.from({ length: 12 }, (_, i) => i + 1)
 const selectedMonth = ref('')
 const selectedDay = ref('')
 const selectedTime = ref('')
 const times = ['데이', '이브닝', '나이트']
 
-// 일 수 동적 계산 (윤년 등은 단순화)
 const daysInMonth = computed(() => {
   const month = Number(selectedMonth.value)
   if ([1, 3, 5, 7, 8, 10, 12].includes(month)) return Array.from({ length: 31 }, (_, i) => i + 1)
   if ([4, 6, 9, 11].includes(month)) return Array.from({ length: 30 }, (_, i) => i + 1)
-  if (month === 2) return Array.from({ length: 29 }, (_, i) => i + 1) // 윤년 단순화
+  if (month === 2) return Array.from({ length: 29 }, (_, i) => i + 1)
   return []
 })
 
-
-// 교대근무 교환 신청
-const submitShift = async () => {
+const openUserCheckModal = () => {
   if (!selectedMonth.value || !selectedDay.value || !selectedTime.value) {
     alert('월, 일, 타임을 모두 선택해 주세요.')
     return
   }
-  // content 예시: "5월 12일 데이"
+  showModal.value = true
+}
+
+const handleSubmit = async ({ email, password }) => {
+  try {
+    const res = await apiClient.post('schedules/check', null, {
+      params: { email, password }
+    })
+    nurseInfo.value = res.data
+    showModal.value = false
+    await submitShift()
+  } catch (err) {
+    alert('계정 확인 실패: ' + (err.response?.data || err.message))
+    showModal.value = false
+  }
+}
+
+const submitShift = async () => {
   const content = `${selectedMonth.value}월 ${selectedDay.value}일 ${selectedTime.value}`
   try {
-    await apiClient.post('/shifts/create', {
-    //   memberId,
-    //   departmentId,
-      content
-    })
+    await apiClient.post('/shifts/create', { content })
     alert('교대근무 교환 신청이 완료되었습니다.')
     resetForm()
+    router.push({ name: 'shift-list' }) // ← 신청 후 이동
   } catch (err) {
     alert('신청 중 오류가 발생했습니다.')
     console.error(err)
@@ -69,53 +92,74 @@ const resetForm = () => {
   selectedMonth.value = ''
   selectedDay.value = ''
   selectedTime.value = ''
+  router.push({ name: 'shift-list' }) // ← 취소 시 이동
 }
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+
 .shift-create-page {
   padding: 24px;
   max-width: 400px;
   margin: 0 auto;
+  font-family: 'Noto Sans KR', sans-serif;
 }
+
 .title {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 24px;
   text-align: center;
+  color: black; /* 참고본 스타일 적용 */
 }
+
 .shift-form {
   display: flex;
   justify-content: center;
   gap: 16px;
   margin-bottom: 32px;
 }
+
+/* 참고본의 select 스타일 적용 */
 .shift-form select {
-  padding: 8px 12px;
-  font-size: 16px;
-  border-radius: 6px;
-  border: 1px solid #b3e0fc;
-  background: #f9fcff;
+  border: 1px solid #ddd;
+  background: #fff;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+              -2px -2px 5px rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 11px;
+  transition: all 0.2s ease-in-out;
+  outline: none;
 }
+
+/* 버튼 스타일 참고본에서 가져옴 */
 .btns {
   display: flex;
   justify-content: center;
   gap: 16px;
 }
+
 .submit-btn, .cancel-btn {
-  width: 100px;
-  height: 36px;
-  font-size: 15px;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
+  height: 32px;
+  min-width: 70px;
+  background: white;
+  border: 1.3px solid #a0adb4;
+  font-size: 0.85rem;
+  font-weight: normal;
   cursor: pointer;
-  background: linear-gradient(to right, #ADDDF9 0%, #C2EBFF 100%);
-  color: #222;
-  transition: all 0.2s;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  line-height: 1;
+  padding: 0 12px;
+  transition: all 0.2s ease-in-out;
+  margin-top: 2px;
 }
 .submit-btn:hover, .cancel-btn:hover {
-  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
-  color: #222;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: white !important;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
 }
 </style>

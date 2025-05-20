@@ -9,7 +9,8 @@ import JoinMember from "@/views/admin/JoinMember.vue"
 import MemberList from "@/views/admin/MemberList.vue"
 import ManageOff from '@/views/ManageOff.vue'
 import ShowShifts from '@/views/Shift/ShowShifts.vue'
-import CreateShiftChange from '@/views/Shift/CreateShiftChange.vue'
+import CreateShiftExchange from '@/views/Shift/CreateShiftExchange.vue'
+import ShiftExchangeDetails from '@/views/Shift/ShiftExchangeDetails.vue'
 
 import UpdateNurse from '@/views/nurse/UpdateNurse.vue'
 import CreateNurse from '@/views/nurse/CreateNurse.vue'
@@ -38,14 +39,19 @@ const routes = [
         component: ShowOffVue
       },
       {
-        path: 'shifts',
+        path: '/shifts',
         name: 'shift-list',
         component: ShowShifts
       },
       {
         path: 'shifts/create',
         name: 'create-shiftchange',
-        component: CreateShiftChange
+        component: CreateShiftExchange
+      },
+      {
+        path: `shifts/:boardId`,
+        name: 'ShiftExchangeDetails',
+        component: ShiftExchangeDetails
       },
       {
         path: '/joinMember',
