@@ -19,6 +19,7 @@ import StatisticTabsView from "@/views/statistic/StatisticTabsView.vue";
 
 import ShowHospitalList from "@/views/hospital/ShowHospitalList.vue";
 import UpdateEr from "@/views/hospital/UpdateEr.vue";
+import SurgeryReservation from '@/views/SurgeryReservation.vue'
 
 const routes = [
   {
@@ -85,6 +86,11 @@ const routes = [
         path: '/statistics',
         name: 'Statistics',
         component: StatisticTabsView
+      },
+      {
+        path: '/surgeryReservation',
+        name: 'surgeryReservation',
+        component: SurgeryReservation
       },
     ],
   },

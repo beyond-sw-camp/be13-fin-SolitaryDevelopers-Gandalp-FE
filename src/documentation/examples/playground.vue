@@ -23,7 +23,7 @@
           w-select(
             v-model="selectedClassFilter"
             :items="classFilterOptions"
-            label="분류별 보기"
+            label="간호사 이름"
             return-values
             clearable)
         //- w-radios.justify-end(
@@ -32,26 +32,27 @@
         //-   inline)
   
   .w-flex.gap2.mt2.mx2.ovh
-    aside.no-shrink.no-grow
-      vue-cal.no-shrink.no-grow(
-        v-model:selected-date="mainVuecalConfig.selectedDate"
-        @update:selected-date="mainVuecalConfig.viewDate = $event"
-        v-bind="pickerConfig")
+    //- 미니 캘린더
+    //- aside.no-shrink.no-grow
+    //-   vue-cal.no-shrink.no-grow(
+    //-     v-model:selected-date="mainVuecalConfig.selectedDate"
+    //-     @update:selected-date="mainVuecalConfig.viewDate = $event"
+    //-     v-bind="pickerConfig")
   
-      .w-flex.align-center.gap1.body.wrap.no-grow
-        span View Date:
-        template(v-if="mainVuecalConfig.viewDate")
-          span.code {{ mainVuecalConfig.viewDate.format('DD/MM/YYYY') }}
-          w-icon.grey.mx-1(xs) mdi mdi-clock-outline
-          span.code {{ mainVuecalConfig.viewDate.formatTime() }}
-        .grey(v-else) N/A
-      .w-flex.align-center.gap1.wrap.size--sm.no-grow
-        span Selected Date:
-        template(v-if="mainVuecalConfig.selectedDate")
-          span.code {{ mainVuecalConfig.selectedDate.format('DD/MM/YYYY') }}
-          w-icon.grey.mx-1(xs) mdi mdi-clock-outline
-          span.code {{ mainVuecalConfig.selectedDate.formatTime() }}
-        .grey(v-else) N/A
+      //- .w-flex.align-center.gap1.body.wrap.no-grow
+      //-   span View Date:
+      //-   template(v-if="mainVuecalConfig.viewDate")
+      //-     span.code {{ mainVuecalConfig.viewDate.format('DD/MM/YYYY') }}
+      //-     w-icon.grey.mx-1(xs) mdi mdi-clock-outline
+      //-     span.code {{ mainVuecalConfig.viewDate.formatTime() }}
+      //-   .grey(v-else) N/A
+      //- .w-flex.align-center.gap1.wrap.size--sm.no-grow
+      //-   span Selected Date:
+      //-   template(v-if="mainVuecalConfig.selectedDate")
+      //-     span.code {{ mainVuecalConfig.selectedDate.format('DD/MM/YYYY') }}
+      //-     w-icon.grey.mx-1(xs) mdi mdi-clock-outline
+      //-     span.code {{ mainVuecalConfig.selectedDate.formatTime() }}
+      //-   .grey(v-else) N/A
   
     vue-cal.vue-cal--main.grow(
       ref="vueCalRef"
@@ -91,18 +92,49 @@
   w-dialog(
     v-if="eventCreation.event"
     v-model="eventCreation.show"
-    width="300"
+    width="500"
+    style="height: auto; max-height: 80vh; display: flex; flex-direction: column;"
     @close="eventCreation.cancel")
     w-input(v-model="eventCreation.event.title") 제목
+    //- w-input(
+    //- type="datetime-local"
+    //- v-model="formStart"
+    //- label="Start Time")
+    //- w-input(
+    //- type="datetime-local"
+    //- v-model="formEnd"
+    //- label="End Time")
+    label.mt2 시작 시간
+    Datepicker(
+      v-model="formStart"
+      locale="ko"
+      time-picker-inline
+      :enable-time-picker="true"
+      :is-24="true"
+      :format="'yyyy-MM-dd HH:mm'"
+      auto-apply
+    )
+
+    label.mt2 종료 시간
+    Datepicker(
+      v-model="formEnd"
+      locale="ko"
+      time-picker-inline
+      :enable-time-picker="true"
+      :is-24="true"
+      :format="'yyyy-MM-dd HH:mm'"
+      auto-apply
+    )
+
+    //- w-select(v-model="eventCreation.event.name" :items="classFilterOptions.value.slice(1)") 간호사 이름
+    //- w-select(v-model="eventCreation.event.name" :items="nurseOptions") 간호사 이름
+    w-select(v-model="eventCreation.event.name" :items="nurseFilterOptions") 간호사 이름
+
     w-input(
-    type="datetime-local"
-    v-model="formStart"
-    label="Start Time")
-    w-input(
-    type="datetime-local"
-    v-model="formEnd"
-    label="End Time")
-    w-select(v-model="eventCreation.event.name" :items="eventClasses") 간호사 이름
+    v-model="userPassword"
+    type="password"
+    label="비밀번호"
+    placeholder="간호사 비밀번호 입력")
     //- w-switch.my2(v-model="eventCreation.event.background") Background
     .w-flex.justify-end.mt2.gap2
       w-button(@click="eventCreation.cancel") 취소
@@ -114,8 +146,12 @@
     :title="eventSelection.event.title"
     width="380")
     .w-flex.justify-end.mt2.gap2
-      w-button(@click="updateSelectedEvent") 수정
-      w-button.danger(@click="deleteSelectedEvent") 삭제
+      //- w-button(@click="updateSelectedEvent") 수정
+      w-button(v-if="!eventSelection.event.originalId" @click="updateSelectedEvent") 수정
+      //- w-button.danger(@click="deleteSelectedEvent") 삭제
+      //- w-button.danger(@click="deleteConfirm.show = true") 삭제
+      //- w-button.danger(@click="openDeleteDialog") 삭제
+      w-button.danger(v-if="!eventSelection.event.originalId" @click="openDeleteDialog") 삭제
       w-button(@click="eventSelection.showDialog = false") 닫기
     .w-flex.align-center.justify-end.gap2
       w-icon.grey mdi mdi-calendar
@@ -125,6 +161,21 @@
       .w-flex.align-center.justify-start.mt2
         w-icon.grey mdi mdi-tag-outline
         small {{ getClassLabel(eventSelection.event.name) }}
+  
+  w-dialog(
+    v-model="deleteConfirm.show"
+    title="비밀번호"
+    width="300"
+  )
+    w-input(
+      v-model="userPassword"
+      type="password"
+      label="비밀번호"
+      placeholder="비밀번호를 입력하세요"
+    )
+    .w-flex.justify-end.mt2.gap2
+      w-button(@click="deleteConfirm.show = false") 취소
+      w-button.danger(@click="confirmDeleteEvent") 삭제
   </template>
   
   <script setup>
@@ -133,8 +184,22 @@
   import { useAppStore } from '@/store'
   import axios from 'axios'
   import apiClient from '../../api/axios'
+  import Datepicker from '@vuepic/vue-datepicker'
+  import '@vuepic/vue-datepicker/dist/main.css'
   
   addDatePrototypes()
+
+  const userPassword = ref('');
+
+  const deleteConfirm = reactive({
+    show: ref(false)
+  });
+
+  const openDeleteDialog = () => {
+    userPassword.value = '';
+    deleteConfirm.show = true;
+  };
+
   
   const addAndSaveEvent = () => {
     const start = new Date();
@@ -142,17 +207,19 @@
 
     cellDragStartTime.value = start;
     cellDragEndTime.value = end;
+
+    selectedClassFilter.value = -1;
+
+    const nurseOptions = ref([]);
   
     const dummyEvent = {
-      title: 'New Event',
+      title: '',
       start,
       end,
       name: '',
       background: false
     };
   
-//     eventSelection.event = null;
-// eventSelection.showDialog = false;
     eventCreation.open({
       event: dummyEvent,
       resolve: (createdEvent) => {
@@ -163,6 +230,10 @@
       }
     });
   };
+
+  const nurseOptions = ref([]);
+
+  const nurseFilterOptions = computed(() => nurseOptions.value);
   
   const store = useAppStore()
   const vueCalRef = ref(null)
@@ -173,32 +244,33 @@
   const cellDragStartTime = ref(null)
   const cellDragEndTime = ref(null)
   
-  const selectedClassFilter = ref('ALL')
+  const selectedClassFilter = ref(-1);
   
-  const classFilterOptions = [
-    { label: '전체', value: 'ALL' },
-    { label: '근무', value: 'work' },
-    { label: '수술', value: 'surgery' },
-    { label: '운동', value: 'sport' }
-  ]
+  const classFilterOptions = ref([
+    { label: '전체', value: -1 },
+  //   ...nurseRes.data.map(nurse => ({
+  //   label: nurse.name,
+  //   value: nurse.id
+  // }))
+    // { label: '근무', value: 'work' },
+    // { label: '수술', value: 'surgery' },
+    // { label: '운동', value: 'sport' }
+  ])
   
   const getClassLabel = (classValue) => {
-    const found = classFilterOptions.find(opt => opt.value === classValue);
+    const found = nurseOptions.value.find(opt => Number(opt.value) === Number(classValue));
     return found ? found.label : (classValue || '기타');
   }
   
   const rawEvents = ref([]) // 실제 일정 원본은 여기에 저장
   const calendarEvents = ref([])
   
-  // const filteredEvents = computed(() => {
-  //   if (selectedClassFilter.value === 'ALL') return rawEvents.value
-  //   return rawEvents.value.filter(e => e.class === selectedClassFilter.value)
-  // })
   const filteredEvents = computed(() => {
-    return selectedClassFilter.value === 'ALL'
-      ? rawEvents.value
-      : rawEvents.value.filter(e => e.name === selectedClassFilter.value)
-  })
+    const filter = selectedClassFilter.value;
+    if (filter === -1 || filter === null) return rawEvents.value;
+    return rawEvents.value.filter(event => Number(event.name) === Number(filter));
+  });
+
   
   watch(filteredEvents, (newEvents) => {
     calendarEvents.value = newEvents
@@ -264,11 +336,11 @@
   const weekdays = [{ label: '월' }, { label: 'tue' }, { label: 'wed' }, { label: 'thu' }, { label: 'fri' }, { label: 'sat' }, { label: 'sun' }]
   const hideWeekdays = ref([])
   
-  const eventClasses = [
-    { value: 'work', label: 'Work' },
-    { value: 'surgery', label: 'Surgery' },
-    { value: 'sport', label: 'Sport' }
-  ]
+  // const eventClasses = [
+  //   { value: 'work', label: 'Work' },
+  //   { value: 'surgery', label: 'Surgery' },
+  //   { value: 'sport', label: 'Sport' }
+  // ]
   
   const pickerConfig = reactive({
     datePicker: true,
@@ -362,158 +434,11 @@
     event: ref(null)
   })
   
-  // const updateSelectedEvent = () => {
-  //   const selected = eventSelection.event
-  //   if (!selected) return
-  
-  //   const editableCopy = {
-  //     ...selected,
-  //     start: selected.start,
-  //     end: selected.end,
-  //     title: selected.title,
-  //     class: selected.class,
-  //     background: selected.background || false
-  //   }
-  
-  //   formStart.value = formatLocalDateTime(editableCopy.start)
-  //   formEnd.value = formatLocalDateTime(editableCopy.end)
-  
-  //   eventCreation.open({
-  //     event: editableCopy,
-  //     resolve: async (updatedEvent) => {
-  //       if (!updatedEvent) return
-  
-  //       // 백엔드에 수정 요청
-  //       try {
-  //         const payload = {
-  //           title: updatedEvent.title,
-  //           startDate: updatedEvent.start,
-  //           endDate: updatedEvent.end,
-  //           name: updatedEvent.class // 백엔드 이름 변경 고려
-  //         }
-  //         await apiClient.put(`/duration/${updatedEvent.id}`, payload)
-  
-  //         // 프론트에서 반영
-  //         const index = rawEvents.value.findIndex(e => e.id === updatedEvent.id)
-  //         if (index !== -1) {
-  //           rawEvents.value[index] = {
-  //             ...updatedEvent,
-  //             start: new Date(updatedEvent.start),
-  //             end: new Date(updatedEvent.end),
-  //             editable: false
-  //           }
-  //         }
-  //         eventSelection.showDialog = false
-  //       } catch (err) {
-  //         alert('수정 실패')
-  //         console.error(err)
-  //       }
-  //     }
-  //   })
-  
-  //   eventCreation.show = true
-  // }
-  
-  // const updateSelectedEvent = async () => {
-  //   const id = eventSelection.event?.id;
-  //   if (!id) return alert('수정할 이벤트 ID가 없습니다.');
-  
-  //   if (!formStart.value || !formEnd.value) {
-  //     return alert('수정할 시작/종료 시간이 없습니다.');
-  //   }
-  
-  //   const startDate = parseLocalDate(formStart.value);
-  //   const endDate = parseLocalDate(formEnd.value);
-  
-  //   const payload = {
-  //     title: eventSelection.event.title,
-  //     startDate,
-  //     endDate,
-  //     name: eventSelection.event.name
-  //   };
-  
-  //   try {
-  //     const response = await apiClient.put(`/duration/${id}`, payload);
-  
-  //     const updated = {
-  //       ...response.data,
-  //       start: parseLocalDate(response.data.startDate),
-  //       end: parseLocalDate(response.data.endDate),
-  //       editable: false
-  //     };
-  
-  //     // 배열에서 기존 객체를 찾아 직접 수정
-  //     const target = rawEvents.value.find(e => e.id === id);
-  //     if (target) {
-  //       target.title = updated.title;
-  //       target.start = updated.start;
-  //       target.end = updated.end;
-  //       target.name = updated.name; // ← class 대신 name으로 바뀐 경우
-  //     }
-  
-  //     eventSelection.showDialog = false;
-  //     eventSelection.event = null;
-  //   } catch (err) {
-  //     console.error('수정 실패:', err);
-  //     alert('일정 수정에 실패했습니다.');
-  //   }
-  // };
-  
-  // const updateSelectedEvent = () => {
-  //   const selected = eventSelection.event;
-  //   if (!selected) return;
-  
-  //   eventCreation.open({
-  //     event: {
-  //       ...selected,
-  //       start: selected.start,
-  //       end: selected.end
-  //     },
-  //     resolve: async (updatedEvent) => {
-  //       if (!updatedEvent) return;
-  
-  //       const payload = {
-  //         title: updatedEvent.title,
-  //         startDate: updatedEvent.start,
-  //         endDate: updatedEvent.end,
-  //         name: updatedEvent.name
-  //       }
-  
-  //       try {
-  //         const response = await apiClient.put(`/duration/${updatedEvent.id}`, payload);
-  
-  //         const updated = {
-  //           ...response.data,
-  //           start: parseLocalDate(response.data.startDate),
-  //           end: parseLocalDate(response.data.endDate),
-  //           editable: false
-  //         }
-  
-  //         const target = rawEvents.value.find(e => e.id === updated.id);
-  //         if (target) {
-  //           target.title = updated.title;
-  //           target.start = updated.start;
-  //           target.end = updated.end;
-  //           target.name = updated.name;
-  //         }
-  
-  //         eventSelection.showDialog = false;
-  //         eventSelection.event = null;
-  //       } catch (err) {
-  //         alert('일정 수정 실패');
-  //         console.error(err);
-  //       }
-  //     }
-  //   });
-  
-  //   formStart.value = formatLocalDateTime(selected.start);
-  //   formEnd.value = formatLocalDateTime(selected.end);
-  // }
-  
   const updateSelectedEvent = () => {
     const selected = eventSelection.event;
     if (!selected) return;
   
+    userPassword.value = '';
 
     eventSelection.showDialog = false;
     eventCreation.open({
@@ -551,27 +476,36 @@
     formEnd.value = formatLocalDateTime(selected.end);
   }
   
-  const deleteSelectedEvent = async () => {
-    const id = eventSelection.event?.id
+  const confirmDeleteEvent = async () => {
+    const id = eventSelection.event?.id;
     if (!id) {
-      alert('삭제할 수 없습니다. 이벤트 ID가 없습니다.')
-      return
+      alert('삭제할 수 없습니다.');
+      return;
     }
   
     try {
-      await apiClient.delete(`/duration/${id}`)
-  
-      // 프론트에서 캘린더에서도 제거
-      rawEvents.value = rawEvents.value.filter(e => e.id !== id)
-  
-      eventSelection.showDialog = false
-      eventSelection.event = null
+      await apiClient.delete('/calendars', {
+        data: {
+          scheduleId: id,
+          password: userPassword.value
+        }
+      });
+    
+      rawEvents.value = rawEvents.value.filter(e => e.id !== id);
+      calendarEvents.value = [...filteredEvents.value];
+    
+      eventSelection.showDialog = false;
+      await loadSchedules();
+      eventSelection.event = null;
+      deleteConfirm.show = false;
+      userPassword.value = ''; // 초기화
+
     } catch (error) {
-      console.error('이벤트 삭제 실패:', error)
-      console.log(error)
-      alert('삭제에 실패했습니다.')
+      console.error('삭제 실패:', error);
+      alert('삭제에 실패했습니다. 비밀번호를 확인해주세요.');
     }
-  }
+  };
+
   
   const eventCreation = reactive({
     show: ref(false),
@@ -607,8 +541,6 @@
     
     save: async () => {
   
-      // const startDate = parseLocalDate(formStart.value);
-      // const endDate = parseLocalDate(formEnd.value);
       function toUTCISOStringFromLocalInput(datetimeStr) {
         if (!datetimeStr || !datetimeStr.includes('T')) return NaN;
 
@@ -626,32 +558,52 @@
       const startDate = toUTCISOStringFromLocalInput(formStart.value);
       const endDate = toUTCISOStringFromLocalInput(formEnd.value);
 
+
       if (!startDate || !endDate || isNaN(new Date(startDate)) || isNaN(new Date(endDate))) {
         alert('유효하지 않은 날짜입니다.');
         return;
       }
     
       const payload = {
-        title: eventCreation.event.title,
-        name: eventCreation.event.name,
-        // background: eventCreation.event.background,
-        startDate,  // ← UTC ISO 문자열
-        endDate
-      }
+        // title: eventCreation.event.title,
+        // name: eventCreation.event.name,
+        // // background: eventCreation.event.background,
+        // startDate,  // ← UTC ISO 문자열
+        // endDate
+        nurseId: eventCreation.event.name, 
+        password: userPassword.value,     // ← 사용자가 입력한 비밀번호
+        content: eventCreation.event.title,
+        startTime: startDate, // ISO
+        endTime: endDate      // ISO
+      };
+
       try {
         let response;
         if (eventCreation.event.id) {
-          // 기존 일정 수정
-          response = await apiClient.put(`/duration/${eventCreation.event.id}`, payload);
+          // response = await apiClient.put('/calendars/', payload);
+          response = await apiClient.put('/calendars', {
+            // nurseId: eventCreation.event.name,
+            scheduleId: eventCreation.event.id,
+            password: userPassword.value,
+            content: eventCreation.event.title,
+            startTime: startDate,
+            endTime: endDate
+          });
         } else {
-          // 신규 일정 등록
-          response = await apiClient.post('/duration', payload);
+          // response = await apiClient.post('/calendars', payload);
+          response = await apiClient.post('/calendars', {
+            nurseId: eventCreation.event.name,
+            password: userPassword.value,
+            content: eventCreation.event.title,
+            startTime: startDate,
+            endTime: endDate
+          });
         }
   
         const newEvent = {
           ...response.data,
-          start: parseLocalDate(response.data.startDate),
-          end: parseLocalDate(response.data.endDate),
+          start: parseLocalDate(response.data.startTime),
+          end: parseLocalDate(response.data.endTime),
           editable: false
         };
   
@@ -665,54 +617,114 @@
           rawEvents.value.push(newEvent);
           // calendarEvents.value = [...filteredEvents.value];
           // vueCalRef.value.view.createEvent(newEvent); // ← 신규일 때만 추가
+
+          const nurseFilter = selectedClassFilter.value;
+          if (
+            nurseFilter === -1 ||
+            Number(newEvent.name) === Number(nurseFilter)
+          ) {
+            calendarEvents.value = [...filteredEvents.value];
+          }
         }
   
-        // mainVuecalConfig.events.push(response.data)
-        // eventCreation.resolve(response.data)
-        // eventCreation.resolve({
-        //   ...response.data,
-        //   start: parseLocalDate(response.data.startDate),
-        //   end: parseLocalDate(response.data.endDate)
-        // })
-        // rawEvents.value.push({
-        //   ...response.data,
-        //   start: parseLocalDate(response.data.startDate),
-        //   end: parseLocalDate(response.data.endDate),
-        //   class: eventCreation.event.class,
-        //   editable: false
-        // })
-        // calendarEvents.value = [...filteredEvents.value]
         eventCreation.resolve?.(newEvent);
         eventCreation.show = false;
+        userPassword.value = '';
         await nextTick();
+        await loadSchedules();
         calendarEvents.value = [...filteredEvents.value];
+        mainVuecalConfig.events = calendarEvents.value
         cellDragStartTime.value = null
         cellDragEndTime.value = null
         
       } catch (error) {
         console.error('일정 저장 실패:', error)
+        console.log(error)
         alert('일정 저장에 실패했습니다.')
       }
     }
     
   })
-  
-  onMounted(async () => {
-    try {
-      const response = await apiClient.get('/duration')
-      const fetchedEvents = response.data.map(event => ({
-        id: event.id,
-        title: event.title,
-        start: parseLocalDate(event.startDate),
-        end: parseLocalDate(event.endDate),
-        name: event.name || 'etc',
+
+  // 일정 불러오기 함수
+const loadSchedules = async () => {
+  try {
+    let response;
+    if (selectedClassFilter.value === -1 || selectedClassFilter.value === null) {
+      response = await apiClient.get('/calendars'); // 전체 간호사 일정
+    } else {
+      response = await apiClient.get(`/calendars/${selectedClassFilter.value}`); // 특정 간호사 일정
+    }
+
+    const fetchedEvents = response.data.map(event => ({
+      id: event.scheduleId,
+      title: event.content,
+      start: parseLocalDate(event.startTime),
+      end: parseLocalDate(event.endTime),
+      name: Number(event.nurseId),
+      editable: false
+    }));
+
+    rawEvents.value = fetchedEvents;
+    calendarEvents.value = fetchedEvents;
+  } catch (error) {
+    console.error('일정 불러오기 실패:', error);
+  }
+};
+
+const loadOrsSchedules = async () => {
+  try {
+    const response = await apiClient.get('/ors');
+    const allEvents = response.data;
+
+    const orsEvents = allEvents.flatMap(event =>
+      event.nurseIds.map(nurseId => ({
+        id: `${event.surgeryScheduleId}-${nurseId}`,
+        title: event.content,
+        start: parseLocalDate(event.startTime),
+        end: parseLocalDate(event.endTime),
+        name: nurseId,
+        originalId: event.surgeryScheduleId,
         editable: false
       }))
-      rawEvents.value = fetchedEvents
-    } catch (error) {
-      console.error('일정 불러오기 실패:', error)
-    }
-  })
+    );
+
+    rawEvents.value = orsEvents;
+    calendarEvents.value = [...filteredEvents.value];
+  } catch (error) {
+    console.error('수술 일정 로딩 실패:', error);
+  }
+};
+
+
+watch(selectedClassFilter, async () => {
+  await loadSchedules();
+  await loadOrsSchedules();
+});
+  
+onMounted(async () => {
+  await loadSchedules(); // 초기 전체 일정 불러오기
+  await loadOrsSchedules(); 
+
+  try {
+    const nurseRes = await apiClient.get('/nurses');
+    const nurses = nurseRes.data.content;
+
+    nurseOptions.value = nurses.map(nurse => ({
+      label: nurse.name,
+      value: nurse.id
+    }));
+
+    classFilterOptions.value = [
+      { label: '전체', value: -1 },
+      ...nurseOptions.value
+    ];
+  } catch (error) {
+    console.error('간호사 목록 불러오기 실패:', error);
+  }
+});
+
+
   </script>
   
   <style lang="scss">
