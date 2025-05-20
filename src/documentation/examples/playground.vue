@@ -6,7 +6,7 @@
       //- w-switch.no-grow(v-model="mainVuecalConfig.hideWeekends") Hide Weekends
       w-switch.no-grow(v-model="mainVuecalConfig.clickToNavigate") Click to Navigate
       //- w-switch.no-grow(v-model="mainVuecalConfig.showSchedules") Day Schedules
-      w-switch.no-grow(v-model="mainVuecalConfig.showSpecialHours") Business Hours
+      //- w-switch.no-grow(v-model="mainVuecalConfig.showSpecialHours") Business Hours
       w-switch.no-grow(v-model="mainVuecalConfig.editableEvents") Editable Events
   
     .w-flex.column.grow
@@ -88,57 +88,55 @@
       @cell-touchstart="log('cell-touchstart', $event)"
       @cell-contextmenu="log('cell-contextmenu', $event)")
       
-  
   w-dialog(
     v-if="eventCreation.event"
     v-model="eventCreation.show"
-    width="500"
-    style="height: auto; max-height: 80vh; display: flex; flex-direction: column;"
+    width="400"
     @close="eventCreation.cancel")
-    w-input(v-model="eventCreation.event.title") 제목
-    //- w-input(
-    //- type="datetime-local"
-    //- v-model="formStart"
-    //- label="Start Time")
-    //- w-input(
-    //- type="datetime-local"
-    //- v-model="formEnd"
-    //- label="End Time")
-    label.mt2 시작 시간
-    Datepicker(
-      v-model="formStart"
-      locale="ko"
-      time-picker-inline
-      :enable-time-picker="true"
-      :is-24="true"
-      :format="'yyyy-MM-dd HH:mm'"
-      auto-apply
-    )
-
-    label.mt2 종료 시간
-    Datepicker(
-      v-model="formEnd"
-      locale="ko"
-      time-picker-inline
-      :enable-time-picker="true"
-      :is-24="true"
-      :format="'yyyy-MM-dd HH:mm'"
-      auto-apply
-    )
-
-    //- w-select(v-model="eventCreation.event.name" :items="classFilterOptions.value.slice(1)") 간호사 이름
-    //- w-select(v-model="eventCreation.event.name" :items="nurseOptions") 간호사 이름
-    w-select(v-model="eventCreation.event.name" :items="nurseFilterOptions") 간호사 이름
-
+    label.text-sm.font-semibold.mb1 제목
     w-input(
-    v-model="userPassword"
-    type="password"
-    label="비밀번호"
-    placeholder="간호사 비밀번호 입력")
-    //- w-switch.my2(v-model="eventCreation.event.background") Background
-    .w-flex.justify-end.mt2.gap2
+      v-model="eventCreation.event.title"
+      placeholder="일정 제목을 입력하세요")
+
+    .w-flex.gap3
+      .w-flex.column.flex-1
+        label.text-sm.font-medium.text-gray-600.mb-1 시작 시간
+        Datepicker(
+          v-model="formStart"
+          locale="ko"
+          time-picker-inline
+          :enable-time-picker="true"
+          :is-24="true"
+          :format="'yyyy-MM-dd HH:mm'"
+          auto-apply)
+      .w-flex.column.flex-1
+        label.text-sm.font-medium.text-gray-600.mb-1 종료 시간
+        Datepicker(
+          v-model="formEnd"
+          locale="ko"
+          time-picker-inline
+          :enable-time-picker="true"
+          :is-24="true"
+          :format="'yyyy-MM-dd HH:mm'"
+          auto-apply)
+
+    label.text-sm.font-semibold.mb1 간호사 이름
+    w-select(
+      v-model="eventCreation.event.name"
+      :items="nurseFilterOptions"
+      placeholder="간호사를 선택하세요"
+    )
+
+    label.text-sm.font-semibold.mt3 비밀번호
+    w-input(
+      v-model="userPassword"
+      type="password"
+      placeholder="간호사 비밀번호 입력"
+    )
+
+    .w-flex.justify-end.mt4.gap2
       w-button(@click="eventCreation.cancel") 취소
-      w-button(@click="eventCreation.save") 저장
+      w-button.primary(@click="eventCreation.save") 저장
   
   w-dialog(
     v-if="eventSelection.event"
@@ -164,7 +162,7 @@
   
   w-dialog(
     v-model="deleteConfirm.show"
-    title="비밀번호"
+    title="비밀번호 입력"
     width="300"
   )
     w-input(
@@ -189,6 +187,8 @@
   
   addDatePrototypes()
 
+  const allCalendarEvents = ref([]);
+
   const userPassword = ref('');
 
   const deleteConfirm = reactive({
@@ -210,8 +210,6 @@
 
     selectedClassFilter.value = -1;
 
-    const nurseOptions = ref([]);
-  
     const dummyEvent = {
       title: '',
       start,
@@ -384,21 +382,21 @@
       ] : undefined
     }),
     eventsOnMonthView: true,
-    showSpecialHours: ref(false),
-    specialHours: computed(() => {
-      return mainVuecalConfig.showSpecialHours ? {
-        mon: { from: 0 * 60, to: 23 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Full day shift</em>' },
-        tue: { from: 4 * 60, to: 5 * 60, class: 'doctor-2', label: '<strong>Doctor 2</strong><em>Full day shift</em>' },
-        wed: [
-          { from: 8 * 60, to: 12 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Morning shift</em>' },
-          { from: 14 * 60, to: 19 * 60, class: 'doctor-3', label: '<strong>Doctor 3</strong><em>Afternoon shift</em>' }
-        ],
-        thu: { from: 8 * 60, to: 17 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Full day shift</em>' },
-        fri: { from: 9 * 60, to: 18 * 60, class: 'doctor-3', label: '<strong>Doctor 3</strong><em>Full day shift</em>' },
-        sat: { from: 9 * 60, to: 18 * 60, class: 'doctor-2', label: '<strong>Doctor 2</strong><em>Full day shift</em>' },
-        sun: { from: 7 * 60, to: 20 * 60, class: 'closed', label: '<strong>Closed</strong>' }
-      } : undefined
-    }),
+    // showSpecialHours: ref(false),
+    // specialHours: computed(() => {
+    //   return mainVuecalConfig.showSpecialHours ? {
+    //     mon: { from: 0 * 60, to: 23 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Full day shift</em>' },
+    //     tue: { from: 4 * 60, to: 5 * 60, class: 'doctor-2', label: '<strong>Doctor 2</strong><em>Full day shift</em>' },
+    //     wed: [
+    //       { from: 8 * 60, to: 12 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Morning shift</em>' },
+    //       { from: 14 * 60, to: 19 * 60, class: 'doctor-3', label: '<strong>Doctor 3</strong><em>Afternoon shift</em>' }
+    //     ],
+    //     thu: { from: 8 * 60, to: 17 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Full day shift</em>' },
+    //     fri: { from: 9 * 60, to: 18 * 60, class: 'doctor-3', label: '<strong>Doctor 3</strong><em>Full day shift</em>' },
+    //     sat: { from: 9 * 60, to: 18 * 60, class: 'doctor-2', label: '<strong>Doctor 2</strong><em>Full day shift</em>' },
+    //     sun: { from: 7 * 60, to: 20 * 60, class: 'closed', label: '<strong>Closed</strong>' }
+    //   } : undefined
+    // }),
     editableEvents: ref(false)
   })
   
@@ -604,7 +602,8 @@
           ...response.data,
           start: parseLocalDate(response.data.startTime),
           end: parseLocalDate(response.data.endTime),
-          editable: false
+          editable: false,
+          class: response.data.originalId ? 'surgery' : 'work'
         };
   
         if (eventCreation.event.id) {
@@ -662,13 +661,16 @@ const loadSchedules = async () => {
       start: parseLocalDate(event.startTime),
       end: parseLocalDate(event.endTime),
       name: Number(event.nurseId),
-      editable: false
+      editable: false,
+      class: 'work'
     }));
 
-    rawEvents.value = fetchedEvents;
+    // rawEvents.value = fetchedEvents;
     calendarEvents.value = fetchedEvents;
+    return fetchedEvents;
   } catch (error) {
     console.error('일정 불러오기 실패:', error);
+    return [];
   }
 };
 
@@ -685,30 +687,47 @@ const loadOrsSchedules = async () => {
         end: parseLocalDate(event.endTime),
         name: nurseId,
         originalId: event.surgeryScheduleId,
-        editable: false
+        editable: false,
+        class: 'surgery'
       }))
     );
 
-    rawEvents.value = orsEvents;
+    // rawEvents.value = orsEvents;
     calendarEvents.value = [...filteredEvents.value];
+    return orsEvents;
   } catch (error) {
     console.error('수술 일정 로딩 실패:', error);
+    return [];
   }
+};
+
+const loadAllEvents = async () => {
+  const [scheduleEvents, orsEvents] = await Promise.all([
+    loadSchedules(),
+    loadOrsSchedules()
+  ]);
+  // allCalendarEvents.value = [...scheduleEvents, ...orsEvents];
+  rawEvents.value = [...scheduleEvents, ...orsEvents];
+  calendarEvents.value = [...filteredEvents.value];
 };
 
 
 watch(selectedClassFilter, async () => {
-  await loadSchedules();
-  await loadOrsSchedules();
+  // await loadSchedules();
+  // await loadOrsSchedules();
+  await loadAllEvents();
 });
   
 onMounted(async () => {
-  await loadSchedules(); // 초기 전체 일정 불러오기
-  await loadOrsSchedules(); 
+  // await loadSchedules();
+  // await loadOrsSchedules(); 
+  await loadAllEvents();
 
   try {
     const nurseRes = await apiClient.get('/nurses');
     const nurses = nurseRes.data.content;
+
+    console.log(nurseRes);
 
     nurseOptions.value = nurses.map(nurse => ({
       label: nurse.name,
@@ -808,7 +827,7 @@ onMounted(async () => {
     // .vuecal__event.leisure {background-color: #fd9c42d9;border-color: #e9882e;}
     // .vuecal__event.health {background-color: #57cea9cc;border-color: #90d2be;}
     // .vuecal__event.sport {background-color: #ff6666d9;border-color: #eb5252;}
-    .vuecal__event.work {background-color: #fd9c42d9;border-color: #e9882e;}
+    .vuecal__event.work {background-color: #9b76d8d9;border-color: #9b76d8d9;}
     .vuecal__event.surgery {background-color: #57cea9cc;border-color: #90d2be;}
     .vuecal__event.sport {background-color: #ff6666d9;border-color: #eb5252;}
   }
@@ -834,4 +853,5 @@ onMounted(async () => {
     }
     .vue-cal--main {margin-left: 0;}
   }
+
   </style>
