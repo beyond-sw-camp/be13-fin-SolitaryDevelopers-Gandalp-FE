@@ -128,7 +128,7 @@ const fetchList = async () => {
     },
   })
 
-  scheduleList.value = data.items
+  scheduleList.value = data.items.filter(item => item && item.offScheduleTempId)
   hasMore.value = data.hasMore
 }
 const fetchListByEmailOrName = async (type, keyword) => {
