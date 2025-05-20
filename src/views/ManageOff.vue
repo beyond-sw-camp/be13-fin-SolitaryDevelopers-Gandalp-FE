@@ -1,14 +1,14 @@
 <template>
     <div class="off-schedule-page">
-      <h2 class="title">오프 일정 조회</h2>
+      <h2 class="title">오프 관리</h2>
   
       <div class="search-bar">
-        <select v-model="searchType">
+        <select class="search-option" v-model="searchType">
           <option disabled value="">검색 기준 선택</option>
           <option value="email">이메일</option>
           <option value="name">이름</option>
         </select>
-        <input v-model="searchKeyword" placeholder="검색어를 입력하세요" />
+        <input class="search-input" v-model="searchKeyword" placeholder="검색어를 입력하세요" />
         <button class="search-btn" @click="fetchListByEmailOrName(searchType, searchKeyword)">검색</button>
       </div>
   
@@ -90,6 +90,15 @@ const scheduleList = ref([])
 const currentPage = ref(1)
 const hasMore = ref(true)
 
+const changePage = (page) => {
+  currentPage.value = page;
+  if (searchType.value && searchKeyword.value) {
+    fetchListByEmailOrName(searchType.value, searchKeyword.value)
+  } else {
+    fetchList()
+  }
+}
+
 const acceptOff = async (scheduleTempId) => {
   const confirmed = confirm('이 오프 신청을 승인하시겠습니까?')
   if (!confirmed) return
@@ -139,12 +148,28 @@ const fetchList = async () => {
     params: {
       type: searchType.value,
       keyword: searchKeyword.value,
-      page: currentPage.value,
+      page: currentPage.value - 1,
     },
   })
 
-  scheduleList.value = data.items
-  hasMore.value = data.hasMore
+  // console.log("📦 응답 데이터:", data)
+
+  let content = []
+
+  if (Array.isArray(data.content)) {
+    content = data.content
+  } else if (Array.isArray(data.items?.content)) {
+    content = data.items.content
+  } else {
+    console.warn("📛 예상하지 못한 응답 구조:", data)
+  }
+
+  scheduleList.value = content
+
+  totalPages.value = data.totalPages
+  ?? data.items?.totalPages
+  ?? 1;
+  hasMore.value = currentPage.value < totalPages.value
 }
 const fetchListByEmailOrName = async (type, keyword) => {
   if (!type || !keyword) {
@@ -153,7 +178,11 @@ const fetchListByEmailOrName = async (type, keyword) => {
   }
 
   let url = ''
-  const params = {}
+  const params = {
+    type: type,
+    keyword: keyword,
+    page: currentPage.value - 1
+  }
 
   if (type === 'email') {
     url = '/schedules/off/temp/nurse'
@@ -168,9 +197,29 @@ const fetchListByEmailOrName = async (type, keyword) => {
 
   try {
     const { data } = await apiClient.get(url, { params })
+    console.log(data);
+    
+    let content = []
 
-    scheduleList.value = data // 컨트롤러에서 Map이 아닌 List만 반환 중
-    hasMore.value = false // 페이징 없음
+    if (Array.isArray(data.content)) {
+      content = data.content
+      totalPages.value = data.totalPages ?? 1
+    } else if (Array.isArray(data.items?.content)) {
+      content = data.items.content
+      totalPages.value = data.items.totalPages ?? 1
+    } else {
+      console.warn("📛 예상하지 못한 응답 구조:", data)
+    }
+
+    
+    
+
+    scheduleList.value = content
+    currentPage.value = 1 // ✅ 첫 페이지로 초기화
+    hasMore.value = currentPage.value < totalPages.value
+
+    
+
   } catch (err) {
     console.error('검색 실패:', err)
     alert('검색 중 오류가 발생했습니다.')
@@ -216,28 +265,85 @@ onMounted(fetchList)
   <style scoped>
   .off-schedule-page {
     padding: 24px;
+    background: white;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+                -2px -2px 5px rgba(255, 255, 255, 0.8); /* 양쪽 그림자 효과 */
+    border-radius: 10px;
   }
   .title {
-    font-size: 20px;
+    color: black;
+    text-align: center;
+    font-size: 18px;
     font-weight: bold;
     margin-bottom: 16px;
     margin-top: 5px;
   }
-  .search-bar {
+.search-bar {
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
+    margin-left:957px;
   }
+  .search-input {
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+                -2px -2px 5px rgba(255, 255, 255, 0.8); /* 양쪽 그림자 효과 */
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 11px;
+    transition: all 0.2s ease-in-out;
+    outline: none;
+  }
+  .search-option {
+    border: 1px solid #ddd;
+    background: #fff;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
+                -2px -2px 5px rgba(255, 255, 255, 0.8); /* 양쪽 그림자 효과 */
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 11px;
+    transition: all 0.2s ease-in-out;
+    outline: none;
+  }
+  .search-btn {
+  height: 32px;
+  min-width: 70px;
+  background: white;
+  border: 1.3px solid #a0adb4;
+  font-size: 0.85rem;
+  font-weight: normal;
+  cursor: pointer;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  line-height: 1;
+  padding: 0 12px;
+  transition: all 0.2s ease-in-out;
+  margin-top: 2px;
+}
+.search-btn:hover {
+  background-color: rgba(0, 0, 0, 0.2) ;
+  color: white  !important;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
   .thead{
-    background: linear-gradient(to right, #ADDDF9 0%, #C2EBFF 100%);
+    /* background: linear-gradient(to right, #dee5ef 0%, #dee5ef 100%); */
+    background: rgb(36, 36, 36);
     border: none;
-    color: #000;
-    font-size: 13px;
-    font-weight: bold;
+    color: #fff;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
+    
     line-height: 1;
     padding: 0 8px;
+
+    height: 40px;
+
+    font-family: "Noto Sans KR", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 13px; 
   }
   .schedule-table {
     width: 100%;
@@ -267,31 +373,9 @@ onMounted(fetchList)
   /* background-color: #fff7e6;  */
   color: #f39c12;
 }
-  .search-btn {
-  width: 5%;
-  height: 36px;
-  background: linear-gradient(to right, #ADDDF9 0%, #C2EBFF 100%);
-  border: none;
-  color: #000;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  line-height: 1;
-  padding: 0 8px;
-  transition: all 0.2s ease-in-out;
-}
-
-.search-btn:hover {
-  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px); /* 살짝 떠오르는 느낌 */
-}
 
   .schedule-table th,
   .schedule-table td {
-    border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
   }
@@ -315,13 +399,13 @@ onMounted(fetchList)
 }
 
 .page-btn:hover:not(:disabled) {
-  border-color: #409eff;
-  color: #409eff;
+  border-color: #a9adb4;
+  color: #a9adb4;
 }
 
 .page-btn.active {
-  border: 2px solid #409eff;
-  color: #409eff;
+  border: 2px solid #a9adb4;
+  color: #a9adb4;
   font-weight: bold;
 }
 
@@ -332,17 +416,16 @@ onMounted(fetchList)
 }
 
 .accept-btn{
-  width: 50%;
-  height: 36px;
-  background: linear-gradient(to right, #8CCEF0 0%, #A0E4FF 100%);
+  height: 25px;
+  min-width: 60px;
+  background: linear-gradient(to right, #b4e6ff 0%, #d0f0fe 100%);
   border: none;
   color: #000;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  line-height: 1;
   padding: 0 8px;
   transition: all 0.2s ease-in-out;
 }
@@ -353,17 +436,16 @@ onMounted(fetchList)
 }
 
 .reject-btn {
-  width: 50%;
-  height: 36px;
-  background: linear-gradient(to right, #F2A39F 0%, #F5B8B4 100%);
+  height: 25px;
+  min-width: 60px;
+  background: linear-gradient(to right, #f1dfdf 0%, #f1dfdf  100%);
   border: none;
   color: #000;
-  font-size: 13px;
+  font-size: 11px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  line-height: 1;
   padding: 0 8px;
   transition: all 0.2s ease-in-out;
 }

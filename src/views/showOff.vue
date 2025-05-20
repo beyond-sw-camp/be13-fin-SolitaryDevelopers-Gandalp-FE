@@ -94,6 +94,15 @@ const scheduleList = ref([])
 const currentPage = ref(1)
 const hasMore = ref(true)
 
+const changePage = (page) => {
+  currentPage.value = page;
+  if (searchType.value && searchKeyword.value) {
+    fetchListByEmailOrName(searchType.value, searchKeyword.value)
+  } else {
+    fetchList()
+  }
+}
+
 const goToOffCalendar = () => {
   router.push({ path: '/OffCalendar' })
 }
@@ -124,13 +133,30 @@ const fetchList = async () => {
     params: {
       type: searchType.value,
       keyword: searchKeyword.value,
-      page: currentPage.value,
+      page: currentPage.value - 1,
     },
   })
 
-  scheduleList.value = data.items
-  hasMore.value = data.hasMore
+  // console.log("📦 응답 데이터:", data)
+
+  let content = []
+
+  if (Array.isArray(data.content)) {
+    content = data.content
+  } else if (Array.isArray(data.items?.content)) {
+    content = data.items.content
+  } else {
+    console.warn("📛 예상하지 못한 응답 구조:", data)
+  }
+
+  scheduleList.value = content
+
+  totalPages.value = data.totalPages
+  ?? data.items?.totalPages
+  ?? 1;
+  hasMore.value = currentPage.value < totalPages.value
 }
+
 const fetchListByEmailOrName = async (type, keyword) => {
   if (!type || !keyword) {
     alert('검색 기준과 키워드를 모두 입력해주세요.')
@@ -138,7 +164,11 @@ const fetchListByEmailOrName = async (type, keyword) => {
   }
 
   let url = ''
-  const params = {}
+  const params = {
+    type: type,
+    keyword: keyword,
+    page: currentPage.value - 1
+  }
 
   if (type === 'email') {
     url = '/schedules/off/temp/nurse'
@@ -153,9 +183,29 @@ const fetchListByEmailOrName = async (type, keyword) => {
 
   try {
     const { data } = await apiClient.get(url, { params })
+    console.log(data);
+    
+    let content = []
 
-    scheduleList.value = data // 컨트롤러에서 Map이 아닌 List만 반환 중
-    hasMore.value = false // 페이징 없음
+    if (Array.isArray(data.content)) {
+      content = data.content
+      totalPages.value = data.totalPages ?? 1
+    } else if (Array.isArray(data.items?.content)) {
+      content = data.items.content
+      totalPages.value = data.items.totalPages ?? 1
+    } else {
+      console.warn("📛 예상하지 못한 응답 구조:", data)
+    }
+
+    
+    
+
+    scheduleList.value = content
+    currentPage.value = 1 // ✅ 첫 페이지로 초기화
+    hasMore.value = currentPage.value < totalPages.value
+
+    
+
   } catch (err) {
     console.error('검색 실패:', err)
     alert('검색 중 오류가 발생했습니다.')
@@ -198,7 +248,7 @@ onMounted(fetchList)
 </script>
 
   
-  <style scoped>
+<style scoped>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
   .off-schedule-page {
     padding: 24px;
