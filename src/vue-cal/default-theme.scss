@@ -1,5 +1,5 @@
 .vuecal--default-theme {
-  --vuecal-primary-color: #62aadd;
+  --vuecal-primary-color: #316b6f;
   --vuecal-secondary-color: #fff;
   --vuecal-base-color: #000;
   --vuecal-contrast-color: #fff;
@@ -54,6 +54,7 @@
     padding-left: 0.6em;
     padding-right: 0.6em;
     background-color: color-mix(in srgb, var(--vuecal-secondary-color) 20%, transparent);
+    font-size: 0.95em;
   }
 
   .vuecal__view-button,
