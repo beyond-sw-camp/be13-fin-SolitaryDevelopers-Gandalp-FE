@@ -60,10 +60,8 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-if="!loading && statistics.length === 0">
-            <td colspan="6" class="empty-cell">조회 결과가 없습니다.</td>
-          </tr>
-          <tr v-else v-for="stat in statistics" :key="stat.nurseId">
+
+          <tr v-for="stat in statistics" :key="stat.nurseId">
             <td>{{ stat.nurseName }}</td>
 
             <!-- ON: Day, Evening, Night -->
@@ -118,6 +116,7 @@ const loading      = ref(false)
 // ─── 2) 실제 호출 시 아무 옵션 없으면 지난 달, 있으면 그대로 전달 ────────
 async function loadStatistics() {
   loading.value = true
+  statistics.value = []
   try {
     const params = {
       status:       status.value || null,
@@ -130,8 +129,7 @@ async function loadStatistics() {
     statistics.value = res.data
   } catch (e) {
     console.error(e)
-    statistics.value = []
-    alert('통계 조회 중 오류가 발생했습니다.')
+    // alert('통계 조회 중 오류가 발생했습니다.')
   } finally {
     loading.value = false
   }
