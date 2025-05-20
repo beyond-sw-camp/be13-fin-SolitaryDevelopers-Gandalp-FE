@@ -400,7 +400,7 @@ dialog.dialog {
   }
   
   .dialog-header {
-    background-color: #1e3a8a;
+    background-color: #52586a;
     color: white;
     padding: 16px 24px;
     font-size: 18px;
@@ -496,13 +496,13 @@ dialog.dialog {
   }
   
   .btn.primary {
-    background: #2563eb;
+    background: #577dcf;
     color: white;
   }
   
   .btn.danger {
-    background: #dc2626;
-    color: white;
+    background: linear-gradient(90deg, #F2A39F 26%, #F5B8B4 100%);
+    color: rgb(0, 0, 0);
   }
   </style>
   
