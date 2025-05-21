@@ -40,7 +40,8 @@ export default defineConfig({
     'process.env': {
       VITE_APP_VERSION: process.env.npm_package_version,
       __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
-    }
+    },
+    global: 'globalThis'
   },
   plugins: [
     vue({
