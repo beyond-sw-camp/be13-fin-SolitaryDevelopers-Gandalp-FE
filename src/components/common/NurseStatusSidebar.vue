@@ -1,7 +1,8 @@
 <template>
   <div class="status-border">
   <div class="status-header">
-    <div class="status-title-box" >
+    <div class="status-title-box" @click="toggleOpen">
+      <span class="arrow">{{ isOpen ? '▾' : '▸' }}</span>
       <span class="status-title"> 근무 현황</span>
     </div>
     <button class="edit-btn" @click="showModal = true"> 
@@ -10,28 +11,42 @@
   </div>
 
 
-  <ul class="status-list">
-    <li v-for="nurse in nurses" :key="nurse.id">
-      <span class="nurse-name">{{ nurse.name }}</span>
-      <span class="status-indicator">
-        <span class="dot" :class="getColor(nurse.workingStatus)"></span>
-        <span class="status-label">{{ getLabel(nurse.workingStatus) }}</span>
-      </span>
-    </li>
-  </ul>
+  <ul class="status-list" v-if="isOpen">
+  <li v-for="nurse in nurses" :key="nurse.id">
+    <span class="nurse-name">{{ nurse.name }}</span>
+    <span class="status-indicator">
+      <span class="dot" :class="getColor(nurse.workingStatus)"></span>
+      <span class="status-label">{{ getLabel(nurse.workingStatus) }}</span>
+    </span>
+  </li>
+</ul>
+
 
     <!-- 모달 팝업 -->
   <div v-if="showModal" class="modal-overlay">
     <div class="modal">
       <h4>근무 상태 수정</h4>
 
-        <!-- 간호사 선택 드롭다운  -->
-        <select v-model="selectedNurseId">
-          <option disabled :value="null">간호사를 선택하세요 </option>
-          <option v-for="nurse in nurses" :key="nurse.id" :value="nurse.id">
-            {{ nurse.name }}
-          </option>
-        </select>
+      <!-- 간호사 이름 검색 -->
+      <input
+        type="text"
+        v-model="nurseSearch"
+        placeholder="간호사 이름 검색"
+        class="search-input"
+      />
+
+      <!-- 간호사 선택 드롭다운 -->
+      <select v-model="selectedNurseId">
+        <option disabled :value="null">간호사를 선택하세요</option>
+        <option
+          v-for="nurse in filteredNurses"
+          :key="nurse.id"
+          :value="nurse.id"
+        >
+          {{ nurse.name }}
+        </option>
+      </select>
+
 
         <!-- 비밀번호 입력 -->
         <input type="password" v-model="form.password" placeholder="비밀번호" />
@@ -58,14 +73,51 @@
 
 <script setup>
 
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, onBeforeUnmount, computed } from 'vue'
 import apiClient from '@/api/axios'
+import SockJS from 'sockjs-client'
+import { Stomp } from '@stomp/stompjs'
 
+const nurseSearch = ref('')
 const nurses = ref([])
 const showModal = ref(false)
 const errorMessage = ref('')
 const toastMessage = ref('')
 const selectedNurseId = ref(null)
+const isOpen = ref(true)
+const toggleOpen = () => (isOpen.value = !isOpen.value)
+let stompClient = null;
+
+// websocket 연결 및 구독
+const connectWebSocket = () => {
+  const socket = new SockJS('http://localhost:8080/connect')
+  stompClient = Stomp.over(socket)
+
+  stompClient.connect({
+    Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+  }, () => {
+    console.log('STOMP 연결됨')
+
+    stompClient.subscribe('/topic/nurse-status', (message) => {
+      const data = JSON.parse(message.body)
+      console.log('📡 상태 갱신 수신:', data)
+      nurses.value = data
+    })
+
+  })
+}
+
+
+
+const filteredNurses = computed(() => {
+  if (!nurseSearch.value.trim()) {
+    return nurses.value // 🔁 검색어 없으면 전체 반환
+  }
+  return nurses.value.filter((nurse) =>
+    nurse.name.toLowerCase().includes(nurseSearch.value.toLowerCase())
+  )
+})
+
 
 
 const form = reactive({
@@ -132,7 +184,21 @@ const submitStatus = async () => {
   }
 }
 
-onMounted(fetchStatus)
+onMounted(() => {
+  fetchStatus()
+  connectWebSocket()
+})
+
+onBeforeUnmount(() => {
+  if(stompClient) {
+    stompClient.disconnect(() => {
+      console.log('🔌 STOMP 연결 해제')
+    })
+  }
+})
+
+
+
 </script>
 
 <style>
@@ -285,7 +351,7 @@ onMounted(fetchStatus)
 /* ✅ 토스트 메시지 */
 .toast {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   right: 20px;
   background: #4caf50;
   color: white;

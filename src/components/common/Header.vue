@@ -153,7 +153,7 @@ const logout = () => {
 
 .nav >*{
   display: flex;
-  gap: 4vw;
+  gap: 2vw; 
   align-items: center;
 }
 
