@@ -18,7 +18,7 @@ import NurseList from '@/views/nurse/NurseList.vue'
 
 import StatisticTabsView from "@/views/statistic/StatisticTabsView.vue";
 
-import ShowHospitalList from "@/views/hospital/ShowHospitalList.vue";
+import HospitalMap from "@/views/hospital/HospitalMap.vue";
 import UpdateEr from "@/views/hospital/UpdateEr.vue";
 import SurgeryReservation from '@/views/SurgeryReservation.vue'
 
@@ -98,6 +98,13 @@ const routes = [
         name: 'surgeryReservation',
         component: SurgeryReservation
       },
+
+      {
+        path: '/updateEr',
+        name: 'UpdateEr',
+        component: UpdateEr
+      }
+
     ],
   },
   {
@@ -117,16 +124,13 @@ const routes = [
     name: 'login',
     component: Login
   },
+
   {
-    path: '/hospitalList',
-    name: 'ShowHospitalList',
-    component: ShowHospitalList
+    path: '/hospitalMap',
+    name: 'hospitalMap',
+    component: HospitalMap
   },
-  {
-    path: '/updateEr',
-    name: 'UpdateEr',
-    component: UpdateEr
-  }
+
 
 
 ]

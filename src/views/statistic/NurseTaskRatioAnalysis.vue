@@ -95,7 +95,7 @@ async function loadStatistics() {
         labels: ['근무','수술','오프'],
         datasets: [{
           data,
-          backgroundColor: ['#82D173','#A5D8FF','#E0E0E0'],
+          backgroundColor: ['#ff6b81','#7986C7','#F6F6F6'],
           borderWidth: 0
         }]
       },
@@ -161,7 +161,7 @@ watch([selectOption, year, month, quarter], loadStatistics, { immediate: true })
 .btn {
   height: 36px;
   padding: 0 16px;
-  background: #377dff;
+  background: #6A7EFC;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -187,9 +187,9 @@ watch([selectOption, year, month, quarter], loadStatistics, { immediate: true })
   height: 12px;
   border-radius: 50%;
 }
-.dot.work    { background: #82D173; }
-.dot.surgery { background: #A5D8FF; }
-.dot.off     { background: #E0E0E0; }
+.dot.work    { background: #ff6b81; }
+.dot.surgery { background: #7986C7; }
+.dot.off     { background: #F6F6F6; }
 
 /* ─── 3) 차트 리스트 ───────────────────────────────── */
 .chart-list {
