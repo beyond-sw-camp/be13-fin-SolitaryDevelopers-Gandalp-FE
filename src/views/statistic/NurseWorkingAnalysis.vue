@@ -56,7 +56,18 @@
         <table class="stats-table">
           <thead>
           <tr>
-            <th>간호사</th><th>Day</th><th>Evening</th><th>Night</th><th>Surgery</th><th>Off</th>
+            <th>간호사</th>
+            <div v-if="status === 'ON'">
+            <th>Day</th>
+            <th>Evening</th>
+            <th>Night</th>
+            </div>
+            <div v-else-if="status === 'IN_SURGERY'">
+            <th>Surgery</th>
+            </div>
+            <div v-else-if="status === 'OFF'">
+            <th>Off</th>
+            </div>
           </tr>
           </thead>
           <tbody>
@@ -73,15 +84,13 @@
 
             <!-- IN_SURGERY: Surgery only -->
             <template v-else-if="status === 'IN_SURGERY'">
-              <td colspan="3">—</td> <!-- 빈 칸 -->
               <td>{{ stat.surgeryCount }}</td>
             </template>
 
             <!-- OFF: Off only -->
-            <template v-else-if="status === 'OFF'">
-              <td colspan="4">—</td>
+            <div v-else-if="status === 'OFF'">
               <td>{{ stat.offCount }}</td>
-            </template>
+            </div>
           </tr>
           </tbody>
         </table>
@@ -95,7 +104,7 @@ import { ref, onMounted, watch } from 'vue'
 import apiClient from '@/api/axios'
 import NurseStatisticsChart from './NurseStatisticsChart.vue'
 
-// ─── 1) “지난 달” 기본값 계산 ─────────────────────────
+// “지난 달” 기본값 계산
 const now = new Date()
 // 현재가 1월이면 지난 달 = 작년 12월, 그렇지 않으면 getMonth() (0=1월,…) 그대로
 const defaultYear  = now.getMonth() === 0
@@ -135,7 +144,7 @@ async function loadStatistics() {
   }
 }
 
-// ─── 3) 마운트 시 자동 로드 ─────────────────────────
+// 3) 마운트 시 자동 로드
 onMounted(loadStatistics)
 
 watch([selectOption, year, month, quarter, status], () => {
@@ -265,9 +274,5 @@ watch([selectOption, year, month, quarter, status], () => {
   font-size: 14px;
 }
 
-.empty-cell {
-  text-align: center;
-  padding: 16px;
-  color: #999;
-}
+
 </style>

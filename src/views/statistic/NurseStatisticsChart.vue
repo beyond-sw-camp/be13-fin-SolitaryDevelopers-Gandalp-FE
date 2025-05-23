@@ -36,8 +36,8 @@ function renderChart() {
   const surgeryData = props.dataList.map(d => d.surgeryCount)
   const offData     = props.dataList.map(d => d.offCount)
 
-  // ─── 1) 최대값 계산 ─────────────────────────────
-  // (1) 각 레이블(간호사)마다 스택 합계를 구한다
+  // 최대값 계산
+  // 각 간호사의 스택 합계를 구함
   const stackSums = labels.map((_, i) => {
        if (props.status === 'ON') {
          return dayData[i] + eveningData[i] + nightData[i]
@@ -48,13 +48,11 @@ function renderChart() {
        }
   })
   const maxVal = Math.max(...stackSums, 0)
-
-  // ─── 2) 10단위 올림 → +1구간 ────────────────────
+  // 10단위 올림 + 10
   const step    = 10
   const rounded = Math.ceil(maxVal / step) * step    // ex: 59 → 60
   const yMax    = rounded + step                     // → 70
-
-  // ─── 3) status 에 따라 datasets 구성 ───────────
+  // status 에 따라 datasets 구성
   const thin = 40
   let datasets = []
   if (props.status === 'ON') {
@@ -75,7 +73,16 @@ function renderChart() {
     ]
   }
 
-  // ─── 4) 차트 생성 ───────────────────────────────
+  // 캔버스 최소 너비 계산 & 적용
+  // 한 그룹당 너비: barThickness + 추가 여백(약 20px)
+  const groupWidth = thin + 20                            // ← 그룹당 총 너비
+  const minGroups  = 5                                    // ← 최소 5명
+  const groups     = labels.length                        // ← 실제 간호사 수
+  const width      = Math.max(minGroups * groupWidth,     // ← 5명이 안 되면 5*groupWidth,
+    groups * groupWidth)        //    그 이상이면 labels.length*groupWidth
+  canvas.value.style.minWidth = `${width}px`
+
+  // 차트 생성
   chartInstance = new Chart(canvas.value, {
     type: 'bar',
     data: { labels, datasets },
@@ -130,9 +137,9 @@ watch([() => props.dataList, () => props.status], renderChart)
   margin: 0 auto;
   max-width: 1200px;
   height: 500px;
+  overflow-x: auto;
 }
 .chart-wrapper canvas {
-  width: 100% !important;
   height: 100% !important;
 }
 </style>

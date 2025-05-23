@@ -14,10 +14,10 @@
 
 
 
-      <!-- 응급대원인 경우 지도 검색만 볼 수 있음 -->
-<!--      <div v-else-if="isParamedic">-->
-<!--        <RouterLink to="/hospitalList">병상 수용 정보</RouterLink>-->
-<!--      </div>-->
+<!--       응급대원인 경우 지도 검색만 볼 수 있음-->
+      <div v-else-if="isParamedic">
+        <RouterLink to="/hospitalMap">병원 찾기</RouterLink>
+      </div>
 
       <div v-else>
 
@@ -25,7 +25,6 @@
 
         <RouterLink to="/calendar">캘린더</RouterLink>
         <RouterLink to="/shifts">근무 교대 신청</RouterLink>
-        <RouterLink to="/bed-info">병상 수용 정보</RouterLink>
         <RouterLink to="/surgeryReservation">수술실 예약</RouterLink>
 
         <div class="dropdown" @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
@@ -40,9 +39,6 @@
 
         <RouterLink to="/statistics">분석 차트</RouterLink>
 
-        <RouterLink to="/updateEr">병상 수용 정보</RouterLink>
-
-
 
         <div class="dropdown" v-if="isHeadNurse"  @mouseenter="showNurseDropDown = true" @mouseleave="showNurseDropDown = false">
           <span class="menu-title">간호사 관리 ▾</span>
@@ -52,14 +48,18 @@
           </div>
       </div>
 
-    </div>
+        <RouterLink to="/updateEr">병상 정보 수정</RouterLink>
+
+
+
+      </div>
     </nav>
    </div>
     <div class="auth-btn">
         <button v-if="auth.isLoggedIn"  @click="logout">Logout</button>
         <button v-else @click="login">Login</button>
     </div>
- 
+
   </header>
 </template>
 
@@ -112,12 +112,12 @@ const logout = () => {
 }
 
 .header {
-  
+
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: relative;
-  z-index: 10;  
+  z-index: 10;
   font-family: 'Roboto Condensed', sans-serif;
   font-weight: 500;
   margin-left: 20px;
@@ -173,7 +173,7 @@ cursor: pointer;
 
 .dropdown {
   position: relative;
-  
+
 }
 .dropdown-menu {
   position: absolute;
