@@ -15,8 +15,8 @@
   <li v-for="nurse in nurses" :key="nurse.id">
     <span class="nurse-name">{{ nurse.name }}</span>
     <span class="status-indicator">
-      <span class="dot" :class="getColor(nurse.workingStatus)"></span>
-      <span class="status-label">{{ getLabel(nurse.workingStatus) }}</span>
+      <span class="dot" :class="getColor(nurse.codeLabel)"></span>
+      <span class="status-label">{{ nurse.codeLabel }}</span>
     </span>
   </li>
 </ul>
@@ -52,7 +52,7 @@
         <input type="password" v-model="form.password" placeholder="비밀번호" />
 
         <!-- 상태 선택 -->
-        <select v-model="form.workingStatus">
+        <select v-model="form.codeLabel">
           <option value="ON">근무 중</option>
           <option value="OFF">오프</option>
           <option value="IN_SURGERY">수술 중</option>
@@ -122,30 +122,27 @@ const filteredNurses = computed(() => {
 
 const form = reactive({
   password: '',
-  workingStatus: 'ON',
+  codeLabel: 'ON',
 })
 
 const fetchStatus = async () => {
   const res = await apiClient.get('/nurses/status')
   nurses.value = res.data
+  console.log(nurses.value);
 }
 
 const getColor = (status) => {
-  if (status === 'IN_SURGERY') return 'pink'
-  if (status === 'ON') return 'blue'
+  if (status === '수술 중') return 'pink'
+  if (status === '근무 중') return 'blue'
   return 'gray'
 }
-const getLabel = (status) => {
-  if (status === 'IN_SURGERY') return '수술 중'
-  if (status === 'ON') return '근무 중'
-  return '오프'
-}
+
 
 const closeModal = () => {
   showModal.value = false
   selectedNurseId.value = null
   form.password = ''
-  form.workingStatus = 'ON'
+  form.codeLabel = 'ON'
   errorMessage.value = ''
 }
 
@@ -163,7 +160,7 @@ const submitStatus = async () => {
     const payload = {
       nurseId: selectedNurseId.value,
       password: form.password,
-      workingStatus: form.workingStatus
+      codeLabel: form.codeLabel
     }
 
     console.log(payload)
