@@ -6,6 +6,9 @@
               <input v-model="accountId" placeholder="아이디" class="input-box" />
               <input v-model="password" placeholder="비밀번호" type ="password" class="input-box" />
               <button type="submit" class="login-btn">확인</button>
+              
+              <p v-if="errorMessage"  class="error-text" v-html="errorMessage">
+              </p>
             </form>
         </div>
 
@@ -20,17 +23,24 @@ import { useAuthStore } from '@/stores/auth'
 const accountId = ref('')
 const password = ref('')
 const auth = useAuthStore()
-
+const errorMessage = ref('')
 
 const login = async () => {
+  if (!accountId.value || !password.value) {
+    errorMessage.value = '아이디와 비밀번호를 모두 입력해 주세요.';
+    return;
+  }
+
     try{
       await auth.login({
         accountId: accountId.value,
         password: password.value,
       })
+      errorMessage.value = '';
     }catch (err){
-        console.error(err) 
-        alert(err.response?.data?.message || '로그인 실패') 
+      const error = err.response?.data?.error;
+      errorMessage.value = typeof error === 'string' ? error : '로그인 실패';
+
     }
 }
 </script>
@@ -81,4 +91,10 @@ const login = async () => {
 .login-btn:hover {
   background-color: #3a91e8;
 }
+.error-text {
+  color: red;
+  margin-top: 8px;
+  white-space: pre-line; /* 줄바꿈을 인식하게 */
+}
+
 </style>

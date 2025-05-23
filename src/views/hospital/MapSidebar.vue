@@ -37,6 +37,12 @@
 <script setup>
 import { ref, watch, onMounted, defineExpose } from 'vue'
 import apiClient from '@/api/axios'
+import { Stomp } from '@stomp/stompjs'
+import SockJS from 'sockjs-client'
+
+
+const stompClient = ref(null)
+
 
 // 정렬 옵션
 const SORT_OPTIONS = ['DISTANCE', 'ER_COUNT']
@@ -55,7 +61,43 @@ watch(
   }
 )
 
-onMounted(locateMe)
+onMounted(() => {
+  connectWebSocket()
+  locateMe()
+})
+
+
+
+const connectWebSocket = () => {
+  const socket = new SockJS('http://localhost:8080/connect')
+  stompClient.value = Stomp.over(socket)
+
+  stompClient.value.connect(
+    {
+      Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+    },
+    () => {
+      console.log('✅ STOMP 연결됨')
+
+      stompClient.value.subscribe('/topic/er-status', (message) => {
+        const updated = JSON.parse(message.body)
+        console.log('📦 병상 수 갱신 수신:', updated)
+        updateHospitalInList(updated)
+      })
+    },
+    (error) => {
+      console.error('❌ STOMP 연결 실패:', error)
+    }
+  )
+}
+
+function updateHospitalInList(updatedHospital){
+  const idx = hospitals.value.findIndex(h => h.id === updatedHospital.id)
+  if(idx !== -1){
+    hospitals.value[idx].availableErCount = updatedHospital.availableErCount
+  }
+}
+
 
 async function locateMe() {
 
