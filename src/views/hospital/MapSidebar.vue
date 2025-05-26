@@ -21,7 +21,7 @@
     <!-- 병원 리스트 -->
     <ul class="hospital-list">
       <li
-        v-for="h in hospitals"
+        v-for="h in sortedHospitals"
         :key="h.id"
         @click="$emit('select-hospital', h)"
       >
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, defineExpose } from 'vue'
+import { ref, watch, onMounted, defineExpose, computed } from 'vue'
 import apiClient from '@/api/axios'
 import { Stomp } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
@@ -65,6 +65,8 @@ onMounted(() => {
   connectWebSocket()
   locateMe()
 })
+
+
 
 
 
@@ -99,10 +101,19 @@ function updateHospitalInList(updatedHospital){
 }
 
 
+// 병상수가 수정되면 그에 따라 가용 병상 순 리스트가 수정된다.
+const sortedHospitals = computed(() => {
+  if(sortBy.value === 'ER_COUNT'){
+    return [...hospitals.value].sort((a,b) => b.availableErCount - a.availableErCount)
+  }
+  return hospitals.value
+})
+
+
 async function locateMe() {
 
   if( !('geolocation' in navigator)){
-     alert('브라우저에서 Geolocation을 지원하지 않습니다.')
+      alert('브라우저에서 Geolocation을 지원하지 않습니다.')
     return
   }
 

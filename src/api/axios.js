@@ -1,5 +1,4 @@
 import router from '@/router';
-import router from '@/router';
 import axios from 'axios';
 
 const apiClient = axios.create({
