@@ -3,22 +3,39 @@
     <h2 class="title">교대근무 교환 게시판</h2>
 
     <div class="search-bar">
-      <select v-model="searchType">
-        <option disabled value="">검색 기준 선택</option>
-        <option value="content">바꿀 교대 타임</option>
-      </select>
-      <input v-model="searchKeyword" placeholder=" 검색어를 입력하세요" />
-      <!-- <button class="search-btn" @click="fetchListByContent">검색</button> -->
-       <button class="search-btn" @click="onSearchClick">검색</button>
-
+      <v-select
+        v-model="searchType"
+        :items="searchOptions"
+        label="검색 기준 선택"
+        density="compact"
+        variant="outlined"
+        class="small-select"
+        style="width: 100px"
+        hide-details
+      ></v-select>
+      
+      <v-text-field
+        v-model="searchKeyword"
+        placeholder="검색어를 입력하세요"
+        @keydown.enter="onSearchClick"
+        clearable
+        rounded
+        variant="outlined"
+        density="compact"
+        append-inner-icon="mdi-magnify"
+        @click:append-inner="onSearchClick"
+        hide-details
+        class="small-text-field"
+        style="flex: 1;"
+      />
     </div>
 
-    <table class="shift-table">
-      <thead class="thead">
+    <v-table fixed-header height="580px" class="elevation-1">
+      <thead>
         <tr>
-          <th style="text-align: left; padding-left: 20px;">바꿀 교대 타임</th>
-          <th>상태</th>
-          <th>작성일자</th>
+          <th class="text-center">바꿀 교대 타임</th>
+          <th class="text-center">상태</th>
+          <th class="text-center">작성일자</th>
         </tr>
       </thead>
       <tbody>
@@ -26,14 +43,17 @@
           <!-- <td style="text-align: left;">{{ item.content }}</td> -->
           <td
   class="content-cell"
-  style="text-align: left; cursor: pointer;"
-  @click="goToDetails(item.boardId)"
+  :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
+  :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
+  @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
 >
   {{ item.content }}
 </td>
 
 
-          <td>
+
+
+          <td class="text-center">
             <span
               :class="{
                 badge: true,
@@ -44,31 +64,35 @@
               {{ item.boardStatusLabel }}
             </span>
           </td>
-          <td>{{ formatDateTime(item.updatedAt) }}</td>
-        </tr>
+          <td class="text-center">
+            {{ formatDateTime(item.updatedAt) }}
+          </td>
+       </tr>
       </tbody>
-    </table>
-    <button class="write-post" @click="goToCreateShift">
-      글 작성
-    </button>
+    </v-table>
 
 
-    <div class="pagination">
-      <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
-        &lt;
-      </button>
-      <button
-        v-for="page in totalPages"
-        :key="page"
-        class="page-btn"
-        :class="{ active: currentPage === page }"
-        @click="changePage(page)">
-        {{ page }}
-      </button>
-      <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
-        &gt;
-      </button>
-    </div>
+    <div class="pagination-bar">
+      <div class="pagination">
+        <v-pagination
+          v-model="currentPage"
+          :length="totalPages"
+          :total-visible="5"
+          color="black"
+          size="small"
+          @update:modelValue="changePage"
+        />
+      </div>
+    
+      <v-btn
+        size="small"
+        class="custom-btn"
+        @click="goToCreateShift"
+      >
+        <v-icon size="12" class="mr-1 icon-black" style="vertical-align: middle">mdi-pencil</v-icon>
+        <span class="text-black">작성</span>
+      </v-btn>
+   </div>
   </div>
 </template>
 
@@ -77,6 +101,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import dayjs from 'dayjs'
+import { mdiAccount, mdiLogout } from '@mdi/js'
 
 const boardId = ref('')
 const shiftList = ref([])
@@ -85,6 +110,16 @@ const totalPages = ref(1)
 const searchType = ref('')
 const searchKeyword = ref('')
 const router = useRouter()
+
+const searchOptions = [
+  { title: '바꿀 교대 타임', value: 'content' }
+];
+
+const headers = [
+  { text: '바꿀 교대 타임', value: 'content', align: 'start' },
+  { text: '상태', value: 'boardStatusLabel' },
+  { text: '작성일자', value: 'updatedAt' },
+];
 
 // 글 등록 페이지로 이동
 const goToCreateShift = () => {
@@ -173,9 +208,6 @@ const formatDateTime = (dtStr) => {
 
 .shift-exchange-page {
   padding: 24px;
-  background: white;
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
-              -2px -2px 5px rgba(255, 255, 255, 0.8);
   border-radius: 10px;
   font-family: 'Noto Sans KR', sans-serif;
 }
@@ -189,11 +221,84 @@ const formatDateTime = (dtStr) => {
   color: black;
 }
 
-.search-bar {
+/* .search-icon-wrapper {
+  cursor: pointer;
   display: flex;
+  align-items: center;
+  padding-right: 4px;
+} */
+
+/*.search-bar {
+ display: flex;
   gap: 8px;
   margin-bottom: 16px;
   justify-content: flex-end;
+}*/
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+::v-deep(.v-table) {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ::v-deep(.v-table th:last-child),
+::v-deep(.v-table td:last-child) {
+  border-right: none;
+} */
+
+
+::v-deep(.small-select .v-field) {
+  min-height: 35px !important;
+  height: 35px !important;
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+::v-deep(.small-select) {
+  max-width: 200px;
+  font-size: 13px;
+}
+
+::v-deep(.small-text-field .v-field) {
+  min-height: 40px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+::v-deep(.small-text-field) {
+  max-width: 300px;
+  font-size: 13px;
+}
+
+::v-deep(.small-text-field .v-input__control) {
+  min-height: 40px !important;
+  height: 40px !important;
+}
+
+::v-deep(.small-text-field .v-field__input) {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  padding: 0 15px !important;
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
+::v-deep(.small-text-field input) {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 36px !important;
+  height: 36px !important;
 }
 
 .search-bar select,
@@ -258,7 +363,7 @@ const formatDateTime = (dtStr) => {
 }
 
 .content-cell {
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   font-size: 13px;
   font-family: 'Noto Sans KR', sans-serif;
@@ -274,6 +379,7 @@ const formatDateTime = (dtStr) => {
   border-radius: 8px;
   font-weight: bold;
   font-size: 13px;
+  
 }
 
 .completed {
@@ -305,11 +411,17 @@ const formatDateTime = (dtStr) => {
   transform: translateY(-1px);
 }
 
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
 .pagination {
+  flex: 1;
   display: flex;
   justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
 }
 
 .page-btn {
@@ -339,6 +451,14 @@ const formatDateTime = (dtStr) => {
   color: #ccc;
   border-color: #eee;
   cursor: not-allowed;
+}
+
+.custom-btn {
+  padding: 4px 8px !important;
+  font-size: 12px;
+  min-height: 32px !important;
+  /* background: linear-gradient(to right, #8d8f91 0%, #828486 100%) !important; */
+  background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%);
 }
 
   </style>
