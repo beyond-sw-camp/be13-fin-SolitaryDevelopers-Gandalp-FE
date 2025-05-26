@@ -31,19 +31,26 @@
       <!-- <div class="comments-title">댓글</div> -->
       <span class="comments-title">댓글</span>
       <button class="write-btn" @click="openWriteForm" v-if="!showWriteForm">작성</button>
-      <!-- <table class="comments-table">
-        <tbody>
-          <tr v-for="comment in detail.comments" :key="comment.commentId">
-            <td>{{ comment.commentId }}</td>
-            <td>{{ comment.content }}</td>
-          </tr>
-        </tbody>
-      </table> -->
-      <div v-for= "comment in detail.comments" :key="comment.commentId" class="comment-row">
-      <span style="font-size:13px;"> {{ formatDateTime(comment.createdAt) }} {{ comment.content }}</span>
-      <button class="commentedit-btn" @click="openEditForm(comment)">수정</button>
-      <button class="commentdelete-btn" @click="openCommentDeleteModal(comment)">삭제</button>
-      </div>
+      
+      
+      <div
+  v-for="comment in detail.comments"
+  :key="comment.commentId"
+  class="comment-row"
+  :class="{ 'comment-hover': hoveredCommentId === comment.commentId, 'comment-selected': comment.selected }"
+  @mouseenter="hoveredCommentId = comment.commentId"
+  @mouseleave="hoveredCommentId = null"
+  @click="trySelectComment(comment)"
+  style="cursor: pointer;"
+>
+  <span style="font-size:13px;">
+    {{ formatDateTime(comment.createdAt) }} {{ comment.content }}
+    <span v-if="comment.selected" style="color: #26a69a; font-weight: bold;">(채택됨)</span>
+  </span>
+  <button class="commentedit-btn" @click.stop="openEditForm(comment)">수정</button>
+  <button class="commentdelete-btn" @click.stop="openCommentDeleteModal(comment)">삭제</button>
+</div>                      
+
     </div>
   </div>
 
@@ -71,22 +78,6 @@
 </div>
 </div>
 
-    <!-- <div v-if="showWriteForm" class="comment-form">
-      <select v-model="writeMonth">
-        <option disabled value="">월</option>
-        <option v-for="month in months" :key="month" :value="month">{{ month }}월</option>
-      </select>
-      <select v-model="writeDay">
-        <option disabled value="">일</option>
-        <option v-for="day in daysInWriteMonth" :key="day" :value="day">{{ day }}일</option>
-      </select>
-      <select v-model="writeTime">
-        <option disabled value="">타임</option>
-        <option v-for="time in times" :key="time" :value="time">{{ time }}</option>
-      </select>
-      <button @click="submitComment">확인</button>
-      <button @click="commentCancelWrite">취소</button>
-    </div> -->
 
     <!-- 댓글 수정 폼 -->
     <div v-if="editingComment" class="comment-form-wrapper">
@@ -109,26 +100,8 @@
   </div>
 </div>
 
-    <!-- <div v-if="editingComment" class="comment-form">
-      <div class="comment-form-title">수정</div>
-      <select v-model="editMonth">
-        <option disabled value="">월</option>
-        <option v-for="month in months" :key="month" :value="month">{{ month }}월</option>
-      </select>
-      <select v-model="editDay">
-        <option disabled value="">일</option>
-        <option v-for="day in daysInEditMonth" :key="day" :value="day">{{ day }}일</option>
-      </select>
-      <select v-model="editTime">
-        <option disabled value="">타임</option>
-        <option v-for="time in times" :key="time" :value="time">{{ time }}</option>
-      </select>
-      <button @click="submitEdit">확인</button>
-      <button @click="cancelEdit">취소</button>
-    </div> -->
-
     <!-- 사용자 확인 모달 -->
-  <UserCheckModal
+  <UserCheckModalV2
     v-if="showModal"
     @close="showModal = false"
     @submit="handleSubmit"
@@ -141,8 +114,23 @@ import { useRoute, useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import UserCheckModal from '@/components/UserCheckModal.vue'
 import dayjs from 'dayjs'
+import UserCheckModalV2 from '@/components/UserCheckModalV2.vue'
+
+const now = new Date()
+const getShiftStartHour = (time) => {
+  if (time === '데이') return 6
+  if (time === '이브닝') return 14
+  if (time === '나이트') return 22
+  return 0
+}
+const isPast = (month, day, time) => {
+  const year = now.getFullYear()
+  const date = new Date(year, month - 1, day, getShiftStartHour(time), 0, 0)
+  return date < now
+}
 
 
+// 위에 새로 추가
 const months = Array.from({ length: 12 }, (_, i) => i + 1)
 const times = ['데이', '이브닝', '나이트']
 
@@ -168,22 +156,7 @@ function commentCancelWrite() {
   writeDay.value = ''
   writeTime.value = ''
 }
-async function submitComment() {
-  if (!writeMonth.value || !writeDay.value || !writeTime.value) {
-    alert('월, 일, 타임을 모두 선택해 주세요.')
-    return
-  }
-  const content = `${writeMonth.value}월 ${writeDay.value}일 ${writeTime.value}`
-  try {
-    await apiClient.post(`/shifts/comments/${boardId}`, { content }) // apiClient로 변경
-    alert('댓글이 작성되었습니다.')
-    await fetchDetail()
-    commentCancelWrite()
-  } catch (e) {
-    alert('댓글 등록 실패')
-    console.error(e)
-  }
-}
+
 
 // 댓글 수정 폼
 const editingComment = ref(null)
@@ -221,39 +194,54 @@ async function submitEdit() {
     alert('월, 일, 타임을 모두 선택해 주세요.')
     return
   }
-  const content = `${editMonth.value}월 ${editDay.value}일 ${editTime.value}`
+  if (isPast(editMonth.value, editDay.value, editTime.value)) {
+    alert('과거 일정은 선택할 수 없습니다.')
+    return
+  }
+  showModal.value = true
+}
 
-  // 값 확인
-  console.log('commentId:', editingComment.value.commentId)
-  console.log('boardId:', boardId)
-  console.log('content:', content)
+// async function submitEdit() {
+//   if (!editMonth.value || !editDay.value || !editTime.value) {
+//     alert('월, 일, 타임을 모두 선택해 주세요.')
+//     return
+//   }
+//   // 인증 모달 띄우기
+//   showModal.value = true
+// }
+
+
+// 인증 모달에서 nurseId 받으면 호출
+async function submitEditWithNurse() {
+  const year = new Date().getFullYear()
+  const startHour = getShiftStartHour(editTime.value)
+  const startTime = `${year}-${String(editMonth.value).padStart(2, '0')}-${String(editDay.value).padStart(2, '0')}T${String(startHour).padStart(2, '0')}:00:00`
+  const nurseId = nurseInfo.value.id
+
+  // 1. 일정 존재 여부 확인
+  const exists = await apiClient.get('/schedules/exists', { params: { nurseId, startTime } })
+  if (!exists.data) {
+    alert('해당 시간에 근무 일정이 없습니다.')
+    return
+  }
 
   try {
     await apiClient.put(`/shifts/comments/${editingComment.value.commentId}`, {
       commentId: editingComment.value.commentId,
-      boardId, // 반드시 포함
-      content
-      
+      boardId,
+      content: `${editMonth.value}월 ${editDay.value}일 ${editTime.value}`,
+      nurseId: nurseInfo.value.id
     })
+    alert('댓글이 수정되었습니다.')
     await fetchDetail()
     cancelEdit()
   } catch (e) {
-    alert('댓글 수정 실패')
-    console.error(e.response?.data)
+    alert(typeof e.response?.data === 
+    'object' ? JSON.stringify(e.response.data) : e.response?.data || '댓글 수정 실패')
+    console.error(e)
   }
 }
 
-
-// 댓글 삭제
-// async function deleteComment(comment) {
-//   try {
-//     await apiClient.delete(`/shifts/comments/${comment.commentId}`)
-//     await fetchDetail()
-//   } catch (e) {
-//     alert('댓글 삭제 실패')
-//     console.error(e)
-//   }
-// }
 
 const deleteTargetComment = ref(null)
 
@@ -261,8 +249,204 @@ function openCommentDeleteModal(comment) {
   showModal.value = true
   deleteTargetComment.value = comment // 댓글 삭제
 }
-// 위에 새로 추가
 
+const hoveredCommentId = ref(null)
+
+async function trySelectComment(comment) {
+  // 게시글이 이미 채택된 상태면 안내 후 리턴
+  if (detail.value.codeLabel === '요청 수리됨') {
+    alert('이 게시물은 이미 채택된 상태입니다.')
+    return
+  }
+  if (!confirm('이 댓글을 채택하시겠습니까?')) return
+  // 인증 모달 띄우기 (채택 시도)
+  selectedCommentForSubmit.value = comment
+  showModal.value = true
+}
+const selectedCommentForSubmit = ref(null)
+
+
+// async function trySelectComment(comment) {
+//   // 게시글이 이미 채택된 상태면 안내 후 리턴
+//   if (detail.value.codeLabel === '요청 수리됨') {
+//     alert('이 게시물은 이미 채택된 상태입니다.')
+//     return
+//   }
+//   if (!confirm('이 댓글을 채택하시겠습니까?')) return
+//   try {
+//     await apiClient.post(`/shifts/comments/${comment.commentId}/submit`, null, {
+//       params: { boardId }
+//     })
+//     alert('댓글이 채택되었습니다.')
+//     await fetchDetail()
+//   } catch (e) {
+//     // 백엔드에서 예외 발생 시 메시지 출력
+//     alert(e.response?.data || '댓글 채택 실패')
+//     console.error(e)
+//   }
+// }
+
+// 1. 댓글 작성 버튼 클릭
+function submitComment() {
+  if (!writeMonth.value || !writeDay.value || !writeTime.value) {
+    alert('월, 일, 타임을 모두 선택해 주세요.')
+    return
+  }
+  if (isPast(writeMonth.value, writeDay.value, writeTime.value)) {
+    alert('과거 일정은 선택할 수 없습니다.')
+    return
+  }
+  isWritingComment.value = true
+  showModal.value = true
+  deleteTargetComment.value = null
+  editingComment.value = null
+}
+
+
+// function submitComment() {
+//   if (!writeMonth.value || !writeDay.value || !writeTime.value) {
+//     alert('월, 일, 타임을 모두 선택해 주세요.')
+//     return
+//   }
+//   isWritingComment.value = true
+//   showModal.value = true
+//   deleteTargetComment.value = null
+//   editingComment.value = null
+// }
+
+// 2. 모달에서 인증 성공 시 handleSubmit에서 nurseInfo.value에 nurseId 저장됨
+const handleSubmit = async ({ email, password }) => {
+  try {
+    const res = await apiClient.post('schedules/check', null, {
+      params: { email, password }
+    })
+    nurseInfo.value = res.data
+    showModal.value = false
+
+    if (isWritingComment.value) {
+      await submitCommentWithNurse()
+      isWritingComment.value = false
+    } else if (editingComment.value) {
+      await submitEditWithNurse()
+    } else if (deleteTargetComment.value) {
+      await deleteCommentConfirmed(deleteTargetComment.value)
+    } else if (selectedCommentForSubmit.value) {
+      // 댓글 채택 로직
+      // 1. nurseId 비교
+      if (String(detail.value.nurseId) !== String(nurseInfo.value.id)) {
+        alert('게시글 작성자만 댓글을 채택할 수 있습니다.')
+        selectedCommentForSubmit.value = null
+        return
+      }
+      // 2. 동일하면 채택 API 호출
+      try {
+        await apiClient.post(`/shifts/comments/${selectedCommentForSubmit.value.commentId}/submit`, null, {
+          params: { boardId }
+        })
+        alert('댓글이 채택되었습니다.')
+        router.push({ name: 'shift-list' })
+        await fetchDetail()
+      } catch (e) {
+        alert(e.response?.data || '댓글 채택 실패')
+        console.error(e)
+      }
+      selectedCommentForSubmit.value = null
+    } else {
+      await deleteBoard(nurseInfo.value.id)
+    }
+  } catch (err) {
+    alert('계정 확인 실패: ' + (typeof err.response?.data === 'object'
+      ? JSON.stringify(err.response.data)
+      : err.response?.data || err.message))
+    showModal.value = false
+    isWritingComment.value = false
+    selectedCommentForSubmit.value = null
+  }
+}
+
+
+// const handleSubmit = async ({ email, password }) => {
+//   try {
+//     const res = await apiClient.post('schedules/check', null, {
+//       params: { email, password }
+//     })
+//     nurseInfo.value = res.data
+//     showModal.value = false
+
+//     if (isWritingComment.value) {
+//       await submitCommentWithNurse()
+//       isWritingComment.value = false
+//     } else if (editingComment.value) {
+//       await submitEditWithNurse()
+//     } else if (deleteTargetComment.value) {
+//       await deleteCommentConfirmed(deleteTargetComment.value)
+//     } else {
+//       await deleteBoard(nurseInfo.value.id)
+//     }
+//   } catch (err) {
+//     alert('계정 확인 실패: ' + (typeof err.response?.data === 'object'
+//     ? JSON.stringify(err.response.data)
+//     : err.response?.data || err.message))
+//     // alert('이메일이나 비밀번호가 잘못 입력되었습니다.')
+//     showModal.value = false
+//     isWritingComment.value = false
+//   }
+// }
+
+// 3. nurseId 포함해서 댓글 작성
+  async function submitCommentWithNurse() {
+  // 1. 자기 글에 댓글 작성 방지
+  if (String(detail.value.nurseId) === String(nurseInfo.value.id)) {
+    alert('자신의 게시글에 댓글을 작성하실 수 없습니다.')
+    return
+  }
+
+  const year = new Date().getFullYear()
+  const startHour = getShiftStartHour(writeTime.value)
+  const startTime = `${year}-${String(writeMonth.value).padStart(2, '0')}-${String(writeDay.value).padStart(2, '0')}T${String(startHour).padStart(2, '0')}:00:00`
+  const nurseId = nurseInfo.value.id
+
+  // 2. 일정 존재 여부 확인
+  const exists = await apiClient.get('/schedules/exists', { params: { nurseId, startTime } })
+  if (!exists.data) {
+    alert('해당 시간에 근무 일정이 없습니다.')
+    return
+  }
+
+  // 3. 댓글 등록
+  try {
+    await apiClient.post(`/shifts/comments/${boardId}`, { 
+      boardId, 
+      content: `${writeMonth.value}월 ${writeDay.value}일 ${writeTime.value}`, 
+      nurseId 
+    })
+    alert('댓글이 작성되었습니다.')
+    await fetchDetail()
+    commentCancelWrite()
+  } catch (e) {
+    alert('댓글 등록 실패')
+    console.error(e)
+  }
+}
+
+
+// async function submitCommentWithNurse() {
+//   const content = `${writeMonth.value}월 ${writeDay.value}일 ${writeTime.value}`
+//   try {
+//     await apiClient.post(`/shifts/comments/${boardId}`, { 
+//       boardId, 
+//       content, 
+//       nurseId: nurseInfo.value.id })
+//     alert('댓글이 작성되었습니다.')
+//     await fetchDetail()
+//     commentCancelWrite()
+//   } catch (e) {
+//     alert('댓글 등록 실패')
+//     console.error(e)
+//   }
+// }
+
+const isWritingComment = ref(false)
 const showModal = ref(false)
 const nurseInfo = ref(null)
 
@@ -272,42 +456,29 @@ function openDeleteModal() {
 }
 
 
-const handleSubmit = async ({ email, password }) => {
-  try {
-    const res = await apiClient.post('schedules/check', null, {
-      params: { email, password }
-    })
-
-    console.log('👉 요청 성공:', res)
-    console.log('👉 응답 데이터:', res.data)
-
-    nurseInfo.value = res.data
-    showModal.value = false
-
-    console.log(nurseInfo.value);
-
-    if (deleteTargetComment.value) {
-      await deleteCommentConfirmed(deleteTargetComment.value)
-    } else {
-      await deleteBoard()
-    }
-  } catch (err) {
-    alert('계정 확인 실패: ' + (err.response?.data || err.message))
-    showModal.value = false
-  }
-}
-
 // 댓글 삭제
 async function deleteCommentConfirmed(comment) {
   try {
-    await apiClient.delete(`/shifts/comments/${comment.commentId}`)
+    // await apiClient.delete(`/shifts/comments/${comment.commentId}`, {
+    //   data: { nurseId: nurseInfo.value.id }
+    // })
+    await apiClient.delete(`/shifts/comments/${comment.commentId}`, {
+    params: { nurseId: nurseInfo.value.id }
+    })
+
     await fetchDetail()
     alert('댓글이 삭제되었습니다.')
   } catch (e) {
-    alert('댓글 삭제를 실패했습니다.')
+    alert(
+    typeof e.response?.data === 'object'
+    ? JSON.stringify(e.response.data)
+    : e.response?.data || '댓글 삭제를 실패했습니다.'
+    )
+
     console.error(e)
   }
 }
+
 
 const route = useRoute()
 const router = useRouter()
@@ -317,6 +488,7 @@ const detail = ref({
   boardId: '',
   content: '',
   codeLabel: '',
+  nurseId: '',
   comments: []
 })
 
@@ -333,17 +505,29 @@ const fetchDetail = async () => {
 }
 
 
-
-const deleteBoard = async () => {
+const deleteBoard = async (nurseId) => {
   if (!confirm('정말 삭제하시겠습니까?')) return
   try {
-    await apiClient.delete(`/shifts/${detail.value.boardId}`)
+    await apiClient.delete(`/shifts/${detail.value.boardId}`, {
+      data: { nurseId }
+    })
     alert('삭제되었습니다.')
     router.push({ name: 'shift-list' })
   } catch (err) {
-    alert('삭제 중 오류가 발생했습니다.')
+    alert(err.response?.data || '삭제 중 오류가 발생했습니다.')
   }
 }
+
+// const deleteBoard = async () => {
+//   if (!confirm('정말 삭제하시겠습니까?')) return
+//   try {
+//     await apiClient.delete(`/shifts/${detail.value.boardId}`)
+//     alert('삭제되었습니다.')
+//     router.push({ name: 'shift-list' })
+//   } catch (err) {
+//     alert('삭제 중 오류가 발생했습니다.')
+//   }
+// }
 
 // 날짜+시간 포맷: "2025-05-12 14:00"
 const formatDateTime = (dtStr) => {
@@ -466,6 +650,14 @@ onMounted(fetchDetail)
   box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
+
+.comment-row {
+  transition: background 0.2s;
+}
+.comment-hover {
+  background: #d6d6d6;
+}
+
 
 /* 위에는 직접 추가 */
 
