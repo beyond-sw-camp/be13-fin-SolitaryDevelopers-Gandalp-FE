@@ -1,65 +1,53 @@
 <template>
   <header class="header">
 
-  <div class="header-content">
+    <div class="header-inner">
 <!--    관리자인 경우 계정 생성, 계정 목록 조회됨 -->
-    <nav class="nav">
 
-
-      <div v-if ="isAdmin">
-        <RouterLink to="/joinMember">계정 생성</RouterLink>
-        <RouterLink to="/memberList">계정 목록</RouterLink>
-
-      </div>
-
-
+      <template v-if="isAdmin">
+        <v-btn variant="text" class="nav-btn" to="/joinMember">계정 생성</v-btn>
+        <v-btn variant="text" class="nav-btn" to="/memberList">계정 목록</v-btn>
+      </template>
 
 <!--       응급대원인 경우 지도 검색만 볼 수 있음-->
-      <div v-else-if="isParamedic">
-        <RouterLink to="/hospitalMap">병원 찾기</RouterLink>
-      </div>
+      <template v-else-if="isParamedic">
+        <v-btn variant="text" class="nav-btn" to="/hospitalMap">병원 찾기</v-btn>
+      </template>
 
-      <div v-else>
+      <template v-else>
+        <v-btn variant="text" class="nav-btn" to="/calendar">캘린더</v-btn>
+        <v-btn variant="text" class="nav-btn" to="/shifts">근무 교대 신청</v-btn>
+        <v-btn variant="text" class="nav-btn" to="/surgeryReservation">수술실 예약</v-btn>
 
+        <v-menu open-on-hover offset-y>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" variant="text" class="nav-btn">근무 관리 ▾</v-btn>
+          </template>
+          <v-list>
+            <v-list-item to="/showOff" title="오프" />
+            <v-list-item to="/manageOff" title="오프 관리" />
+            <v-list-item to="/work-management" title="근무 관리" />
+          </v-list>
+        </v-menu>
 
+        <v-btn variant="text" class="nav-btn" to="/statistics">분석 차트</v-btn>
 
-        <RouterLink to="/calendar">캘린더</RouterLink>
-        <RouterLink to="/shifts">근무 교대 신청</RouterLink>
-        <RouterLink to="/surgeryReservation">수술실 예약</RouterLink>
+        <v-menu v-if="isHeadNurse" open-on-hover offset-y>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" variant="text" class="nav-btn">간호사 관리 ▾</v-btn>
+          </template>
+          <v-list>
+            <v-list-item to="/nurses" title="간호사 생성" />
+            <v-list-item to="/nurseList" title="간호사 목록" />
+          </v-list>
+        </v-menu>
 
-        <div class="dropdown" @mouseenter="showDropdown = true" @mouseleave="showDropdown = false">
-          <span class="menu-title">근무 관리 ▾</span>
-          <div class="dropdown-menu" v-if="showDropdown">
-            <RouterLink to="/showOff">오프</RouterLink>
-            <RouterLink to="/manageOff">오프 관리</RouterLink>
-            <RouterLink to="/work-management">근무 관리</RouterLink>
-          </div>
-
-        </div>
-
-        <RouterLink to="/statistics">분석 차트</RouterLink>
-
-
-        <div class="dropdown" v-if="isHeadNurse"  @mouseenter="showNurseDropDown = true" @mouseleave="showNurseDropDown = false">
-          <span class="menu-title">간호사 관리 ▾</span>
-          <div class="dropdown-menu" v-if="showNurseDropDown">
-            <RouterLink to="/nurses">간호사 생성</RouterLink>
-            <RouterLink to="/nurseList">간호사 목록</RouterLink>
-          </div>
-      </div>
-
-        <RouterLink to="/updateEr">병상 정보 수정</RouterLink>
-
-
-
-      </div>
-    </nav>
-   </div>
-    <div class="auth-btn">
-        <button v-if="auth.isLoggedIn"  @click="logout">Logout</button>
-        <button v-else @click="login">Login</button>
+        <v-btn variant="text" class="nav-btn" to="/updateEr">병상 정보 수정</v-btn>
+      </template>
+      <v-btn icon @click="auth.isLoggedIn ? logout() : login()">
+        <v-icon color="black">{{ auth.isLoggedIn ? 'mdi-logout' : 'mdi-login' }}</v-icon>
+      </v-btn>
     </div>
-
   </header>
 </template>
 
@@ -112,7 +100,6 @@ const logout = () => {
 }
 
 .header {
-
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -129,10 +116,11 @@ const logout = () => {
   border-radius: 10px;
 }
 
-.header-content {
-  max-width: 1200px;
+.header-inner {
+  width: 100%;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 40px;
+  padding: 0 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -198,10 +186,20 @@ cursor: pointer;
   background-color: #5a5d64;
 }
 
+.nav-btn {
+  color: white !important;
+  font-size: 14px;
+  text-transform: none;
+  padding: 0 12px;
+  height: 36px;
+}
 
+.nav-btn:hover {
+  color: #4a73a5 !important;
+}
 
 .auth-btn button {
-  background-color: #f5f5f5;
+  background-color: rgb(36, 36, 36);
   padding: 9px 12px;
   border: none;
   color: black;
