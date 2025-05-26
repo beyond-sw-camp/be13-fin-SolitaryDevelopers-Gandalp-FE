@@ -36,19 +36,4 @@ apiClient.interceptors.response.use(
   }
 )
 
-// 응답 인터셉터 : 401 처리
-apiClient.interceptors.response.use(
-  response => response,
-  error => {
-
-    const status = error.response?.status;
-
-    if( status === 400 || status === 401){
-      // 로그인이 안된 상태 -> 로그인 페이지로 이동 
-      router.push('/login')
-    }
-    return Promise.reject(error);
-  }
-)
-
 export default apiClient; // ✅ 만들어놓은 인스턴스를 export

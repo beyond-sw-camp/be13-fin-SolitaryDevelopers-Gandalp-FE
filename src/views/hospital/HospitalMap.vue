@@ -21,43 +21,64 @@
         <button class="btn-search" @click="searchHospital">
           검색</button>
       </div>
-      <div id="map" />
+
+<!--      지도-->
+      <Map ref="mapRef" :hospitals="hospitals"/>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import Map from './Map.vue'
 import MapSidebar from "@/views/hospital/MapSidebar.vue";
 import Header from "@/components/common/Header.vue";
 
 const searchQuery = ref('')
+const mapRef = ref(null)
 const sidebarRef = ref(null)
-
-function onFindLocation() {
-  // 현재 위치 찾기 로직
-  alert('현재 위치 찾기!')
-}
+// 전달할 병원 리스트
+const hospitals = ref([])
 
 function searchHospital() {
 
   if(!sidebarRef.value) return
-  sidebarRef.value.fetchHospitals(searchQuery.value)
+  sidebarRef.value.fetchHospitals(searchQuery.value).then(() => {
+   // fetchHospitals가 끝난 뒤 사이드바의 hospitals를 복사
+    hospitals.value = sidebarRef.value.hospitals
+  })
 
+}
+
+// 현재 위치 찾기 버튼 누른 경우
+function onFindLocation({lat, lon}) {
+
+  // 검색창 비우기
+  searchQuery.value=''
+
+  // 사이드바 내부 검색어도 클리어 & 페이지 초기화
+  if(sidebarRef.value) {
+    sidebarRef.value.searchKeyword = ''
+    sidebarRef.value.currentPage = 0
+
+    // 현재 위치를 기준으로 다시 조회
+    sidebarRef.value.fetchHospitals('')
+         .then(() => { hospitals.value = sidebarRef.value.hospitals })
+    }
+  
+
+  if(mapRef.value) {
+    mapRef.value.centerOn(lat, lon)
+  }
 }
 
 function onSelectHospital(h) {
   // 지도를 해당 병원 위치로 이동
-  console.log('선택된 병원:', h)
+  if(mapRef.value) {
+    mapRef.value.centerOn(h.latitude, h.longitude)
+  }
 }
 
-
-
-onMounted(() => {
-  // 지도 라이브러리 초기화 (예: KakaoMap, NaverMap 등)
-  const container = document.getElementById('map')
-  // new kakao.maps.Map(container, {...})
-})
 </script>
 
 <style scoped>

@@ -2,9 +2,12 @@
 <template>
   <aside class="map-sidebar">
     <!-- 현위치 찾기 버튼 -->
-    <div class="location-input">
-      <button @click="locateMe">현재 위치 찾기</button>
-    </div>
+
+      <div class="location-input">
+        <button @click="locateMe">현재 위치 찾기</button>
+      </div>
+
+
 
     <!-- 정렬 탭 -->
     <div class="tab-menu">
@@ -31,6 +34,29 @@
         <p class="beds"> 가용 병상 수 {{ h.availableErCount }} / 전체 {{ h.totalErCount }}</p>
       </li>
     </ul>
+
+
+    <div class="pagination">
+      <button
+        class="page-btn"
+        :disabled="currentPage === 0"
+        @click="prevPage"
+      >&lt;</button>
+
+      <button
+        v-for="p in totalPages"
+        :key="p"
+        class="page-btn"
+        :class="{ active: currentPage === p - 1 }"
+        @click="changePage(p - 1)"
+      >{{ p }}</button>
+
+      <button
+        class="page-btn"
+        :disabled="currentPage >= totalPages - 1"
+        @click="nextPage"
+      >&gt;</button>
+    </div>
   </aside>
 </template>
 
@@ -44,16 +70,22 @@ import SockJS from 'sockjs-client'
 const stompClient = ref(null)
 
 
+const emit = defineEmits(['select-hospital', 'find-location'])
+
 // 정렬 옵션
 const SORT_OPTIONS = ['DISTANCE', 'ER_COUNT']
 
 const hospitals = ref([])
 const sortBy = ref('DISTANCE')
 const position = ref({ lat: null, lon: null })
+const totalPages = ref(0)
+const currentPage = ref(0)
+const pageSize = ref(10)
+const searchKeyword = ref('') // 검색어 관리
 
 // 위치가 정해지면 API 호출
 watch(
-  [() => position.value.lat, () => position.value.lon, () => sortBy.value],
+  [() => position.value.lat, () => position.value.lon, () => sortBy.value, () => searchKeyword.value],
   ([lat, lon]) => {
     if(lat != null && lon != null) {
       fetchHospitals()
@@ -121,7 +153,7 @@ async function locateMe() {
     try{
 
       const status = await navigator.permissions.query({name : 'geolocation'})
-      switch (status.state){
+      switch (status.state) {
         case 'granted' :
           getCurrentPosition()
           break
@@ -150,6 +182,8 @@ function getCurrentPosition() {
     ({ coords }) => {
       position.value.lat = coords.latitude
       position.value.lon = coords.longitude
+
+      emit('find-location', {lat: coords.latitude, lon : coords.longitude})
     },
     (err) => {
       console.error('위치 조회 실패:', err.message)
@@ -158,7 +192,13 @@ function getCurrentPosition() {
   )
 }
 
-async function fetchHospitals(keyword = '') {
+async function fetchHospitals(keyword) {
+
+  if(typeof keyword === 'string'){
+    searchKeyword.value =  keyword.trim()
+    currentPage.value = 0
+  }
+
   try {
     const res = await apiClient.post(
       '/hospitals/search',
@@ -168,26 +208,60 @@ async function fetchHospitals(keyword = '') {
           lat:        position.value.lat,
           lon:        position.value.lon,
           sortOption: sortBy.value,
-          keyword:    keyword || undefined
+          keyword:    searchKeyword.value || undefined,
+          size: pageSize.value,
+          page: currentPage.value
 
         }
       }
     )
     hospitals.value = res.data.content || []
+    totalPages.value = res.data.totalPages
   } catch (err) {
-    console.error('병원 조회 실패:', err)
-    alert('병원 정보를 불러오지 못했습니다.')
+    hospitals.value = []
+    totalPages.value = 0
   }
+}
+
+// 검색창에 키워드 있는 경우 처리
+function onSearch(keyword){
+  searchKeyword.value = keyword
+  currentPage.value = 0
+  fetchHospitals()
 }
 
 function changeSort(option) {
   if (SORT_OPTIONS.includes(option)) {
     sortBy.value = option
+    currentPage.value = 0
+    fetchHospitals()
   }
 }
 
-defineExpose({fetchHospitals})
+function prevPage() {
+  if (currentPage.value > 0) {
+    currentPage.value--
+    fetchHospitals()
+  }
+}
 
+function changePage(p) {
+  if (p < 0 || p >= totalPages.value) return
+  currentPage.value = p
+  fetchHospitals()
+}
+
+function  nextPage() {
+  if(currentPage.value < totalPages.value - 1) {
+    currentPage.value++
+    fetchHospitals()
+  }
+}
+
+
+
+
+defineExpose({ fetchHospitals, hospitals, searchKeyword, currentPage })
 </script>
 
 <style scoped>
@@ -201,6 +275,8 @@ defineExpose({fetchHospitals})
   flex-direction: column;
   gap: 16px;
 }
+
+
 .location-input {
   display: flex;
   justify-content: center;
@@ -253,5 +329,32 @@ defineExpose({fetchHospitals})
   margin: 2px 0;
   font-size: 13px;
   color: #555;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.page-btn {
+  padding: 3px 5px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 1px;
+  font-size: 14px;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.page-btn.active {
+  background: #ff6b81;
+  color: white;
+  border-color: #ff6b81;
 }
 </style>

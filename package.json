@@ -84,6 +84,7 @@
     "dayjs": "^1.11.13",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3",
-    "vue-cal": "^4.10.2"
+    "vue-cal": "^4.10.2",
+    "vue3-naver-maps": "^4.2.0"
   }
 }
