@@ -9,6 +9,8 @@ import App from './App.vue'
 import TitleLink from '@/documentation/components/title-link.vue'
 import Example from '@/documentation/components/example.vue'
 import Alert from '@/documentation/components/alert.vue'
+import vuetify from './plugins/vuetify';
+import SvgIcon from '@jamescoyle/vue-icon'
 import './scss/index.scss' 
 
 import '@mdi/font/css/materialdesignicons.min.css'
@@ -18,6 +20,7 @@ const pinia = createPinia()
 
 app.use(router)
 app.use(pinia)
+app.use(vuetify)
 app.use(WaveUI, {
   colors: {
     light: {
@@ -38,5 +41,6 @@ app.component('TitleLink', TitleLink)
 app.component('Example', Example)
 app.component('SshPre', SshPre)
 app.component('Alert', Alert)
+app.component('svg-icon', SvgIcon)
 
 app.mount('#app')

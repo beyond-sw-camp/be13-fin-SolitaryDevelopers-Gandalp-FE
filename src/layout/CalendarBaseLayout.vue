@@ -20,12 +20,12 @@ import Sidebar from '@/components/common/Sidebar.vue'
 .calendar-layout {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
   width: 270px;
-  background-color: #ffffff;
-  border-right: 1px solid #e0e0e0;
+  border-right: none;
   padding: 20px;
   box-sizing: border-box;
   height: 100vh;
@@ -35,9 +35,11 @@ import Sidebar from '@/components/common/Sidebar.vue'
 }
 
 .right-section {
+  background-color: #f5f5f5;
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
+  /* flex-grow: 1; */
+  flex: 1;
   height: 100vh;
   overflow: hidden;
 }
@@ -45,7 +47,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
 .main-content {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 20px;
-  background-color: #fff;
+  padding: 20px 100px;
+  background-color: #f5f5f5;
 }
 </style>

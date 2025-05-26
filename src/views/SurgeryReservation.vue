@@ -1,133 +1,184 @@
 <template>
-    <div class="schedule-calendar">
-      <div class="filters">
-        <div class="room-select-group">
-          <label>수술실</label>
-          <select v-model="selectedRoomId">
-            <option :value="-1">전체</option>
-            <option v-for="room in roomOptions" :key="room.id" :value="room.id">
-              수술실 {{ room.id }}
-            </option>
-          </select>
-        </div>
-        <button class="btn reservation" @click="openCreateDialog">수술 예약</button>
-      </div>
-  
-      <vue-cal
-        ref="vueCalRef"
-        class="vuecal--blue-theme"
-        style="height: 600px"
-        locale="ko"
-        :views="{
-          day: { label: '일간' },
-          week: { label: '주간' },
-          month: { label: '월간' }
-        }"
-        :events="calendarEvents"
-        :editable-events="false"
-        :events-on-month-view="true"
-        default-view="week"
-        @event-click="onEventClick"
-      />
-  
-      <dialog ref="createDialog" class="dialog">
-        <form method="dialog" class="dialog-form">
-          <div class="dialog-header"> 📝 수술 일정 생성
-            <!-- <h3>📝 수술 일정 생성</h3> -->
-            <button type="button" class="close-btn" @click="closeCreateDialog">&times;</button>
-          </div>
-          <div class="dialog-body">
-            <div class="form-section">
-              <label>수술실</label>
-              <select v-model="newEvent.roomId">
-                <option v-for="room in roomOptions" :key="room.id" :value="room.id">
-                  수술실 {{ room.id }}
-                </option>
-              </select>
-            </div>
-  
-            <div class="form-section">
-              <label>수술 간호사</label>
-              <div class="nurse-checkboxes">
-                <label v-for="nurse in nurseOptions" :key="nurse.id" class="checkbox-item">
-                  <input type="checkbox" :value="nurse.id" v-model="newEvent.nurseIds" />
-                  {{ nurse.name }}
-                </label>
-              </div>
-            </div>
-  
-            <div class="form-section">
-              <label>내용</label>
-              <input v-model="newEvent.content" placeholder="수술 내용을 입력하세요" />
-            </div>
-  
-            <div class="form-section">
-              <label>시작 시간</label>
-              <Datepicker
-                v-model="newEvent.startTime"
-                locale="ko"
-                time-picker-inline
-                :enable-time-picker="true"
-                :is-24="true"
-                :format="'yyyy-MM-dd HH:mm'"
-                auto-apply
-              />
-            </div>
-  
-            <div class="form-section">
-              <label>종료 시간</label>
-              <Datepicker
-                v-model="newEvent.endTime"
-                locale="ko"
-                time-picker-inline
-                :enable-time-picker="true"
-                :is-24="true"
-                :format="'yyyy-MM-dd HH:mm'"
-                auto-apply
-              />
-            </div>
-  
-            <div class="form-section">
-              <label>비밀번호</label>
-              <input v-model="newEvent.password" type="password" placeholder="비밀번호 입력" />
-            </div>
-          </div>
-  
-          <div class="dialog-footer">
-            <button class="btn cancel" @click.prevent="closeCreateDialog">취소</button>
-            <button class="btn primary" @click.prevent="createSchedule">저장</button>
-          </div>
-        </form>
-      </dialog>
-  
-      <!-- 수술 일정 상세보기 창 -->
-      <dialog ref="detailDialog" class="dialog">
-        <form method="dialog" class="dialog-form">
-          <div class="dialog-header"> 📋 수술 일정 상세 보기
-            <!-- <h3>📋 수술 일정 상세보기</h3> -->
-            <button type="button" class="close-btn" @click="closeDetailDialog">&times;</button>
-          </div>
-          <div class="dialog-body">
-            <p><strong>내용:</strong> {{ selectedEvent?.title }}</p>
-            <p><strong>시간:</strong> {{ formatDate(selectedEvent?.start) }} ~ {{ formatDate(selectedEvent?.end) }}</p>
-            <p><strong>수술 간호사:</strong>
-              <span v-for="id in selectedEvent?.nurseIds || []" :key="id">
-                {{ getNurseNameById(id) }}<span v-if="id !== selectedEvent.nurseIds.at(-1)">, </span>
-              </span>
-            </p>
-            <div class="password-row">
-              <label>비밀번호 입력:</label>
-              <input v-model="deletePassword" type="password" placeholder="비밀번호 입력" />
-            </div>
-          </div>
-          <div class="dialog-footer">
-            <button class="btn cancel" @click.prevent="closeDetailDialog">닫기</button>
-            <button class="btn danger" @click.prevent="confirmDelete">삭제</button>
-          </div>
-        </form>
-      </dialog>
-    </div>
-  </template>
+  <v-container class="main-wrapper">
+    <v-row justify="space-between">
+      <v-col cols="3">
+        <v-select
+          v-model="selectedRoomId"
+          :items="roomOptions"
+          item-title="label"
+          item-value="id"
+          label="수술실 선택"
+          density="compact"
+          variant="outlined"
+          :return-object="false"
+        ></v-select>
+      </v-col>
+      <v-col class="text-end">
+        <v-btn class="custom-btn" @click="openCreateDialog">수술 예약</v-btn>
+      </v-col>
+    </v-row>
+
+    <vue-cal
+      ref="vueCalRef"
+      class="vuecal--blue-theme rounded-lg elevation-1"
+      style="height: 550px"
+      locale="ko"
+      :views="{
+        day: { label: '일간' },
+        week: { label: '주간' },
+        month: { label: '월간' }
+      }"
+      :events="calendarEvents"
+      :editable-events="false"
+      :events-on-month-view="true"
+      default-view="week"
+      @event-click="onEventClick"
+    />
+
+    <!-- 수술 일정 생성 -->
+    <v-dialog v-model="createDialogVisible" max-width="600px">
+      <v-card>
+        <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
+          <span>📝 수술 일정 생성</span>
+          <v-btn icon @click="closeCreateDialog">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <v-form>
+            <v-row dense>
+              <v-col cols="12">
+                <v-select
+                  v-model="newEvent.roomId"
+                  :items="roomOptions"
+                  item-title="id"
+                  item-value="id"
+                  label="수술실"
+                  density="compact"
+                  variant="outlined"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <div class="mb-2 text-subtitle-2 font-weight-medium">수술 간호사</div>
+                <v-checkbox
+                  v-for="nurse in nurseOptions"
+                  :key="nurse.id"
+                  v-model="newEvent.nurseIds"
+                  :label="nurse.name"
+                  :value="nurse.id"
+                  hide-details
+                  density="compact"
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-text-field v-model="newEvent.content" label="내용" density="compact" variant="outlined" />
+              </v-col>
+
+              <v-col cols="6">
+                <Datepicker
+                  v-model="newEvent.startTime"
+                  locale="ko"
+                  time-picker-inline
+                  :enable-time-picker="true"
+                  :is-24="true"
+                  :format="'yyyy-MM-dd HH:mm'"
+                  auto-apply
+                />
+              </v-col>
+
+              <v-col cols="6">
+                <Datepicker
+                  v-model="newEvent.endTime"
+                  locale="ko"
+                  time-picker-inline
+                  :enable-time-picker="true"
+                  :is-24="true"
+                  :format="'yyyy-MM-dd HH:mm'"
+                  auto-apply
+                />
+              </v-col>
+
+              <v-col cols="12">
+                <v-text-field
+                  v-model="newEvent.password"
+                  type="password"
+                  label="비밀번호"
+                  density="compact"
+                  variant="outlined"
+                />
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="closeCreateDialog">취소</v-btn>
+          <v-btn color="primary" @click="createSchedule">저장</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- 수술 일정 상세 -->
+    <v-dialog v-model="detailDialogVisible" max-width="500px">
+      <v-card>
+        <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
+          <span>수술 일정 상세 보기</span>
+          <v-btn icon @click="closeDetailDialog">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>내용</v-list-item-title>
+              <v-list-item-subtitle>{{ selectedEvent?.title }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>시간</v-list-item-title>
+              <v-list-item-subtitle>
+                {{ formatDate(selectedEvent?.start) }} ~ {{ formatDate(selectedEvent?.end) }}
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>수술 간호사</v-list-item-title>
+              <v-list-item-subtitle>
+                <span v-for="id in selectedEvent?.nurseIds || []" :key="id">
+                  {{ getNurseNameById(id) }}<span v-if="id !== selectedEvent.nurseIds.at(-1)">, </span>
+                </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-text-field
+            v-model="deletePassword"
+            label="비밀번호 입력"
+            type="password"
+            density="compact"
+            variant="outlined"
+            class="mt-4"
+          />
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="closeDetailDialog">닫기</v-btn>
+          <v-btn color="error" @click="confirmDelete">삭제</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </v-container>
+</template>
   
   <script setup>
   import { ref, onMounted, watch } from 'vue';
@@ -136,8 +187,10 @@
   import Datepicker from '@vuepic/vue-datepicker'
   import '@vuepic/vue-datepicker/dist/main.css'
 
+  const createDialogVisible = ref(false)
+  const detailDialogVisible = ref(false)
   
-  const selectedRoomId = ref(-1);
+  const selectedRoomId = ref(null);
   const roomOptions = ref([]);
   const nurseOptions = ref([]);
   const rawEvents = ref([]);
@@ -160,6 +213,13 @@
   
   const parseLocalDate = (isoString) => new Date(isoString);
   const formatDate = (date) => date?.toLocaleString('ko-KR') || '';
+
+  const toKSTISOString = (date) => {
+    if (!date) return '';
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    const localDate = new Date(date.getTime() - tzOffset); // KST 기준
+    return localDate.toISOString().slice(0, 19); // 초 단위까지, 'Z' 제거
+  };
   
   const getNurseNameById = (id) => {
     const found = nurseOptions.value.find(n => n.id === id);
@@ -193,7 +253,7 @@
   const loadRooms = async () => {
     try {
       const response = await apiClient.get('/rooms');
-      roomOptions.value = response.data.map(room => ({ id: room.roomId, status: room.status }));
+      roomOptions.value = response.data.map(room => ({ id: room.roomId, label: `수술실 ${room.roomId}` }));
     } catch (error) {
       console.error('수술실 목록 불러오기 실패:', error);
     }
@@ -217,6 +277,7 @@
   });
   
   const openCreateDialog = () => {
+    createDialogVisible.value = true
     newEvent.value = {
       roomId: roomOptions.value[0]?.id || null,
       nurseIds: [],
@@ -225,16 +286,28 @@
       startTime: '',
       endTime: ''
     };
-    createDialog.value?.showModal();
+    // createDialog.value?.showModal();
   };
   
   const closeCreateDialog = () => {
-    createDialog.value?.close();
+    createDialogVisible.value = false
+    // createDialog.value?.close();
   };
   
   const createSchedule = async () => {
     try {
-      await apiClient.post('/ors', newEvent.value);
+      const payload = {
+        roomId: newEvent.value.roomId,
+        nurseIds: newEvent.value.nurseIds,
+        content: newEvent.value.content,
+        password: newEvent.value.password,
+        startTime: toKSTISOString(newEvent.value.startTime),
+        endTime: toKSTISOString(newEvent.value.endTime)
+      };
+
+      await apiClient.post('/ors', payload);
+      // await apiClient.post('/ors', newEvent.value);
+      
       closeCreateDialog();
       await loadSchedules();
       alert('일정이 생성되었습니다.');
@@ -247,11 +320,11 @@
   const onEventClick = ({ event }) => {
     selectedEvent.value = event;
     deletePassword.value = '';
-    detailDialog.value?.showModal();
+    detailDialogVisible.value = true;
   };
   
   const closeDetailDialog = () => {
-    detailDialog.value?.close();
+    detailDialogVisible.value = false;
     deletePassword.value = '';
     selectedEvent.value = null;
   };
@@ -275,6 +348,23 @@
   </script>
   
 <style lang="scss">
+
+.v-col {
+  height: 70px;
+}
+
+.main-wrapper {
+  margin: 0 auto;
+  padding: 0px 100px !important;
+}
+
+.custom-btn {
+  padding: 4px 8px !important;
+  font-size: 12px;
+  min-height: 32px !important;
+  /* background: linear-gradient(to right, #8d8f91 0%, #828486 100%) !important; */
+  background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%) !important;
+}
 
 dialog.dialog {
   position: fixed;

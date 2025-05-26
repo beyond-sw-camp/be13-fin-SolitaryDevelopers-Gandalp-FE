@@ -59,11 +59,48 @@ async function loadData() {
   if (period.value !== 'YEAR')  params.month = month.value
   if (period.value === 'DAY')   params.day   = day.value
 
-  const res = await apiClient.post('/hospitals/inspect', { params })
+  const res = await apiClient.post('/hospitals/inspect', {
+    erOption: period.value,
+    year: year.value,
+    ...(period.value !== 'YEAR' && {month: month.value}),
+    ...(period.value === 'DAY' && {day: day.value})
+  })
   // 예시 응답: [ { hour:0, count: 30 }, { hour:3, count:50 }, ... ]
-  const data = res.data
-  const labels = data.map(d => d.hour)
-  const counts = data.map(d => d.count)
+  const rawData = res.data
+  
+  // 1. period에 따라 label 및 빈 데이터 생성
+  let fullData = []
+  let labels = []
+
+  if(period.value === 'DAY' ){
+    fullData = Array.from({length: 24}, (_,hour) => ({hour, count: 0}))
+    labels = fullData.map(d => `${d.hour}시`)
+    rawData.forEach(d => {
+
+      const match = fullData.find(f => f.hour === d.hour)
+      if(match) match.count = d.count
+    })
+  }else if(period.value === 'MONTH'){
+    const lastDay = new Date(year.value, month.value, 0).getDate()
+    fullData = Array.from({ length: lastDay }, (_, i) => ({ day: i + 1, count: 0 }))
+    labels = fullData.map(d => `${d.day}일`)
+    
+    rawData.forEach(d => {
+      const match = fullData.find(f => f.day === d.day)
+      if (match) match.count = d.count
+    })
+  } else if (period.value === 'YEAR') {
+    fullData = Array.from({ length: 12 }, (_, i) => ({ month: i + 1, count: 0 }))
+    labels = fullData.map(d => `${d.month}월`)
+    
+    rawData.forEach(d => {
+      const match = fullData.find(f => f.month === d.month)
+      if (match) match.count = d.count
+    })
+  }
+  
+
+  const counts = fullData.map(d => d.count)
 
   if (chartInstance) chartInstance.destroy()
   chartInstance = new Chart(chartCanvas.value, {
@@ -74,7 +111,12 @@ async function loadData() {
         label: '사용량',
         data: counts,
         fill: false,
-        tension: 0.3
+        tension: 0.3,
+        borderColor: 'red',         // 🔴 선 색상
+        backgroundColor: 'red',     // 🔴 포인트(점) 색상
+        pointBorderColor: 'red',
+        pointBackgroundColor: 'red',
+        borderWidth: 1 
       }]
     },
     options: {

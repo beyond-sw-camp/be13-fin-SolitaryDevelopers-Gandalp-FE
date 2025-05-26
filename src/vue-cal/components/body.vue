@@ -90,6 +90,7 @@
     grid-template-columns: repeat(var(--vuecal-grid-columns), 1fr);
     grid-template-rows: repeat(var(--vuecal-grid-rows), 1fr);
     height: 100%;
+    background-color: white;
   }
   
   .vuecal__time-at-cursor {
