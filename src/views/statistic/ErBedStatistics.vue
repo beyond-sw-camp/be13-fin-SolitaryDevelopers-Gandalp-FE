@@ -1,12 +1,27 @@
 <template>
   <div class="page-container">
-    <div class="card">
-    <h2>응급실 병상 통계</h2>
-    <div class="filter">
-      <input type="number" v-model.number="year" />년
-      <input type="number" v-model.number="month" />월
-      <button @click="loadData">조회</button>
+
+    <!-- 2) 기간 선택 -->
+    <div class="filter-bar">
+      <div class="period-select">
+        <button
+          v-for="p in periods"
+          :key="p.value"
+          :class="{ active: period === p.value }"
+          @click="period = p.value"
+        >{{ p.label }}</button>
+      </div>
+      <div class="date-inputs">
+        <input v-model.number="year"  type="number" placeholder="YYYY" />
+        <input v-if="period !== 'YEAR'" v-model.number="month" type="number" placeholder="MM" />
+        <input v-if="period === 'DAY'"    v-model.number="day"   type="number" placeholder="DD" />
+        <button class="btn" @click="loadData">조회</button>
+      </div>
     </div>
+
+    <!-- 3) 카드 + 차트 -->
+    <div class="card">
+      <h2 class="card-title">응급실 병상 시간대별 사용 통계</h2>
       <div class="chart-area">
         <canvas ref="chartCanvas"></canvas>
       </div>
@@ -16,38 +31,59 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { Chart, PieController, ArcElement, Tooltip } from 'chart.js'
+import { Chart, LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip } from 'chart.js'
 import apiClient from '@/api/axios'
 
-Chart.register(PieController, ArcElement, Tooltip)
+Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearScale, Tooltip)
+
+const tabs    = ['응급실 병상 통계', '간호사 근무 분석', '간호사별 업무 비율 분석']
+const activeTab = ref(tabs[0])
+
+const periods = [
+  { label: '일', value: 'DAY' },
+  { label: '월', value: 'MONTH' },
+  { label: '연', value: 'YEAR' }
+]
+const period = ref('DAY')
 
 const year  = ref(new Date().getFullYear())
-const month = ref(new Date().getMonth()+1)
-const chartCanvas = ref(null)
-let chartInstance = null
+const month = ref(new Date().getMonth() + 1)
+const day   = ref(new Date().getDate())
+
+const chartCanvas  = ref(null)
+let   chartInstance = null
 
 async function loadData() {
-  const res = await apiClient.get('/api/v1/statistics/er-bed', { params:
-      {
-        year: year.value,
-        month: month.value }
-  })
+  // API 경로·파라미터는 실제 엔드포인트에 맞춰 조정하세요.
+  const params = { period: period.value, year: year.value }
+  if (period.value !== 'YEAR')  params.month = month.value
+  if (period.value === 'DAY')   params.day   = day.value
+
+  const res = await apiClient.post('/hospitals/inspect', { params })
+  // 예시 응답: [ { hour:0, count: 30 }, { hour:3, count:50 }, ... ]
   const data = res.data
-  const labels = data.map(d => d.ward)
-  const occupied = data.map(d => d.occupied)
-  const free     = data.map(d => d.total - d.occupied)
+  const labels = data.map(d => d.hour)
+  const counts = data.map(d => d.count)
 
   if (chartInstance) chartInstance.destroy()
   chartInstance = new Chart(chartCanvas.value, {
-    type: 'pie',
+    type: 'line',
     data: {
       labels,
-      datasets: [
-        { label:'Occupied', data: occupied },
-        { label:'Free',     data: free     }
-      ]
+      datasets: [{
+        label: '사용량',
+        data: counts,
+        fill: false,
+        tension: 0.3
+      }]
     },
-    options: { responsive:true }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
   })
 }
 
@@ -55,18 +91,92 @@ onMounted(loadData)
 </script>
 
 <style scoped>
- .page-container { padding: 0 24px; }
- .card {
-   margin: 0 auto;
-   max-width: 1200px;
-   background: #fff;
-   border-radius: 12px;
-   padding: 24px;
-   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
- }
-.chart-area {
-  height: 500px;
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: sans-serif;
 }
-canvas { width:100%; height:100% !important; }
-</style>
 
+/* 1) 탭 네비게이션 */
+.tabs {
+  display: flex;
+  gap: 16px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 16px;
+}
+.tabs button {
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+}
+.tabs button.active {
+  color: #333;
+  border-bottom: 2px solid #377dff;
+}
+
+/* 2) 필터 바 */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.period-select {
+  display: flex;
+  gap: 8px;
+}
+.period-select button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.period-select button.active {
+  background: #377dff;
+  color: white;
+  border-color: #377dff;
+}
+
+.date-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.date-inputs input {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+}
+.date-inputs .btn {
+  padding: 6px 16px;
+  background: #377dff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* 3) 카드 + 차트 */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.card-title {
+  margin: 0 0 16px;
+  font-size: 20px;
+  color: #333;
+}
+.chart-area {
+  position: relative;
+  height: 400px;
+}
+</style>
