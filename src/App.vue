@@ -1,8 +1,11 @@
 <template>
-    <div>
+    <v-app>
+      <!-- 캘린더 전용 레이아웃 분기 -->
       <documentation v-if="isCalendarBaseLayout" :class="{ prod: isProduction }" />
+      
+      <!-- 나머지 일반 페이지 라우팅 -->
       <router-view v-else />
-    </div>
+    </v-app>
   </template>
   
   <script setup>
