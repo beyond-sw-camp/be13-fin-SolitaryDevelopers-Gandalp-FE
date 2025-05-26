@@ -21,6 +21,7 @@ import StatisticTabsView from "@/views/statistic/StatisticTabsView.vue";
 import HospitalMap from "@/views/hospital/HospitalMap.vue";
 import UpdateEr from "@/views/hospital/UpdateEr.vue";
 import SurgeryReservation from '@/views/SurgeryReservation.vue'
+import ErBedStatistics from '@/views/statistic/ErBedStatistics.vue'
 
 const routes = [
   {
@@ -92,6 +93,12 @@ const routes = [
         path: '/statistics',
         name: 'Statistics',
         component: StatisticTabsView
+      },
+      {
+        path: '/hospitals/inspect',
+        name: 'ErBedStatistics',
+        component: ErBedStatistics
+
       },
       {
         path: '/surgeryReservation',
