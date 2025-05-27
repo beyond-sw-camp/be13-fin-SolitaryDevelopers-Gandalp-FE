@@ -28,7 +28,7 @@ function initMap(lat, lng) {
     useStyleMap: true,
     zoom: 14,
     minZoom: 8,
-    mapTypeControl: true,
+    //mapTypeControl: true,
     mapTypeControlOptions: {
       style: naver.maps.MapTypeControlStyle.BUTTON,
       position: naver.maps.Position.TOP_LEFT

@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, defineExpose, computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import apiClient from '@/api/axios'
 import { Stomp } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
@@ -325,10 +325,16 @@ defineExpose({ fetchHospitals, hospitals, searchKeyword, currentPage })
   font-size: 15px;
   font-weight: bold;
 }
-.addr, .phone, .beds {
+.addr, .phone {
   margin: 2px 0;
   font-size: 13px;
   color: #555;
+}
+
+.beds {
+  margin: 2px 0;
+  font-size: 13px;
+  color : #ff6b81;
 }
 
 .pagination {
