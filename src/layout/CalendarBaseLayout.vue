@@ -35,7 +35,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
 }
 
 .right-section {
-  background-color: #f5f5f5;
+  background-color: #edf7ff;
   display: flex;
   flex-direction: column;
   /* flex-grow: 1; */
@@ -48,6 +48,6 @@ import Sidebar from '@/components/common/Sidebar.vue'
   flex-grow: 1;
   overflow-y: auto;
   padding: 20px 100px;
-  background-color: #f5f5f5;
+  background-color: #edf7ff;
 }
 </style>

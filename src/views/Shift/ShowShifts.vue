@@ -242,12 +242,6 @@ const formatDateTime = (dtStr) => {
   margin-bottom: 16px;
 }
 
-::v-deep(.v-table) {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
 /* ::v-deep(.v-table th:last-child),
 ::v-deep(.v-table td:last-child) {
   border-right: none;
