@@ -726,8 +726,8 @@ onMounted(async () => {
   await loadAllEvents();
 
   try {
-    const nurseRes = await apiClient.get('/nurses');
-    const nurses = nurseRes.data.content;
+    const nurseRes = await apiClient.get('/nurses/list');
+    const nurses = nurseRes.data;
 
     console.log(nurseRes);
 
