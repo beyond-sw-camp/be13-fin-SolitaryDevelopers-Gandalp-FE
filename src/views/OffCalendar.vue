@@ -30,7 +30,7 @@
     </vue-cal>
   </v-container>
     <!-- 사용자 확인 모달 -->
-    <UserCheckModal
+    <UserCheckModalV2
       v-if="showModal"
       @close="showModal = false"
       @submit="handleSubmit"
@@ -41,7 +41,7 @@
   import { VueCal } from '@/vue-cal'
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
-  import UserCheckModal from '@/components/UserCheckModal.vue'
+  import UserCheckModalV2 from '@/components/UserCheckModalV2.vue'
   import apiClient from '@/api/axios'
 
   const router = useRouter()

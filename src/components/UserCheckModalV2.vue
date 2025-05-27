@@ -30,8 +30,8 @@
           <label>비밀번호</label>
           <input type="password" v-model="password" placeholder="비밀번호 입력" />
           <div class="modal-btns">
-            <button @click="submit">확인</button>
-            <button @click="$emit('close')">취소</button>
+            <v-btn size="small" variant="tonal" color="primary" @click="submit">확인</v-btn>
+            <v-btn size="small" variant="tonal" color="error" class="ml-2" @click="$emit('close')">취소</v-btn>
           </div>
         </div>
       </div>

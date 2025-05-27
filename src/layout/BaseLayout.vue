@@ -48,5 +48,6 @@ import Sidebar from '@/components/common/Sidebar.vue'
   padding: 24px;
   overflow-y: auto;
   background-color: #edf7ff;
+  margin-left: 56px;
 }
 </style>

@@ -118,8 +118,8 @@ const logout = () => {
   z-index: 10;
   font-family: 'Roboto Condensed', sans-serif;
   font-weight: 500;
-  margin-left: 20px;
-  width: 81vw;
+  margin-left: 107px;
+  width: 75.4vw;
   letter-spacing: .04rem;
   padding: 5px;
   background: linear-gradient(135deg, #1842fe 0%, #2b54ff 50%, #3a65ff 100%);
@@ -208,7 +208,9 @@ cursor: pointer;
 }
 
 .nav-btn:hover {
-  color: #68f17c !important;
+  color: #86e3d1  !important;
+  background-color: transparent !important; /* ← 배경색 제거 */
+  box-shadow: none !important;              /* ← 그림자 제거 (필요시) */
 }
 
 .auth-btn button {
