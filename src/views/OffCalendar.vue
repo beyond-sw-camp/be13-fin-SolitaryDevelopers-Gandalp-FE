@@ -1,4 +1,11 @@
 <template>
+  <v-container class="main-wrapper">
+    <v-row justify="space-between">
+      <v-col class="text-end">
+        <v-btn class="custom-btn" @click="createOff">오프 신청</v-btn>
+      </v-col>
+    </v-row>
+    
     <vue-cal
       :views="{ month: { label: '월간' } }"
       view="month"
@@ -6,7 +13,7 @@
       v-model:selected-date="selectedDate"
       :events="[]"
       @cell-click="onCellClick"
-      style="height: 600px"
+      style="height: 550px"
     >
       <!-- 날짜 셀 커스텀 -->
       <template #cell-date="{ cell }">
@@ -21,8 +28,7 @@
         </div>
       </template>
     </vue-cal>
-      <button class="create-off" @click="createOff">오프 신청</button>
-
+  </v-container>
     <!-- 사용자 확인 모달 -->
     <UserCheckModal
       v-if="showModal"
@@ -130,6 +136,24 @@ const formatKST = (date) => {
   </script>
   
   <style scoped>
+
+.v-col {
+  height: 70px;
+}
+
+.main-wrapper {
+  margin: 0 auto;
+  padding: 0px 100px !important;
+}
+
+  .custom-btn {
+    padding: 4px 8px !important;
+    font-size: 12px;
+    min-height: 32px !important;
+    /* background: linear-gradient(to right, #8d8f91 0%, #828486 100%) !important; */
+    background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%) !important;
+  }
+
   .cell-date-wrapper {
     display: flex;
     justify-content: center;
@@ -180,4 +204,3 @@ const formatKST = (date) => {
 }
 
   </style>
-  

@@ -1,79 +1,105 @@
 <template>
-    <div class="off-schedule-page">
-      <h2 class="title">오프 관리</h2>
-  
-      <div class="search-bar">
-        <select class="search-option" v-model="searchType">
-          <option disabled value="">검색 기준 선택</option>
-          <option value="email">이메일</option>
-          <option value="name">이름</option>
-        </select>
-        <input class="search-input" v-model="searchKeyword" placeholder="검색어를 입력하세요" />
-        <button class="search-btn" @click="fetchListByEmailOrName(searchType, searchKeyword)">검색</button>
-      </div>
-  
-      <table class="schedule-table">
-  <thead class="thead">
-    <tr>
-      <th style="text-align: left; padding-left: 20px;">신청한 오프 일정</th>
-      <th>작성자</th>
-      <th>완료 여부</th>
-      <th>최근 수정일자</th>
-      <th>관리</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr v-for="item in scheduleList" :key="item.offScheduleTempId">
-    <td style="text-align: left
-    ;">{{ formatKoreanDate(item.startTime) }}</td> <!-- 🟡 날짜 범위 포맷 적용 -->
-    <td>{{ item.nurseName }}</td>
-    <td class="code-label">
-      <span
-        :class="{
-          badge: true,
-          approved: item.codeLabel === '승인',
-          rejected: item.codeLabel === '반려',
-          pending: item.codeLabel === '대기중'
-        }"
-      >
-        {{ item.codeLabel }}
-      </span>
-    </td>
-    <td>{{ formatDateTime(item.updatedAt) }}</td>
-    <td>
-      <button v-if="item.codeLabel === '대기중'" class="accept-btn" v-on:click="acceptOff(item.offScheduleTempId)">승인</button>
-      <button v-if="item.codeLabel === '승인'" class="reject-btn" v-on:click="rejectOff(item.offScheduleTempId)">반려</button>
-    </td>
-    </tr>
-  </tbody>
-</table>
-  
-  <div class="pagination">
-  <button
-    class="page-btn"
-    :disabled="currentPage === 1"
-    @click="changePage(currentPage - 1)">
-    &lt;
-  </button>
+  <div class="off-schedule-page">
+    <h2 class="title">오프 관리</h2>
 
-  <button
-    v-for="page in totalPages"
-    :key="page"
-    class="page-btn"
-    :class="{ active: currentPage === page }"
-    @click="changePage(page)">
-    {{ page }}
-  </button>
+    <div class="search-bar">
+      <v-select
+        v-model="searchType"
+        :items="[
+          { title: '이메일', value: 'email' },
+          { title: '이름', value: 'name' }
+        ]"
+        label="검색 기준 선택"
+        density="compact"
+        variant="outlined"
+        class="small-select"
+        hide-details
+        style="width: 100px"
+      ></v-select>
 
-  <button
-    class="page-btn"
-    :disabled="currentPage === totalPages"
-    @click="changePage(currentPage + 1)">
-    &gt;
-  </button>
-</div>
+      <v-text-field
+        v-model="searchKeyword"
+        placeholder="검색어를 입력하세요"
+        @keydown.enter="fetchListByEmailOrName(searchType, searchKeyword)"
+        clearable
+        rounded
+        variant="outlined"
+        density="compact"
+        append-inner-icon="mdi-magnify"
+        @click:append-inner="fetchListByEmailOrName(searchType, searchKeyword)"
+        hide-details
+        class="small-text-field"
+        style="flex: 1"
+      />
     </div>
-  </template>
+
+    <v-table class="elevation-1">
+      <thead>
+        <tr class="highlight-row">
+          <th class="text-center">신청한 오프 일정</th>
+          <th class="text-center">작성자</th>
+          <th class="text-center">완료 여부</th>
+          <th class="text-center">최근 수정일자</th>
+          <th class="text-center">관리</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in scheduleList" :key="item.offScheduleTempId">
+          <td class="text-center">{{ formatKoreanDate(item.startTime) }}</td>
+          <td class="text-center">{{ item.nurseName }}</td>
+          <td class="text-center">
+            <span
+              :class="{
+                badge: true,
+                approved: item.codeLabel === '승인',
+                rejected: item.codeLabel === '반려',
+                pending: item.codeLabel === '대기중'
+              }"
+            >
+              {{ item.codeLabel }}
+            </span>
+          </td>
+          <td class="text-center">{{ formatDateTime(item.updatedAt) }}</td>
+          <td class="text-center">
+            <v-btn
+              v-if="item.codeLabel === '대기중'"
+              class="accept-btn"
+              size="x-small"
+              variant="tonal"
+              color="primary"
+              @click="acceptOff(item.offScheduleTempId)"
+            >
+              승인
+            </v-btn>
+            <v-btn
+              v-if="item.codeLabel === '승인'"
+              class="reject-btn"
+              size="x-small"
+              variant="tonal"
+              color="error"
+              @click="rejectOff(item.offScheduleTempId)"
+            >
+              반려
+            </v-btn>
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+
+    <div class="pagination-bar">
+      <div class="pagination">
+        <v-pagination
+          v-model="currentPage"
+          :length="totalPages"
+          :total-visible="5"
+          color="black"
+          size="small"
+          @update:modelValue="changePage"
+        />
+      </div>
+    </div>
+  </div>
+</template>
   
   <script setup>
 import { ref, onMounted } from 'vue'
@@ -263,13 +289,79 @@ onMounted(fetchList)
 
   
   <style scoped>
+  ::v-deep(.small-select .v-field) {
+    min-height: 35px !important;
+    height: 35px !important;
+    font-size: 13px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  ::v-deep(.small-select) {
+    max-width: 200px;
+    font-size: 13px;
+  }
+
+  ::v-deep(.small-text-field .v-field) {
+    min-height: 40px !important;
+    height: 40px !important;
+    font-size: 13px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  ::v-deep(.small-text-field) {
+    max-width: 300px;
+    font-size: 13px;
+  }
+
+  ::v-deep(.small-text-field .v-input__control) {
+    min-height: 40px !important;
+    height: 40px !important;
+  }
+
+  ::v-deep(.small-text-field .v-field__input) {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    padding: 0 15px !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+  }
+
+  ::v-deep(.small-text-field input) {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 36px !important;
+    height: 36px !important;
+  }
+
+  ::v-deep(.v-table) {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+/* ::v-deep(.v-table thead th),
+::v-deep(.v-table tbody td) {
+  border-right: 1px solid #ddd;
+} */
+
+::v-deep(.v-table thead th:last-child),
+::v-deep(.v-table tbody td:last-child) {
+  border-right: none;
+}
+
+.highlight-row {
+  background-color: #e8ecf8;
+}
+
   .off-schedule-page {
     padding: 24px;
-    background: white;
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.15),
-                -2px -2px 5px rgba(255, 255, 255, 0.8); /* 양쪽 그림자 효과 */
     border-radius: 10px;
+    font-family: 'Noto Sans KR', sans-serif;
   }
+
   .title {
     color: black;
     text-align: center;
@@ -278,11 +370,11 @@ onMounted(fetchList)
     margin-bottom: 16px;
     margin-top: 5px;
   }
-.search-bar {
+  .search-bar {
     display: flex;
-    gap: 8px;
+    gap: 12px;
+    align-items: center;
     margin-bottom: 16px;
-    margin-left:957px;
   }
   .search-input {
     border: 1px solid #ddd;
@@ -379,12 +471,19 @@ onMounted(fetchList)
     padding: 8px;
     text-align: center;
   }
+
+  .pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+
   .pagination {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 20px;
-}
+    flex: 1;
+    display: flex;
+    justify-content: center;
+  }
 
 .page-btn {
   width: 25px;
