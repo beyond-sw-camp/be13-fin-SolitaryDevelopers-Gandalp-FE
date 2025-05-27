@@ -44,8 +44,8 @@
 
         <v-btn variant="text" class="nav-btn" to="/updateEr">병상 정보 수정</v-btn>
       </template>
-      <v-btn icon @click="auth.isLoggedIn ? logout() : login()">
-        <v-icon color="black">{{ auth.isLoggedIn ? 'mdi-logout' : 'mdi-login' }}</v-icon>
+      <v-btn variant="text" class="nav-btn" @click="auth.isLoggedIn ? logout() : login()">
+        <v-icon color="white">{{ auth.isLoggedIn ? 'mdi-logout' : 'mdi-login' }}</v-icon>
       </v-btn>
     </div>
   </header>
@@ -87,6 +87,17 @@ const logout = () => {
 
 
 <style scoped>
+
+::v-deep(.v-list-item) {
+  min-height: 32px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+::v-deep(.v-list-item-title) {
+  font-size: 13px !important;
+}
+
 .nav a ,
 .menu-title {
   font-size: 15px;
@@ -111,9 +122,11 @@ const logout = () => {
   width: 81vw;
   letter-spacing: .04rem;
   padding: 5px;
-  background-color: rgb(36, 36, 36); /* header 배경색과 일치 */
+  background: linear-gradient(135deg, #1842fe 0%, #2b54ff 50%, #3a65ff 100%);
+
   margin-top: 10px;
   border-radius: 10px;
+  height: 30px;
 }
 
 .header-inner {
@@ -195,7 +208,7 @@ cursor: pointer;
 }
 
 .nav-btn:hover {
-  color: #4a73a5 !important;
+  color: #68f17c !important;
 }
 
 .auth-btn button {
