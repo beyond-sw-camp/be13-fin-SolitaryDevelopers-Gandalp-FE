@@ -1,7 +1,7 @@
 <template>
   <div class="off-schedule-page">
     <h2 class="title">오프 일정 조회</h2>
-
+    <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
     <div class="search-bar">
       <v-select
         v-model="searchType"
@@ -11,36 +11,39 @@
         ]"
         label="검색 기준 선택"
         density="compact"
-        variant="outlined"
-        class="small-select"
+        variant="solo"
+        class="small-select no-shadow"
+        style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
         hide-details
-        style="width: 100px"
-      ></v-select>
+        flat
+        bg-color="#edf7ff"  
+      />
 
       <v-text-field
         v-model="searchKeyword"
         placeholder="검색어를 입력하세요"
         @keydown.enter="fetchListByEmailOrName(searchType, searchKeyword)"
         clearable
-        rounded
-        variant="outlined"
+        rounded="lg"
+        variant="Outlined"
         density="compact"
         append-inner-icon="mdi-magnify"
         @click:append-inner="fetchListByEmailOrName(searchType, searchKeyword)"
         hide-details
         class="small-text-field"
         style="flex: 1"
+        bg-color="#edf7ff"
       />
     </div>
 
-    <v-table class="elevation-1">
+    <v-table class="elevation-1" density="comfortable" style="border-radius: 10px; box-shadow: none;">
       <thead>
-        <tr class="highlight-row">
-          <th class="text-center">신청한 오프 일정</th>
-          <th class="text-center">작성자</th>
-          <th class="text-center">완료 여부</th>
-          <th class="text-center">최근 수정일자</th>
-          <th class="text-center">취소</th>
+        <tr style="background-color: #4f72f5;">
+          <th class="text-center" style="color: white;">신청한 오프 일정</th>
+          <th class="text-center" style="color: white;">작성자</th>
+          <th class="text-center" style="color: white;">완료 여부</th>
+          <th class="text-center" style="color: white;">최근 수정일자</th>
+          <th class="text-center" style="color: white;">취소</th>
         </tr>
       </thead>
       <tbody>
@@ -90,13 +93,15 @@
 
       <v-btn
         size="small"
-        class="custom-btn"
+        variant="tonal"
+        color="success"
         @click="goToOffCalendar"
       >
         <v-icon size="12" class="mr-1 icon-black" style="vertical-align: middle">mdi-pencil</v-icon>
-        <span class="text-black">오프 신청</span>
+        <span>오프 신청</span>
       </v-btn>
     </div>
+    </v-card>
   </div>
 </template>
 
@@ -365,10 +370,11 @@ onMounted(fetchList)
     color: black;
   }
   .search-bar {
-    display: flex;
+    display: flex;  
     gap: 12px;
     align-items: center;
     margin-bottom: 16px;
+    justify-content: flex-end
   }
   .search-input {
     border: 1px solid #ddd;
