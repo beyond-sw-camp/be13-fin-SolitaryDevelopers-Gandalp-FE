@@ -1,61 +1,95 @@
 <template>
-    <div class="nurse-list-page">
-        <h2 class="title">간호사 목록</h2>
+<div class="nurse-list-page">
+    <h2 class="title">간호사 목록</h2>
 
-        <div class="search-bar">
-            <select v-model="searchOption">
-                <option value="NAME">이름</option>
-                <option value="EMAIL">이메일</option>
-            </select>
-
-            <input
-            v-model="keyword"
-            @keyup.enter="fetchNurses"
-            type="text"
-            placeholder="검색어 입력"
+    <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px; ">
+      <div class="search-bar">
+        <v-select
+            v-model="searchOption"
+            :items="searchOptions"
+            item-title="label"                       
+            item-value="value"  
+            label="검색 기준 선택"
+            class="small-select no-shadow"
+            variant="solo"
+            density="compact"
+            hide-details
+            style="border-radius: 10px; background-color: #edf7ff;"
+            flat
+            bg-color="#edf7ff"
             />
-            <button @click="fetchNurses">검색</button>
+
+            <v-text-field
+            v-model="keyword"
+            placeholder="검색어를 입력하세요"
+            @keydown.enter="fetchNurses"
+            clearable
+            rounded="lg"
+            variant="Outlined"
+            density="compact"
+            append-inner-icon="mdi-magnify"
+            @click:append-inner="onSearchClick"
+            hide-details
+            class="small-text-field"
+            style="flex: 1;"
+            bg-color="#edf7ff"
+            />
         </div>
 
-        <table class="nurse-table">
-            <thead>
-                <tr>
-                    <th>이름</th>
-                    <th>이메일</th>
-                    <th style="text-align: center">관리</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="nurse in nurses" :key="nurse.email">
-                    <td>{{ nurse.name }}</td>
-                    <td>{{ nurse.email }}</td>
-                    <td class="actions">
-                        <button @click="editNurse(nurse)">수정</button>
-                        <button class="delete" @click="deleteNurse(nurse)">삭제</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-    <div class="pagination">
-        <button :disabled="page === 0" @click="page--">이전</button>
-        <span>{{ page + 1 }} / {{ totalPages }}</span>
-        <button :disabled="page + 1 >= totalPages" @click="page++">다음</button>
-    </div>
-    </div>
+    <table class="nurse-table">
+        <thead>
+        <tr>
+            <th>이름</th>
+            <th>이메일</th>
+            <th style="text-align: center">관리</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="nurse in nurses" :key="nurse.email">
+            <td>{{ nurse.name }}</td>
+            <td>{{ nurse.email }}</td>
+            <td class="actions">
+              <div class="modal-btns">
+                <v-btn size="small" variant="tonal" color="primary" @click="editNurse(nurse)">수정</v-btn>
+                <v-btn size="small" variant="tonal" color="error" class="ml-2" @click="deleteNurse(nurse)">삭제</v-btn>
+              </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="pagination-bar">
+          <div class="pagination">
+            <v-pagination
+              v-model="page"
+              :length="totalPages"
+              :total-visible="5"
+              color="black"
+              size="small"
+              @update:modelValue="changePage"
+            />
+          </div>
+          </div>
+    </v-card>
+</div>
 </template>
 
+
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import apiClient from '@/api/axios'
 import router from '@/router'
 
 const nurses = ref([])
-const page = ref(0)
+const page = ref(1)
 const totalPages = ref(1)
 
 const keyword = ref('')
 const searchOption = ref('NAME') 
+
+const searchOptions = [
+    { label: '이름', value: 'NAME' },
+    { label: '이메일', value: 'EMAIL' },
+]
 
 const fetchNurses = async () => {
 try {
@@ -63,7 +97,7 @@ try {
     params: {
         keyword: keyword.value,
         searchOption: searchOption.value,
-        page: page.value,
+        page: page.value - 1,
         size: 10,
     },
     })
@@ -76,8 +110,8 @@ try {
 }
 
 const editNurse = (nurse) => {
-    router.push({ name: 'UpdateNurse', params: { id: nurse.id } })
-}
+  router.push({ name: 'UpdateNurse', params: { id: nurse.id } })
+} 
 
 const deleteNurse = async (nurse) => {
     if (!confirm(`${nurse.name} 간호사를 정말 삭제할까요?`)) return
@@ -91,117 +125,143 @@ const deleteNurse = async (nurse) => {
     }
 }
 
+const changePage = (p) => {
+  page.value = p
+}
+
+
 watch(page, fetchNurses, { immediate: true })
 </script>
 
 <style scoped>
 .nurse-list-page {
-padding: 40px 20px;
-max-width: 1000px;
-margin: 0 auto;
-background-color: #fff;
-min-height: 100vh;
+  padding: 24px;
+  padding-left: 26px;
 }
 
 .title {
-font-size: 28px;
-font-weight: bold;
-margin-bottom: 30px;
-color: #333;
-border-bottom: 2px solid #e0e0e0;
-padding-bottom: 10px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  margin-top: 5px;
+  color: black;
 }
 
 .search-bar {
-display: flex;
-gap: 12px;
-margin-bottom: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  justify-content: flex-end;
 }
 
-.search-bar input,
-.search-bar select {
-padding: 10px 16px;
-border: 1px solid #ccc;
-border-radius: 24px;
-font-size: 15px;
-background-color: white;
+/* small-text-field 전체 커스텀 */
+::v-deep(.small-text-field) {
+  max-width: 300px;
+  font-size: 13px;
 }
 
-.search-bar button {
-background-color: #d6e9f8;
-border: none;
-padding: 10px 20px;
-border-radius: 20px;
-font-weight: 600;
-cursor: pointer;
-transition: background 0.2s;
+::v-deep(.small-text-field .v-field) {
+  min-height: 40px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  padding: 0 12px !important;
+  border-radius: 8px;
+  background-color: #edf7ff !important;
+  box-shadow: none !important;
 }
 
-.search-bar button:hover {
-background-color: #c3ddf4;
+::v-deep(.small-text-field .v-input__control) {
+  min-height: 40px !important;
+  height: 40px !important;
 }
 
+::v-deep(.small-text-field .v-field__input) {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+}
+
+::v-deep(.small-text-field input) {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-size: 13px !important;
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* small-select 공통 스타일 */
+::v-deep(.small-select) {
+  font-size: 13px;
+  max-width: 200px;
+}
+
+::v-deep(.small-select .v-field) {
+  min-height: 40px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  padding: 0 12px !important;
+  border-radius: 8px;
+  background-color: #edf7ff !important;
+}
+
+/* 테이블 및 버튼 */
 .nurse-table {
-width: 100%;
-border-collapse: collapse;
-margin-bottom: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  table-layout: fixed;
 }
 
 .nurse-table th,
 .nurse-table td {
-padding: 14px 16px;
-border-bottom: 1px solid #eee;
-text-align: left;
-font-size: 15px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  font-size: 15px;
 }
 
-.actions {
-display: flex;
-gap: 8px;
-justify-content: center;
+.modal-btns {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  justify-content: center;
+  width: 100%;
 }
 
-.actions button {
-padding: 6px 12px;
-border: none;
-border-radius: 6px;
-font-weight: 500;
-cursor: pointer;
-background-color: #f0f8ff;
-transition: background 0.2s;
+.modal-btns button {
+  min-width: 70px;
+  height: 32px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.actions button:hover {
-background-color: #e1efff;
+.modal-btns button:hover {
+  background: #bfc7cc;
 }
 
-.actions .delete {
-background-color: #ffe0e0;
-}
-
-.actions .delete:hover {
-background-color: #ffc9c9;
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 
 .pagination {
-display: flex;
-justify-content: center;
-align-items: center;
-gap: 16px;
-margin-top: 30px;
-}
-
-.pagination button {
-padding: 8px 16px;
-border: none;
-background-color: #d6e9f8;
-border-radius: 20px;
-cursor: pointer;
-font-weight: 600;
-}
-
-.pagination button:disabled {
-background-color: #eee;
-cursor: not-allowed;
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 </style>
