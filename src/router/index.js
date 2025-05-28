@@ -1,13 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BaseLayout from '../layout/BaseLayout.vue'
 import CalendarBaseLayout from '../layout/CalendarBaseLayout.vue'
-import ShowOffVue from '../views/showOff.vue'
-import OffCalendarVue from '../views/OffCalendar.vue'
+
+import ShowOffVue from '@/views/shedule/showOff.vue'
+import OffCalendarVue from '@/views/shedule/OffCalendar.vue'
+import ManageOff from '@/views/shedule/ManageOff.vue'
+import GenerationWork from '@/views/shedule/GenerationWork.vue'
+
 import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
 import JoinMember from "@/views/admin/JoinMember.vue"
 import MemberList from "@/views/admin/MemberList.vue"
-import ManageOff from '@/views/ManageOff.vue'
+
 import ShowShifts from '@/views/Shift/ShowShifts.vue'
 import CreateShiftExchange from '@/views/Shift/CreateShiftExchange.vue'
 import ShiftExchangeDetails from '@/views/Shift/ShiftExchangeDetails.vue'
@@ -73,6 +77,11 @@ const routes = [
         path: 'manageOff',
         name: 'manageOff',
         component: ManageOff
+      },
+      {
+        path: 'work-management',
+        name: 'work-management',
+        component: GenerationWork
       },
       {
         path: '/nurses',

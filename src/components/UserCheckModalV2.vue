@@ -51,6 +51,7 @@ const password = ref('')
 const nurseList = ref([])
 const showSuggestions = ref(false)
 
+
 const filteredNames = computed(() =>
   nurseList.value.filter(n => n.name.includes(name.value))
 )
@@ -78,6 +79,7 @@ function submit() {
   }
   emit('submit', { email: submitEmail, password: password.value })
 }
+
 
 </script>
 
