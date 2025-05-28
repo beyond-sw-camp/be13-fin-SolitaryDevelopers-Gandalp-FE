@@ -67,10 +67,6 @@
           </v-card>
         </v-menu>
       </template>
-
-      <v-btn variant="text" class="nav-btn" @click="auth.isLoggedIn ? logout() : login()">
-        <v-icon color="white">{{ auth.isLoggedIn ? 'mdi-logout' : 'mdi-login' }}</v-icon>
-      </v-btn>
     </div>
   </header>
 </template>
