@@ -126,7 +126,7 @@ const logout = () => {
 
   margin-top: 10px;
   border-radius: 10px;
-  height: 30px;
+  height: 40px;
 }
 
 .header-inner {
