@@ -44,34 +44,43 @@
       </thead>
       <tbody>
         <tr v-for="item in shiftList" :key="item.boardId">
-          <!-- <td style="text-align: left;">{{ item.content }}</td> -->
-          <td
-  class="content-cell"
-  :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
-  :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
-  @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
->
-  {{ item.content }}
-</td>
+  <!-- 바꿀 교대 타임 -->
+  <td
+    class="text-center"
+    :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
+    :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
+    @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
+  >
+    {{ item.content }}
+  </td>
+  <!-- 상태 -->
+  <td
+    class="text-center"
+    :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
+    :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
+    @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
+  >
+    <span
+      :class="{
+        badge: true,
+        completed: item.boardStatusLabel === '요청 수리됨',
+        waiting: item.boardStatusLabel === '요청 대기중'
+      }"
+    >
+      {{ item.boardStatusLabel }}
+    </span>
+  </td>
+  <!-- 작성일자 -->
+  <td
+    class="text-center"
+    :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
+    :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
+    @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
+  >
+    {{ formatDateTime(item.updatedAt) }}
+  </td>
+</tr>
 
-
-
-
-          <td class="text-center">
-            <span
-              :class="{
-                badge: true,
-                completed: item.boardStatusLabel === '요청 수리됨',
-                waiting: item.boardStatusLabel === '요청 대기중'
-              }"
-            >
-              {{ item.boardStatusLabel }}
-            </span>
-          </td>
-          <td class="text-center">
-            {{ formatDateTime(item.updatedAt) }}
-          </td>
-       </tr>
       </tbody>
     </v-table>
 
@@ -97,8 +106,8 @@
         <v-icon size="12" class="mr-1 icon-black" style="vertical-align: middle">mdi-pencil</v-icon>
         <span>작성</span>
       </v-btn>
-   </div>
-   </v-card>
+  </div>
+  </v-card>
   </div>
 </template>
 
@@ -212,6 +221,18 @@ const formatDateTime = (dtStr) => {
   <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
 
+h2.title {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  color: #000 !important;
+}
+h2.title::after,
+h2.title::before {
+  display: none !important;
+}
+
+
+
 .shift-exchange-page {
   padding: 24px;
   border-radius: 10px;
@@ -235,7 +256,7 @@ const formatDateTime = (dtStr) => {
 } */
 
 /*.search-bar {
- display: flex;
+  display: flex;
   gap: 8px;
   margin-bottom: 16px;
   justify-content: flex-end;
@@ -255,6 +276,9 @@ const formatDateTime = (dtStr) => {
   border-right: none;
 } */
 
+::v-deep(.v-table tbody tr:hover) {
+  background-color: #e5edf9;
+}
 
 ::v-deep(.small-select .v-field) {
   min-height: 35px !important;
@@ -378,8 +402,11 @@ const formatDateTime = (dtStr) => {
   font-size: 13px;
   font-family: 'Noto Sans KR', sans-serif;
 }
-.content-cell:hover {
-  background: #a9b4b9;
+
+
+.content-cell:not(.disabled-cell):hover {
+  background: #eaf0ff;
+  transition: background 0.2s, color 0.2s;
 }
 
 /* 상태 뱃지 스타일 */
@@ -467,7 +494,6 @@ const formatDateTime = (dtStr) => {
   padding: 4px 8px !important;
   font-size: 12px;
   min-height: 32px !important;
-  /* background: linear-gradient(to right, #8d8f91 0%, #828486 100%) !important; */
   background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%);
 }
   </style>
@@ -477,4 +503,4 @@ const formatDateTime = (dtStr) => {
   min-height: 5px !important;
   font-size: 11px !important;
 }
-</style>
+</style> 

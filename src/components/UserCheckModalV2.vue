@@ -186,7 +186,7 @@ function submit() {
   color: #888;
 }
 
-.modal-btns {
+/* .modal-btns {
   display: flex;
   gap: 16px;
   margin-top: 18px;
@@ -208,6 +208,6 @@ function submit() {
 }
 .modal-btns button:hover {
   background: #bfc7cc;
-}
+} */
 
 </style>
