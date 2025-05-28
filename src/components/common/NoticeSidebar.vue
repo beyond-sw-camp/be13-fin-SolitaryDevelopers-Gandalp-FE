@@ -15,7 +15,7 @@
     <!-- 🔽 토글된 경우에만 공지들 보여줌 -->
     <div v-if="isOpen" class="notice-content">
       <h4 class="notice-subtitle">긴급 공지사항</h4>
-      <ul class="notice-list">
+      <ul class="urgent-notice-list">
         <li v-for="notice in urgentList" :key="notice.noticeId" class="notice-item">
           {{ notice.content }}
           <button class="delete-btn" v-if="isHeadNurse" @click="deleteNotice(notice.noticeId)">🗑️</button>
@@ -24,7 +24,7 @@
 
 
       <h4 class="notice-subtitle">일반 공지사항</h4>
-      <ul class="notice-list">
+      <ul class="general-notice-list">
         <li v-for="notice in generalList" :key="notice.id">
           {{ notice.content }}
         </li>
@@ -32,15 +32,22 @@
     </div>
 
     <!-- 📢 공지사항 등록 모달 -->
-    <div class="modal" v-if="showModal">
+    <div class="modal" v-if="showModal" @click.self="cancelNotice">
       <div class="modal-content">
-        <h4>📢 공지사항 등록</h4>
-        <textarea v-model="newNotice" placeholder="공지 내용을 입력하세요" rows="4" />
-        <br />
-        <button @click="createNotice">등록</button>
-        <button @click="showModal = false">취소</button>
+        <h4 class="modal-title">📢 공지사항 등록</h4>
+        <textarea
+          v-model="newNotice"
+          placeholder="공지 내용을 입력하세요"
+          rows="5"
+          class="modal-textarea"/>
+
+        <div class="modal-btns">
+              <v-btn size="small" variant="tonal" color="primary" @click="createNotice">등록</v-btn>
+              <v-btn size="small" variant="tonal" color="error" @click="cancelNotice">취소</v-btn>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
@@ -85,6 +92,11 @@ const createNotice = async () => {
     alert('등록 실패: ' + e.response?.data || e.message)
   }
 }
+const cancelNotice = () => {
+  newNotice.value = ''
+  showModal.value = false
+}
+
 const deleteNotice = async (id) => {
   if (!confirm('정말 삭제하시겠습니까?')) return;
 
@@ -148,26 +160,24 @@ onMounted(fetchNotices)
   color: #333;
 }
 
-.notice-list {
+.urgent-notice-list {
   list-style: none;
   padding-left: 12px;
   margin: 0 0 16px;
-  border-left: 2px solid #eee;
+  border-left: 2px solid red;
+}
+.general-notice-list {
+  list-style: none;
+  padding-left: 12px;
+  margin: 0 0 16px;
+  border-left: 2px solid blue;
 }
 
 .notice-list li {
   margin-bottom: 6px;
   font-size: 13.5px;
   position: relative;
-  padding-left: 10px;
-}
-
-.notice-list li::before {
-  content: '•';
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #999;
+  padding-left: 5px;
 }
 
 .modal {
@@ -180,7 +190,15 @@ onMounted(fetchNotices)
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 9999;
 }
+.modal-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 
 .modal-content {
   background: white;

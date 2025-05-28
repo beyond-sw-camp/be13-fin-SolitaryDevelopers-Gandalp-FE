@@ -1,113 +1,104 @@
 <template>
   <div class="shift-exchange-page">
     <h2 class="title">교대근무 교환 게시판</h2>
-    <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
-    <div class="search-bar">
-    <v-select
-      v-model="searchType"
-      :items="searchOptions"
-      density="compact"
-      variant="solo"
-      label="검색 기준 선택"
-      class="small-select no-shadow"
-      style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
-      hide-details
-      flat
-      bg-color="#edf7ff"
-    />
-      
-      <v-text-field
-        v-model="searchKeyword"
-        placeholder="교대 타임을 입력하세요"
-        @keydown.enter="onSearchClick"
-        clearable
-        rounded="lg"
-        variant="Outlined"
-        density="compact"
-        append-inner-icon="mdi-magnify"
-        @click:append-inner="onSearchClick"
-        hide-details
-        class="small-text-field"
-        style="flex: 1;"
-        bg-color="#edf7ff"
-        
-      />
-    </div>
+      <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+        <div class="search-bar">
+          <v-select
+            v-model="searchType"
+            :items="searchOptions"
+            density="compact"
+            variant="solo"
+            label="검색 기준 선택"
+            class="small-select no-shadow"
+            style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
+            hide-details
+            flat
+            bg-color="#edf7ff"
+          />
+          
+          <v-text-field
+            v-model="searchKeyword"
+            placeholder="교대 타임을 입력하세요"
+            @keydown.enter="onSearchClick"
+            clearable
+            rounded="lg"
+            variant="Outlined"
+            density="compact"
+            append-inner-icon="mdi-magnify"
+            @click:append-inner="onSearchClick"
+            hide-details
+            class="small-text-field"
+            style="flex: 1;"
+            bg-color="#edf7ff"
+            
+          />
+        </div>
 
-    <v-table class="elevation-1" density="comfortable" style="border-radius: 10px;">
-      <thead>
-        <tr style="background-color: #4f72f5;">
-          <th class="text-center" style="color: white;">바꿀 교대 타임</th>
-          <th class="text-center" style="color: white;">상태</th>
-          <th class="text-center" style="color: white;">작성일자</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in shiftList" :key="item.boardId">
-  <!-- 바꿀 교대 타임 -->
-  <td
-    class="text-center"
-    :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
-    :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
-    @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
-  >
-    {{ item.content }}
-  </td>
-  <!-- 상태 -->
-  <td
-    class="text-center"
-    :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
-    :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
-    @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
-  >
-    <span
-      :class="{
-        badge: true,
-        completed: item.boardStatusLabel === '요청 수리됨',
-        waiting: item.boardStatusLabel === '요청 대기중'
-      }"
+        <v-table class="elevation-1" density="comfortable" style="border-radius: 10px;">
+          <thead>
+            <tr style="background-color: #4f72f5;">
+              <th class="text-center" style="color: white;">바꿀 교대 타임</th>
+              <th class="text-center" style="color: white;">상태</th>
+              <th class="text-center" style="color: white;">작성일자</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in shiftList" :key="item.boardId">
+              <!-- <td style="text-align: left;">{{ item.content }}</td> -->
+              <td
+      class="content-cell"
+      :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
+      :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
+      @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
     >
-      {{ item.boardStatusLabel }}
-    </span>
-  </td>
-  <!-- 작성일자 -->
-  <td
-    class="text-center"
-    :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
-    :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
-    @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
-  >
-    {{ formatDateTime(item.updatedAt) }}
-  </td>
-</tr>
-
-      </tbody>
-    </v-table>
+      {{ item.content }}
+    </td>
 
 
-    <div class="pagination-bar">
-      <div class="pagination">
-        <v-pagination
-          v-model="currentPage"
-          :length="totalPages"
-          :total-visible="5"
-          color="black"
-          size="small"
-          @update:modelValue="changePage"
-        />
+
+
+              <td class="text-center">
+                <span
+                  :class="{
+                    badge: true,
+                    completed: item.boardStatusLabel === '요청 수리됨',
+                    waiting: item.boardStatusLabel === '요청 대기중'
+                  }"
+                >
+                  {{ item.boardStatusLabel }}
+                </span>
+              </td>
+              <td class="text-center">
+                {{ formatDateTime(item.updatedAt) }}
+              </td>
+          </tr>
+          </tbody>
+        </v-table>
+
+
+        <div class="pagination-bar">
+          <div class="pagination">
+            <v-pagination
+              v-model="currentPage"
+              :length="totalPages"
+              :total-visible="5"
+              color="black"
+              size="small"
+              @update:modelValue="changePage"
+            />
+          </div>
+        
+          <v-btn
+            size="small"
+            variant="tonal"
+            color="success"
+            @click="goToCreateShift"
+          >
+            <v-icon size="12" class="mr-1 icon-black" style="vertical-align: middle">mdi-pencil</v-icon>
+            <span>작성</span>
+          </v-btn>
       </div>
-    
-      <v-btn
-        size="small"
-        variant="tonal"
-        color="success"
-        @click="goToCreateShift"
-      >
-        <v-icon size="12" class="mr-1 icon-black" style="vertical-align: middle">mdi-pencil</v-icon>
-        <span>작성</span>
-      </v-btn>
-  </div>
-  </v-card>
+    </v-card>
   </div>
 </template>
 

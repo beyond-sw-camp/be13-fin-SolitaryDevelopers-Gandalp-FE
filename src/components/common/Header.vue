@@ -1,15 +1,11 @@
 <template>
   <header class="header">
-
     <div class="header-inner">
-<!--    관리자인 경우 계정 생성, 계정 목록 조회됨 -->
-
       <template v-if="isAdmin">
         <v-btn variant="text" class="nav-btn" to="/joinMember">계정 생성</v-btn>
         <v-btn variant="text" class="nav-btn" to="/memberList">계정 목록</v-btn>
       </template>
 
-<!--       응급대원인 경우 지도 검색만 볼 수 있음-->
       <template v-else-if="isParamedic">
         <v-btn variant="text" class="nav-btn" to="/hospitalMap">병원 찾기</v-btn>
       </template>
@@ -44,70 +40,129 @@
 
         <v-btn variant="text" class="nav-btn" to="/updateEr">병상 정보 수정</v-btn>
       </template>
-      <v-btn variant="text" class="nav-btn" @click="auth.isLoggedIn ? logout() : login()">
-        <v-icon color="white">{{ auth.isLoggedIn ? 'mdi-logout' : 'mdi-login' }}</v-icon>
-      </v-btn>
+
+      <template v-if="auth.isLoggedIn">
+        <v-menu open-on-click offset-y>
+          <template #activator="{ props }">
+            <v-btn v-bind="props" icon variant="text" class="profile-btn">
+              <svg-icon type="mdi" :path="mdiAccount" class="profile-icon" />
+            </v-btn>
+          </template>
+
+          <v-card class="profile-card">
+            <v-card-text>
+              <div class="profile-info-horizontal">
+                <svg-icon type="mdi" :path="mdiAccount" class="profile-avatar-icon" />
+                <div class="profile-meta">
+                  <div class="profile-name-large">{{ auth.userInfo.username || '사용자' }} 님</div>
+                  <div class="profile-subinfo-line">
+                    <span>{{ myInfo.hospitalName }}</span>
+                    <span>{{ myInfo.deptName }}</span>
+                    <span>{{ myInfo.type }}</span>
+                  </div>
+                </div>
+              </div>
+            </v-card-text>
+            <v-list-item class="centered-title" title="로그아웃" @click="logout" />
+          </v-card>
+        </v-menu>
+      </template>
     </div>
   </header>
 </template>
 
 <script setup>
-
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
+import SvgIcon from '@jamescoyle/vue-icon'
+import { mdiAccount } from '@mdi/js'
+import apiClient from '@/api/axios'
 
 const router = useRouter()
-const showDropdown = ref(false)
-const auth    = useAuthStore()
+const auth = useAuthStore()
 const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
-const isParamedic  = computed(() => auth.userInfo.type === 'PARAMEDIC')
+const isParamedic = computed(() => auth.userInfo.type === 'PARAMEDIC')
 const isHeadNurse = computed(() => auth.userInfo.type === 'HEAD_NURSE')
-const showNurseDropDown = ref(false)
 
+const myInfo = ref({ hospitalName: '', deptName: '', type: '' })
 
-
-
-const login = () => {
-  router.push("/login")
-}
+const login = () => router.push("/login")
 
 const logout = () => {
-  if( confirm('정말로 로그아웃하시겠습니까?') ){
-    auth.logout();
+  if (confirm('정말로 로그아웃하시겠습니까?')) {
+    auth.logout()
   }
-
-
-
 }
 
-
+onMounted(async () => {
+  if (auth.isLoggedIn) {
+    try {
+      const res = await apiClient.get('/members/myInfo')
+      myInfo.value = res.data
+    } catch (e) {
+      console.error('내 정보 조회 실패 : ', e)
+    }
+  }
+})
 </script>
 
-
 <style scoped>
-
-::v-deep(.v-list-item) {
-  min-height: 32px !important;
-  padding-top: 4px !important;
-  padding-bottom: 4px !important;
+.profile-btn {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  transition: none !important;
 }
 
-::v-deep(.v-list-item-title) {
-  font-size: 13px !important;
+.profile-btn:hover,
+.profile-btn:focus,
+.profile-btn:active {
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
-.nav a ,
-.menu-title {
-  font-size: 15px;
-  color: #FFFFFF !important;
-  padding: 6px 10px;
-  line-height: 1;
-  display: inline-flex;
+.profile-icon {
+  width: 24px;
+  height: 24px;
+  color: white;
+  background-color: transparent;
+}
+
+.profile-card {
+  min-width: 240px;
+}
+
+.profile-info-horizontal {
+  display: flex;
   align-items: center;
-  height: 36px;
-  box-sizing: border-box;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.profile-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.profile-subinfo-line {
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+.profile-name-large {
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.profile-avatar-icon {
+  width: 48px;
+  height: 48px;
+  color: #888;
 }
 
 .header {
@@ -123,7 +178,6 @@ const logout = () => {
   letter-spacing: .04rem;
   padding: 5px;
   background: linear-gradient(135deg, #1842fe 0%, #2b54ff 50%, #3a65ff 100%);
-
   margin-top: 10px;
   border-radius: 10px;
   height: 40px;
@@ -139,64 +193,9 @@ const logout = () => {
   align-items: center;
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-}
-.logo img {
-  height: 40px;
-  margin-right: 10px;
-}
-.logo .brand {
-  font-size: 22px;
-  color: #1b9aaa;
-}
-
-.nav >*{
-  display: flex;
-  gap: 2vw; 
-  align-items: center;
-}
-
-.nav a {
-  text-decoration: none;
-  color: #ffffff;
-  padding: 6px 10px;
-}
-.nav a:hover {
-  color: #4a73a5;
-}
-
-.menu-title {
-color: #001248;
-cursor: pointer;
-}
-
-.dropdown {
-  position: relative;
-
-}
-.dropdown-menu {
-  position: absolute;
-  border-radius: 10px;
-  top: 25px;
-  left: 0;
-  background: black;
-  border: 1px solid #ccc;
-  min-width: 120px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-}
-.dropdown-menu a {
-   border-radius: 10px;
-  display: block;
-  padding: 8px 12px;
-  color: #5a5d64;
-  text-decoration: none;
-}
-.dropdown-menu a:hover {
-   border-radius: 10px;
-  background-color: #5a5d64;
+.centered-title {
+  text-align: center;
+  width: 100%;
 }
 
 .nav-btn {
@@ -208,23 +207,8 @@ cursor: pointer;
 }
 
 .nav-btn:hover {
-  color: #86e3d1  !important;
-  background-color: transparent !important; /* ← 배경색 제거 */
-  box-shadow: none !important;              /* ← 그림자 제거 (필요시) */
-}
-
-.auth-btn button {
-  background-color: rgb(36, 36, 36);
-  padding: 9px 12px;
-  border: none;
-  color: black;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-right: 100px;
-}
-.auth-btn button:hover {
-  background-color: #424449;
-  color: white;
+  color: #86e3d1 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 </style>
