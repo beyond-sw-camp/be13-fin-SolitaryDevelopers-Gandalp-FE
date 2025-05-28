@@ -1,10 +1,8 @@
 <template>
-  <v-container class="main-wrapper">
-    <v-row justify="space-between">
-      <v-col class="text-end">
-        <v-btn class="custom-btn" @click="createOff">오프 신청</v-btn>
-      </v-col>
-    </v-row>
+  <div class="create-off-page">
+  <h2 class="title">오프 신청</h2>
+  <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+    
     
     <vue-cal
       :views="{ month: { label: '월간' } }"
@@ -28,13 +26,20 @@
         </div>
       </template>
     </vue-cal>
-  </v-container>
+
+    <v-row justify="flex-end" style="margin-top: 10px;">
+      <v-col class="text-end">
+        <v-btn size="small" variant="tonal" color="success"  @click="createOff">오프 신청</v-btn>
+      </v-col>
+    </v-row>
     <!-- 사용자 확인 모달 -->
     <UserCheckModalV2
       v-if="showModal"
       @close="showModal = false"
       @submit="handleSubmit"
     />
+    </v-card>
+    </div>
   </template>
   
   <script setup>
@@ -136,6 +141,21 @@ const formatKST = (date) => {
   </script>
   
   <style scoped>
+
+  .create-off-page {
+    padding: 24px;
+    border-radius: 10px;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+    .title {
+    color: black;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    margin-top: 5px;
+  }
 
 .v-col {
   height: 70px;
