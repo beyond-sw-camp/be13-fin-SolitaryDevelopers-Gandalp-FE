@@ -1,104 +1,181 @@
 <template>
-  <div class="details-container">
-    <table class="details-table">
-      <tr>
-        <th>게시글 번호</th>
-        <td>{{ detail.boardId }}</td>
-      </tr>
-      <tr>
-        <th>바꿀 교대 타임</th>
-        <td>{{ detail.content }}</td>
-      </tr>
-      <tr>
-        <th>상태</th>
-        <td>
-          <span :class="['status-badge', detail.codeLabel === '요청 수리됨' ? 'completed' : 'waiting']">
+  <v-container class="py-6 px-4" max-width="800">
+    <!-- 게시글 상세 카드 -->
+    <span class="text-h6 font-weight-bold mb-4">게시글 상세</span>
+    <br><br>
+    <v-card elevation="2" class="pa-6 mb-6" style="border-radius: 10px;">
+      
+      <v-row no-gutters class="highlight-row">
+        <v-col cols="4" class="detail-label py-3 px-4">게시글 번호</v-col>
+        <v-col cols="8" class="py-3 px-4">{{ detail.boardId }}</v-col>
+      </v-row>
+      <v-divider></v-divider>
+      
+      <v-row no-gutters>
+        <v-col cols="4" class="detail-label py-3 px-4">바꿀 교대 타임</v-col>
+        <v-col cols="8" class="py-3 px-4">{{ detail.content }}</v-col>
+      </v-row>
+      <v-divider></v-divider>
+
+      <v-row no-gutters>
+        <v-col cols="4" class="detail-label py-3 px-4">상태</v-col>
+        <v-col cols="8" class="py-3 px-4">
+          <v-chip
+            :color="detail.codeLabel === '요청 수리됨' ? 'success' : 'warning'"
+            class="text-white"
+            size="small"
+          >
             {{ detail.codeLabel }}
-          </span>
-        </td>
-      </tr>
-    </table>
+          </v-chip>
+        </v-col>
+      </v-row>
 
-    <div class="button-group">
-      <!-- <button class="edit-btn" @click="goToEdit">수정</button> -->
-      <button class="delete-btn" @click="openDeleteModal">삭제</button>
+      <v-row justify="end" class="mt-4">
+        <v-btn color="error" variant="tonal" class="ml-2" @click="openDeleteModal">삭제</v-btn>
+        
+      </v-row>
+    </v-card>
+    
 
-    </div>
-
-    <hr />
-
-    <div class="comments-section">
-      <!-- <div class="comments-title">댓글</div> -->
-      <span class="comments-title">댓글</span>
-      <button class="write-btn" @click="openWriteForm" v-if="!showWriteForm">작성</button>
+    <!-- 댓글 카드 -->
+    <h2 class="text-h6 font-weight-bold mb-4">댓글</h2>
+      <v-row justify="end" class="mb-2" >
+        <v-btn size="small" variant="tonal" color="success" class="write-btn" @click="openWriteForm" v-if="!showWriteForm">
+          작성
+        </v-btn>
+      </v-row>
+    
       
-      
-      <div
-  v-for="comment in detail.comments"
-  :key="comment.commentId"
-  class="comment-row"
-  :class="{ 'comment-hover': hoveredCommentId === comment.commentId, 'comment-selected': comment.selected }"
-  @mouseenter="hoveredCommentId = comment.commentId"
-  @mouseleave="hoveredCommentId = null"
-  @click="trySelectComment(comment)"
-  style="cursor: pointer;"
->
-  <span style="font-size:13px;">
-    {{ formatDateTime(comment.createdAt) }} {{ comment.content }}
-    <span v-if="comment.selected" style="color: #26a69a; font-weight: bold;">(채택됨)</span>
-  </span>
-  <button class="commentedit-btn" @click.stop="openEditForm(comment)">수정</button>
-  <button class="commentdelete-btn" @click.stop="openCommentDeleteModal(comment)">삭제</button>
-</div>                      
+    <!-- 댓글 리스트 -->
+      <v-card
+        v-for="comment in detail.comments"
+        :key="comment.commentId"
+        class="mb-3 comment-card"
+        elevation="1"
 
-    </div>
-  </div>
+        :class="{ 'comment-hover': hoveredCommentId === comment.commentId, 'comment-selected': comment.selected }"
+        @mouseenter="hoveredCommentId = comment.commentId"
+        @mouseleave="hoveredCommentId = null"
+        @click="trySelectComment(comment)"
+        style="cursor: pointer"
+        >
+  
+      <v-row class="pa-4" align="center" justify="space-between">
 
-  <!-- 댓글 작성 폼 -->
+  <!-- 왼쪽: 댓글 내용 (수직 가운데 정렬) -->
+    <v-col class="d-flex align-center">
+      <div class="comment-content">{{ comment.content }}</div>
+    </v-col>
+
+    <!-- 오른쪽: 상단 날짜 + 하단 버튼 -->
+    <v-col cols="auto" class="d-flex flex-column align-end justify-space-between text-right">
+      <div class="comment-date mb-2">{{ formatDateTime(comment.createdAt) }}</div>
+      <div>
+        <v-btn size="small" variant="tonal" color="primary" class="commentedit-btn" @click.stop="openEditForm(comment)">수정</v-btn>
+        <v-btn size="small" variant="tonal" color="error" 
+              class="commentdelete-btn" @click.stop="openCommentDeleteModal(comment)">삭제</v-btn>
+
+              
+
+      </div>
+    </v-col>
+  </v-row>
+  </v-card>                    
+
+  
+
+  <!-- 댓글 작성 폼 v2-->
+  
   <div v-if="showWriteForm" class="comment-form-wrapper">
   <div class="comment-form-title">작성</div>
 
-  <div class="comment-form">
-    <div v-if="showWriteForm" class="comment-form">
-      <select v-model="writeMonth">
-        <option disabled value="">월</option>
-        <option v-for="month in months" :key="month" :value="month">{{ month }}월</option>
-      </select>
-      <select v-model="writeDay">
-        <option disabled value="">일</option>
-        <option v-for="day in daysInWriteMonth" :key="day" :value="day">{{ day }}일</option>
-      </select>
-      <select v-model="writeTime">
-        <option disabled value="">타임</option>
-        <option v-for="time in times" :key="time" :value="time">{{ time }}</option>
-      </select>
-    <button class="submitComment-btn" @click="submitComment">확인</button>
-    <button class="commentCancelWrite-btn" @click="commentCancelWrite">취소</button>
+  
+  <v-card v-if="showWriteForm" class="pa-4 comment-form-card" color="white" elevation="0">
+  <v-row dense>
+    <v-col cols="4">
+      <v-select
+        v-model="writeMonth"
+        :items="months"
+        label="월"
+        density="compact"
+              variant="outlined"
+      />
+    </v-col>
+    <v-col cols="4">
+      <v-select
+        v-model="writeDay"
+        :items="daysInWriteMonth"
+        label="일"
+        density="compact"
+              variant="outlined"
+      />
+    </v-col>
+    <v-col cols="4">
+      <v-select
+        v-model="writeTime"
+        :items="times"
+        label="타임"
+        density="compact"
+              variant="outlined"
+      />
+    </v-col>
+  </v-row>
+  <v-row class="btn-row" justify="end">
+    <v-btn size="small" variant="tonal" color="primary" class="btn" @click="submitComment">확인</v-btn>
+    <v-btn size="small" variant="tonal" color="error" class="btn" @click="commentCancelWrite">취소</v-btn>
+
+  </v-row>
+</v-card>
   </div>
-</div>
-</div>
+
 
 
     <!-- 댓글 수정 폼 -->
     <div v-if="editingComment" class="comment-form-wrapper">
-  <div class="comment-form-title">수정</div>
-  <div class="comment-form">
-    <select v-model="editMonth">
-        <option disabled value="">월</option>
-        <option v-for="month in months" :key="month" :value="month">{{ month }}월</option>
-      </select>
-      <select v-model="editDay">
-        <option disabled value="">일</option>
-        <option v-for="day in daysInEditMonth" :key="day" :value="day">{{ day }}일</option>
-      </select>
-      <select v-model="editTime">
-        <option disabled value="">타임</option>
-        <option v-for="time in times" :key="time" :value="time">{{ time }}</option>
-      </select>
-    <button class="submitEdit-btn" @click="submitEdit">확인</button>
-    <button class="cancelEdit-btn" @click="cancelEdit">취소</button>
+      <div class="comment-form-title">수정</div>
+
+    <v-card v-if="editingComment" class="pa-4 comment-form-card" color="white" elevation="0">
+    
+    <v-row dense>
+    <v-col cols="4">
+      <v-select
+        v-model="editMonth"
+        :items="months"
+        label="월"
+        density="compact"
+              variant="outlined"
+      />
+    </v-col>
+    <v-col cols="4">
+      <v-select
+        v-model="editDay"
+        :items="daysInEditMonth"
+        label="일"
+        density="compact"
+              variant="outlined"
+      />
+    </v-col>
+    <v-col cols="4">
+      <v-select
+        v-model="editTime"
+        :items="times"
+        label="타임"
+        density="compact"
+              variant="outlined"
+      />
+    </v-col>
+  </v-row>
+    
+    <v-row class="btn-row" justify="end">
+    <v-btn size="small" variant="tonal" color="primary" class="btn" @click="submitEdit">확인</v-btn>
+    <v-btn size="small" variant="tonal" color="error" class="btn" @click="cancelEdit">취소</v-btn>
+
+    
+  </v-row>
+
+    </v-card>
   </div>
-</div>
+<!-- </div> -->
 
     <!-- 사용자 확인 모달 -->
   <UserCheckModalV2
@@ -106,6 +183,7 @@
     @close="showModal = false"
     @submit="handleSubmit"
   />
+  </v-container>
 </template>
 
 <script setup>
@@ -189,6 +267,7 @@ function cancelEdit() {
 }
 
 // 댓글 수정
+
 async function submitEdit() {
   if (!editMonth.value || !editDay.value || !editTime.value) {
     alert('월, 일, 타임을 모두 선택해 주세요.')
@@ -196,6 +275,11 @@ async function submitEdit() {
   }
   if (isPast(editMonth.value, editDay.value, editTime.value)) {
     alert('과거 일정은 선택할 수 없습니다.')
+    return
+  }
+  // *** 교대 종류 검증 ***
+  if (!isValidCommentShift(detail.value.content, editTime.value)) {
+    alert('게시글에는 데이/이브닝, 나이트 각각에 해당하는 근무 종류의 댓글만 작성할 수 있습니다.')
     return
   }
   showModal.value = true
@@ -206,7 +290,10 @@ async function submitEdit() {
 //     alert('월, 일, 타임을 모두 선택해 주세요.')
 //     return
 //   }
-//   // 인증 모달 띄우기
+//   if (isPast(editMonth.value, editDay.value, editTime.value)) {
+//     alert('과거 일정은 선택할 수 없습니다.')
+//     return
+//   }
 //   showModal.value = true
 // }
 
@@ -265,28 +352,25 @@ async function trySelectComment(comment) {
 }
 const selectedCommentForSubmit = ref(null)
 
+function getShiftTypeFromContent(content) {
+  if (content.includes('데이')) return '데이'
+  if (content.includes('이브닝')) return '이브닝'
+  if (content.includes('나이트')) return '나이트'
+  return ''
+}
 
-// async function trySelectComment(comment) {
-//   // 게시글이 이미 채택된 상태면 안내 후 리턴
-//   if (detail.value.codeLabel === '요청 수리됨') {
-//     alert('이 게시물은 이미 채택된 상태입니다.')
-//     return
-//   }
-//   if (!confirm('이 댓글을 채택하시겠습니까?')) return
-//   try {
-//     await apiClient.post(`/shifts/comments/${comment.commentId}/submit`, null, {
-//       params: { boardId }
-//     })
-//     alert('댓글이 채택되었습니다.')
-//     await fetchDetail()
-//   } catch (e) {
-//     // 백엔드에서 예외 발생 시 메시지 출력
-//     alert(e.response?.data || '댓글 채택 실패')
-//     console.error(e)
-//   }
-// }
+function isValidCommentShift(boardContent, commentTime) {
+  const boardShift = getShiftTypeFromContent(boardContent)
+  if (boardShift === '데이' || boardShift === '이브닝') {
+    return commentTime === '데이' || commentTime === '이브닝'
+  }
+  if (boardShift === '나이트') {
+    return commentTime === '나이트'
+  }
+  return false
+}
 
-// 1. 댓글 작성 버튼 클릭
+// 댓글 작성 버튼 클릭
 function submitComment() {
   if (!writeMonth.value || !writeDay.value || !writeTime.value) {
     alert('월, 일, 타임을 모두 선택해 주세요.')
@@ -296,6 +380,11 @@ function submitComment() {
     alert('과거 일정은 선택할 수 없습니다.')
     return
   }
+  // *** 교대 종류 검증 ***
+  if (!isValidCommentShift(detail.value.content, writeTime.value)) {
+    alert('게시글에는 데이/이브닝, 나이트 각각에 해당하는 근무 종류의 댓글만 작성할 수 있습니다.')
+    return
+  }
   isWritingComment.value = true
   showModal.value = true
   deleteTargetComment.value = null
@@ -303,9 +392,14 @@ function submitComment() {
 }
 
 
+// // 1. 댓글 작성 버튼 클릭
 // function submitComment() {
 //   if (!writeMonth.value || !writeDay.value || !writeTime.value) {
 //     alert('월, 일, 타임을 모두 선택해 주세요.')
+//     return
+//   }
+//   if (isPast(writeMonth.value, writeDay.value, writeTime.value)) {
+//     alert('과거 일정은 선택할 수 없습니다.')
 //     return
 //   }
 //   isWritingComment.value = true
@@ -313,6 +407,7 @@ function submitComment() {
 //   deleteTargetComment.value = null
 //   editingComment.value = null
 // }
+
 
 // 2. 모달에서 인증 성공 시 handleSubmit에서 nurseInfo.value에 nurseId 저장됨
 const handleSubmit = async ({ email, password }) => {
@@ -539,6 +634,24 @@ onMounted(fetchDetail)
 </script>
 
 <style scoped>
+.comment-form-card {
+  border: 1.5px solid #e0e0e0;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.05) !important;
+  border-radius: 10px; /* 필요시 */
+}
+
+
+.comment-card {
+  border: 1px solid #e0e0e0;
+  /* border-radius: 10px; */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-row {
+  gap: 4px;
+}
+
+/* 위에 새로 추가 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
 
 .comment-form-title {
@@ -547,65 +660,6 @@ onMounted(fetchDetail)
   margin-bottom: 4px;
 }
 
-.write-btn {
-  height: 17px;
-  background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%);
-  border: none;
-  color: #000;
-  font-size: 0.65rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  line-height: 1;
-  padding: 0 08px;
-  transition: all 0.2s ease-in-out;
-  
-  margin-bottom: 10px;
-}
-
-.write-btn:hover {
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-}
-
-.commentedit-btn {
-  height: 18px;
-  background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%);
-  border: none;
-  color: #000;
-  font-size: 0.75rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  line-height: 1;
-  padding: 0 10px;
-  transition: all 0.2s ease-in-out;
-  
-  margin-bottom: 10px;
-}
-
-.commentdelete-btn {
-  height: 18px;
-  background: linear-gradient(to right, #f1dfdf 0%, #f1dfdf 100%);
-  border: none;
-  color: #000;
-  font-size: 0.75rem;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  line-height: 1;
-  padding: 0 10px;
-  transition: all 0.2s ease-in-out;
-  margin-bottom: 10px;
-}
-
-.commentedit-btn:hover, .commentdelete-btn:hover {
-  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-1px);
-}
 
 .comment-form {
   display: flex;
@@ -655,7 +709,17 @@ onMounted(fetchDetail)
   transition: background 0.2s;
 }
 .comment-hover {
-  background: #d6d6d6;
+  background: #ebebeb;
+}
+
+h2.text-h6 {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  color: #000 !important;
+}
+h2.text-h6::after,
+h2.text-h6::before {
+  display: none !important;
 }
 
 
