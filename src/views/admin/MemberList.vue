@@ -3,8 +3,8 @@
     <h2 class="title">계정 목록</h2>
 
     <form class="search-bar"
-          @submit.prevent="fetchMembers"
-          @keydown.enter.prevent="fetchMembers"
+          @submit.prevent="onSearch"
+          @keydown.enter.prevent="onSearch"
     >
 
       <select v-model="selectedType">
@@ -68,12 +68,12 @@
 
 
     <MemberUpdateModal
-           v-if="editingMember"
-           :model-value="editingMember"
-           @update:modelValue="editingMember = $event"
-           @saved="fetchMembers"
-           @closed="editingMember = null"
-         />
+      v-if="editingMember"
+      :model-value="editingMember"
+      @update:modelValue="editingMember = $event"
+      @saved="fetchMembers"
+      @closed="editingMember = null"
+    />
 
     <div class="pagination">
       <button :disabled="page===1" @click="changePage(page-1)">&lt;</button>
@@ -96,8 +96,6 @@ import { ref, computed, onMounted } from 'vue'
 import apiClient         from '@/api/axios.js'
 import MemberItem        from './MemberItem.vue'
 import MemberUpdateModal from './MemberUpdateModal.vue'
-
-
 const members    = ref([])
 const editingMember = ref(null)
 const keyword    = ref('')
@@ -112,9 +110,7 @@ const options = [
   { value: 'DEPARTMENT',  label: '진료과' },
   { value: 'ACCOUNT_ID',  label: '아이디' },
 ]
-
 const offset = computed(() => (page.value - 1) * size.value)
-
 const loading = ref(false)
 
 const onMemberEdit = (member) => {
@@ -122,11 +118,13 @@ const onMemberEdit = (member) => {
   editingMember.value = { ...member }
 }
 
+const onSearch = () => {
+  page.value = 1
+  fetchMembers()
+}
+
 const fetchMembers = async () => {
-
   if (!members.value.length) loading.value = true
-
-
   try {
     const response = await apiClient.get('/members', {
       params: {
@@ -137,14 +135,12 @@ const fetchMembers = async () => {
         option:    selectedOption.value || undefined,
       }
     })
-
     console.log('[fetchMembers] response:', response)
     console.log('[fetchMembers] data:', response.data)
-
-    const { content, number, totalPages: tp } = response.data
-    members.value = response.data.content // 리스트
-    totalPages.value = response.data.totalPages // 총 페이지 수
-    page.value = response.data.number + 1 // 기본 0이라 1로
+    const { content, page: pg } = response.data
+    members.value = content // 리스트
+    totalPages.value = pg.totalPages // 총 페이지 수
+    page.value = pg.number + 1 // 기본 0이라 1로
   } catch (err) {
     members.value = []
     console.error('[fetchMembers] error:', err)
@@ -158,6 +154,7 @@ const fetchMembers = async () => {
     loading.value = false
   }
 }
+
 const changePage = (p) => {
   if(p < 1 || p > totalPages.value) return
   page.value = p
@@ -171,7 +168,6 @@ onMounted(fetchMembers)
 .member-list-page {
   padding: 24px;
 }
-
 .search-bar select {
   padding: 6px 10px;
   border: 1px solid #ccc;
@@ -180,14 +176,12 @@ onMounted(fetchMembers)
   background: white;
   font-size: 14px;
 }
-
 .title {
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 16px;
   border-bottom: none;
 }
-
 .search-bar {
   height: 40px;
   max-width: 600px;
@@ -196,16 +190,13 @@ onMounted(fetchMembers)
   gap: 8px;
   margin-bottom: 30px;
   margin-left: auto;
-
 }
-
 .search-bar input {
   flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-
 .search-btn {
   display: inline-flex;
   align-items: center;
@@ -220,7 +211,6 @@ onMounted(fetchMembers)
   font-size: 14px;
   cursor: pointer;
 }
-
 .loading-cell,
 .empty-cell {
   text-align: center;
@@ -228,7 +218,6 @@ onMounted(fetchMembers)
   color: #666;
 }
 .table-container { position: relative; } /* [UPDATED] */
-
 .overlay { /* [UPDATED] */
   position: absolute;
   inset: 0;
@@ -243,7 +232,6 @@ onMounted(fetchMembers)
   border-spacing: 0;
   margin-bottom: 16px;
 }
-
 .member-table thead th {
   padding: 8px;
   text-align: center;
@@ -251,20 +239,15 @@ onMounted(fetchMembers)
   border-left: none;
   border-right: none;
 }
-
-
 .member-table tbody td {
   padding: 8px;
   text-align: center;
   border-bottom: 1px solid #ddd; /* 본문 각 행 사이 가로선 */
   border: none;
 }
-
 .member-table tbody tr:last-child td {
   border-bottom: none;
 }
-
-
 .pagination {
   display: flex;
   justify-content: center;
