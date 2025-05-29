@@ -31,7 +31,7 @@
     v-row(no-gutters class="mt-4")
       v-col
         vue-cal.vue-cal--main.grow(
-          style="height: 540px"
+          style="min-height: 80vh; height: auto;"
           ref="vueCalRef"
           @cell-drag-start="onCellDragStart"
           @cell-drag-end="onCellDragEnd"
@@ -409,16 +409,16 @@
   }
   
   
-  const locales = [
-    { value: 'ko', label: 'ko' },
-    { value: 'en-gb', label: 'en-gb' },
-    { value: 'en-us', label: 'en-us' },
-    { value: 'ja', label: 'ja' },
-    { value: 'zh-cn', label: 'zh-cn' },
-    { value: 'ar', label: 'ar' },
-    { value: 'fr', label: 'fr' },
-    { value: 'ca', label: 'ca' }
-  ]
+  // const locales = [
+  //   { value: 'ko', label: 'ko' },
+  //   { value: 'en-gb', label: 'en-gb' },
+  //   { value: 'en-us', label: 'en-us' },
+  //   { value: 'ja', label: 'ja' },
+  //   { value: 'zh-cn', label: 'zh-cn' },
+  //   { value: 'ar', label: 'ar' },
+  //   { value: 'fr', label: 'fr' },
+  //   { value: 'ca', label: 'ca' }
+  // ]
   
   const views = {
     day: { label: '일' },
@@ -761,23 +761,64 @@
     
   })
 
+const getShiftType = (startDate, endDate) => {
+  const startHour = startDate.getHours();
+  const endHour = endDate.getHours();
+
+  if (startHour === 6 && endHour === 14) return 'day';     // 데이
+  if (startHour === 14 && endHour === 22) return 'evening'; // 이브닝
+  if (startHour === 22 && (endHour === 6 || endHour === 5)) return 'night'; // 나이트
+  return 'etc';
+};
+
 const loadWorkSchedules = async () => {
   try {
     const response = await apiClient.get('/schedules');
-    return response.data.map(event => ({
-      id: event.workScheduleId,
-      title: event.content || event.codeLabel || '근무 일정',
-      start: parseLocalDate(event.startTime),
-      end: parseLocalDate(event.endTime),
-      name: Number(event.nurseId),
-      editable: false,
-      class: 'work'
-    }));
+    return response.data.map(event => {
+      const start = parseLocalDate(event.startTime);
+      const end = parseLocalDate(event.endTime);
+      const shiftType = getShiftType(start, end);
+
+      let shiftClass = '';
+      if (shiftType === 'day') shiftClass = 'shift-day';
+      else if (shiftType === 'evening') shiftClass = 'shift-evening';
+      else if (shiftType === 'night') shiftClass = 'shift-night';
+      else shiftClass = 'shift-etc';
+
+      return {
+        id: event.workScheduleId,
+        title: event.content || event.codeLabel || '근무 일정',
+        start,
+        end,
+        name: Number(event.nurseId),
+        editable: false,
+        class: shiftClass
+        // class: shiftClass
+      };
+    });
   } catch (error) {
     console.error('근무 일정 로딩 실패:', error);
     return [];
   }
 };
+
+// const loadWorkSchedules = async () => {
+//   try {
+//     const response = await apiClient.get('/schedules');
+//     return response.data.map(event => ({
+//       id: event.workScheduleId,
+//       title: event.content || event.codeLabel || '근무 일정',
+//       start: parseLocalDate(event.startTime),
+//       end: parseLocalDate(event.endTime),
+//       name: Number(event.nurseId),
+//       editable: false,
+//       class: 'work'
+//     }));
+//   } catch (error) {
+//     console.error('근무 일정 로딩 실패:', error);
+//     return [];
+//   }
+// };
 
 
   // 일정 불러오기 함수
@@ -898,6 +939,21 @@ onMounted(async () => {
   </script>
   
   <style lang="scss">
+
+::v-deep(.vuecal__event.shift-etc) {
+  background-color: #f0f0f0;
+  color: #666;
+  font-weight: bold;
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 4px 6px;
+  margin: 5px;
+  display: inline-block;
+  white-space: normal;
+  word-break: break-word;
+  max-width: 80%;
+}
+
 
   .modal-mask {
   position: fixed;
@@ -1068,9 +1124,86 @@ onMounted(async () => {
     // .vuecal__event.leisure {background-color: #fd9c42d9;border-color: #e9882e;}
     // .vuecal__event.health {background-color: #57cea9cc;border-color: #90d2be;}
     // .vuecal__event.sport {background-color: #ff6666d9;border-color: #eb5252;}
-    .vuecal__event.work {background-color: #9b76d8d9;border-color: #9b76d8d9;}
-    .vuecal__event.surgery {background-color: #57cea9cc;border-color: #90d2be;}
+    .vuecal__event.work {background-color: #9b76d8d9;border-color: #9b76d8d9;font-weight: bold;
+                              border-radius: 6px;
+                              font-size: 12px;
+                              padding: 4px 6px;
+                              border: none;
+                              margin: 5px;
+                                  display: inline-block;
+                              width: auto; 
+                              max-width: 80%;         
+                              white-space: normal;      
+                              word-break: break-word;  
+                              overflow-wrap: break-word;}
+    .vuecal__event.surgery {background-color: #57cea9cc;border-color: #90d2be;font-weight: bold;
+                              border-radius: 6px;
+                              font-size: 12px;
+                              padding: 4px 6px;
+                              border: none;
+                              margin: 5px;
+                                  display: inline-block;
+                              width: auto; 
+                              max-width: 80%;         
+                              white-space: normal;      
+                              word-break: break-word;  
+                              overflow-wrap: break-word;}
     .vuecal__event.sport {background-color: #ff6666d9;border-color: #eb5252;}
+    .vuecal__event.shift-day {background-color: #f5e0e4;
+                              color: #c06374;
+                              font-weight: bold;
+                              border-radius: 6px;
+                              font-size: 12px;
+                              padding: 4px 6px;
+                              border: none;
+                              margin: 5px;
+                                display: inline-block;
+                              width: auto;
+                              max-width: 80%;         
+                              white-space: normal;      
+                              word-break: break-word;   
+                              overflow-wrap: break-word;}
+    .vuecal__event.shift-evening {background-color: #e3ecf7;
+                              color: #6c9dd6;
+                              font-weight: bold;
+                              border-radius: 6px;
+                              font-size: 12px;
+                              padding: 4px 6px;
+                              border: none;
+                              margin: 5px;
+                                  display: inline-block;
+                              width: auto; 
+                              max-width: 80%;          
+                              white-space: normal;      
+                              word-break: break-word;   
+                              overflow-wrap: break-word;}
+    .vuecal__event.shift-night {background-color: #e9f5ea; 
+                              color: #4eb053;
+                              font-weight: bold;
+                              border-radius: 6px;
+                              font-size: 12px;
+                              padding: 4px 6px;
+                              border: none;
+                              margin: 5px;
+                                  display: inline-block;
+                              width: auto; 
+                              max-width: 80%;         
+                              white-space: normal;      
+                              word-break: break-word;  
+                              overflow-wrap: break-word;}
+    .vuecal__event.shift-etc {
+                                  background-color: #f0f0f0;
+                              color: #666;
+                              font-weight: bold;
+                              border-radius: 6px;
+                              font-size: 12px;
+                              padding: 4px 6px;
+                              margin: 5px;
+                              display: inline-block;
+                              white-space: normal;
+                              word-break: break-word;
+                              max-width: 80%;
+                              }
   }
   
   // Media queries.
