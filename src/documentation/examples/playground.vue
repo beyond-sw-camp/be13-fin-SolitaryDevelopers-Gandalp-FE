@@ -1,106 +1,87 @@
 <template lang="pug">
-  .config-panel.w-flex.gap6.no-grow
-    .w-flex.column.gap1.no-grow
-      //- w-switch.no-grow(v-model="mainVuecalConfig.twelveHour") 12h Format
-      //- w-switch.lh0.no-grow(v-model="mainVuecalConfig.startWeekOnSunday") Start Week On Sunday
-      //- w-switch.no-grow(v-model="mainVuecalConfig.hideWeekends") Hide Weekends
-      w-switch.no-grow(v-model="mainVuecalConfig.clickToNavigate") Click to Navigate
-      //- w-switch.no-grow(v-model="mainVuecalConfig.showSchedules") Day Schedules
-      //- w-switch.no-grow(v-model="mainVuecalConfig.showSpecialHours") Business Hours
-      w-switch.no-grow(v-model="mainVuecalConfig.editableEvents") Editable Events
+  v-card(style="width: 71.5vw; background-color: white; padding: 2%; border-radius: 25px; overflow: visible")
+    v-row(justify="end" align="center")
+      v-col(cols="auto")
+        v-btn(size="small" variant="tonal" color="success" class="custom-btn" @click="addAndSaveEvent") 일정 생성
+
+      v-col(cols="auto")
+        v-btn-toggle(v-model="scheduleType" mandatory density="compact")
+          v-btn(value="work" style="background-color: #e3f2fd") 근무
+          v-btn(value="personal" style="background-color: #e3f2fd") 개인
+          v-btn(value="surgery" style="background-color: #e3f2fd") 수술
+          
+      v-col(cols="auto")
+        v-select(
+          v-model="selectedClassFilter"
+          :items="classFilterOptions"
+          item-title="label"
+          item-value="value"
+          density="compact"
+          variant="solo"
+          label="간호사 이름"
+          class="nurse-filter-select small-select no-shadow"
+          style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
+          hide-details
+          flat
+          bg-color="#edf7ff"
+        )
+
+
+
+    v-row(no-gutters class="mt-4")
+      v-col
+        vue-cal.vue-cal--main.grow(
+          style="height: 540px"
+          ref="vueCalRef"
+          @cell-drag-start="onCellDragStart"
+          @cell-drag-end="onCellDragEnd"
+          v-model:view="mainVuecalConfig.view"
+          v-model:selected-date="mainVuecalConfig.selectedDate"
+          v-model:view-date="mainVuecalConfig.viewDate"
+          @update:view-date="pickerConfig.viewDate = $event"
+          v-bind="mainVuecalConfig"
+          @ready="log('ready', $event)"
+          @view-change="log('view-change', $event)"
+          @event-create="eventCreation.open"
+          @event-mousedown="log('event-mousedown', $event)"
+          @event-mouseup="log('event-mouseup', $event)"
+          @event-click="log('event-click', $event)"
+          @event-delayed-click="eventSelection.onEventDelayedClick"
+          @event-hold="log('event-hold', $event)"
+          @event-drag-start="log('event-drag-start', $event)"
+          @event-drag="log('event-drag', $event)"
+          @event-drag-end="log('event-drag-end', $event)"
+          @event-drop="log('event-drop', $event)"
+          @event-dropped="log('event-dropped', $event)"
+          @event-resize="log('event-resize', $event)"
+          @event-resize-end="log('event-resize-end', $event)"
+          @event-contextmenu="log('event-contextmenu', $event)"
+          @cell-click="log('cell-click', $event)"
+          @cell-dblclick="log('cell-dblclick', $event)"
+          @cell-drag="log('cell-drag', $event)"
+          @cell-hold="log('cell-hold', $event)"
+          @cell-mousedown="log('cell-mousedown', $event)"
+          @cell-mouseup="log('cell-mouseup', $event)"
+          @cell-touchstart="log('cell-touchstart', $event)"
+          @cell-contextmenu="log('cell-contextmenu', $event)")
   
-    .w-flex.column.grow
-      .mta.w-flex.justify-space-between.no-grow.gap2
-        .w-flex.wrap.gap2
-          //- w-button(
-          //-   @click="addEventFromOutside"
-          //-   tooltip="Add event to the<br>events array prop") Add Event Externally
-          w-button(
-            @click="addAndSaveEvent") 일정 생성
-          //- w-button(
-          //-   @click="addEventFromVueCal"
-          //-   tooltip="Add event via<br><code>$refs.vuecal.view.createEvent()</code>") Add Event Internally
-          w-select(
-            v-model="selectedClassFilter"
-            :items="classFilterOptions"
-            label="간호사 이름"
-            return-values
-            clearable)
-        //- w-radios.justify-end(
-        //-   v-model="mainVuecalConfig.view"
-        //-   :items="viewsArray"
-        //-   inline)
-  
-  .w-flex.gap2.mt2.mx2.ovh
-    //- 미니 캘린더
-    //- aside.no-shrink.no-grow
-    //-   vue-cal.no-shrink.no-grow(
-    //-     v-model:selected-date="mainVuecalConfig.selectedDate"
-    //-     @update:selected-date="mainVuecalConfig.viewDate = $event"
-    //-     v-bind="pickerConfig")
-  
-      //- .w-flex.align-center.gap1.body.wrap.no-grow
-      //-   span View Date:
-      //-   template(v-if="mainVuecalConfig.viewDate")
-      //-     span.code {{ mainVuecalConfig.viewDate.format('DD/MM/YYYY') }}
-      //-     w-icon.grey.mx-1(xs) mdi mdi-clock-outline
-      //-     span.code {{ mainVuecalConfig.viewDate.formatTime() }}
-      //-   .grey(v-else) N/A
-      //- .w-flex.align-center.gap1.wrap.size--sm.no-grow
-      //-   span Selected Date:
-      //-   template(v-if="mainVuecalConfig.selectedDate")
-      //-     span.code {{ mainVuecalConfig.selectedDate.format('DD/MM/YYYY') }}
-      //-     w-icon.grey.mx-1(xs) mdi mdi-clock-outline
-      //-     span.code {{ mainVuecalConfig.selectedDate.formatTime() }}
-      //-   .grey(v-else) N/A
-  
-    vue-cal.vue-cal--main.grow(
-      ref="vueCalRef"
-      @cell-drag-start="onCellDragStart"
-      @cell-drag-end="onCellDragEnd"
-      v-model:view="mainVuecalConfig.view"
-      v-model:selected-date="mainVuecalConfig.selectedDate"
-      v-model:view-date="mainVuecalConfig.viewDate"
-      @update:view-date="pickerConfig.viewDate = $event"
-      v-bind="mainVuecalConfig"
-      @ready="log('ready', $event)"
-      @view-change="log('view-change', $event)"
-      @event-create="eventCreation.open"
-      @event-mousedown="log('event-mousedown', $event)"
-      @event-mouseup="log('event-mouseup', $event)"
-      @event-click="log('event-click', $event)"
-      @event-delayed-click="eventSelection.onEventDelayedClick"
-      @event-hold="log('event-hold', $event)"
-      @event-drag-start="log('event-drag-start', $event)"
-      @event-drag="log('event-drag', $event)"
-      @event-drag-end="log('event-drag-end', $event)"
-      @event-drop="log('event-drop', $event)"
-      @event-dropped="log('event-dropped', $event)"
-      @event-resize="log('event-resize', $event)"
-      @event-resize-end="log('event-resize-end', $event)"
-      @event-contextmenu="log('event-contextmenu', $event)"
-      @cell-click="log('cell-click', $event)"
-      @cell-dblclick="log('cell-dblclick', $event)"
-      @cell-drag="log('cell-drag', $event)"
-      @cell-hold="log('cell-hold', $event)"
-      @cell-mousedown="log('cell-mousedown', $event)"
-      @cell-mouseup="log('cell-mouseup', $event)"
-      @cell-touchstart="log('cell-touchstart', $event)"
-      @cell-contextmenu="log('cell-contextmenu', $event)")
-      
   w-dialog(
     v-if="eventCreation.event"
     v-model="eventCreation.show"
-    width="400"
-    @close="eventCreation.cancel")
-    label.text-sm.font-semibold.mb1 제목
-    w-input(
-      v-model="eventCreation.event.title"
-      placeholder="일정 제목을 입력하세요")
-
-    .w-flex.gap3
-      .w-flex.column.flex-1
-        label.text-sm.font-medium.text-gray-600.mb-1 시작 시간
+    width="420"
+    @close="eventCreation.cancel"
+  )
+    .w-flex.column
+      label.text-sm.font-semibold.mb2 제목
+      input(
+        v-model="eventCreation.event.title"
+        placeholder="일정 제목을 입력하세요"
+        class="input-basic"
+      )
+  
+    .time-input-row
+      .time-input-column
+        label.text-sm.font-medium.mb1 시작 시간
         Datepicker(
           v-model="formStart"
           locale="ko"
@@ -109,9 +90,10 @@
           :enable-time-picker="true"
           :is-24="true"
           :format="'yyyy-MM-dd HH:mm'"
-          auto-apply)
-      .w-flex.column.flex-1
-        label.text-sm.font-medium.text-gray-600.mb-1 종료 시간
+          auto-apply
+        )
+      .time-input-column
+        label.text-sm.font-medium.mb-1 종료 시간
         Datepicker(
           v-model="formEnd"
           locale="ko"
@@ -120,47 +102,167 @@
           :enable-time-picker="true"
           :is-24="true"
           :format="'yyyy-MM-dd HH:mm'"
-          auto-apply)
-
-    label.text-sm.font-semibold.mb1 간호사 이름
+          auto-apply
+        )
+  
+    label.text-sm.font-semibold.mt1 간호사 이름
     w-select(
       v-model="eventCreation.event.name"
       :items="nurseFilterOptions"
       placeholder="간호사를 선택하세요"
+      :disabled="eventCreation.isEdit"
     )
+  
+    .w-flex.column
+      label.text-sm.font-semibold.mt3.mb2 비밀번호
+      input(
+        v-model="userPassword"
+        type="password"
+        placeholder="간호사 비밀번호 입력"
+        class="input-basic"
+      )
+  
+    .modal-btns.mt4
+      v-btn(size="small" variant="tonal" color="primary" @click="eventCreation.save") 저장
+      v-btn(size="small" variant="tonal" color="error" @click="eventCreation.cancel") 취소
 
-    label.text-sm.font-semibold.mt3 비밀번호
-    w-input(
-      v-model="userPassword"
-      type="password"
-      placeholder="간호사 비밀번호 입력"
-    )
 
-    .w-flex.justify-end.mt4.gap2
-      w-button(@click="eventCreation.cancel") 취소
-      w-button.primary(@click="eventCreation.save") 저장
+  //- .modal-mask(v-if="eventCreation.event && eventCreation.show" @click.self="eventCreation.cancel")
+  //- .modal-wrapper
+  //-   .modal-container
+  //-     .modal-content
+  //-       .modal-title 일정 생성
+
+  //-       label 제목
+  //-       input(v-model="eventCreation.event.title" placeholder="일정 제목을 입력하세요")
+
+  //-       .time-input-row
+  //-         .time-input-column
+  //-           label 시작 시간
+  //-           Datepicker(
+  //-             v-model="formStart"
+  //-             locale="ko"
+  //-             teleport
+  //-             time-picker-inline
+  //-             :enable-time-picker="true"
+  //-             :is-24="true"
+  //-             :format="'yyyy-MM-dd HH:mm'"
+  //-             auto-apply)
+  //-         .time-input-column
+  //-           label 종료 시간
+  //-           Datepicker(
+  //-             v-model="formEnd"
+  //-             locale="ko"
+  //-             teleport
+  //-             time-picker-inline
+  //-             :enable-time-picker="true"
+  //-             :is-24="true"
+  //-             :format="'yyyy-MM-dd HH:mm'"
+  //-             auto-apply)
+
+  //-       label 간호사 이름
+  //-       w-select(
+  //-         v-model="eventCreation.event.name"
+  //-         :items="nurseFilterOptions"
+  //-         placeholder="간호사를 선택하세요")
+
+  //-       label 비밀번호
+  //-       input(type="password" v-model="userPassword" placeholder="간호사 비밀번호 입력")
+
+  //-       .modal-btns
+  //-         v-btn(size="small" variant="tonal" color="error" @click="eventCreation.cancel") 취소
+  //-         v-btn(size="small" variant="tonal" color="primary" @click="eventCreation.save") 저장
+  //- w-dialog(
+  //-   v-if="eventCreation.event"
+  //-   v-model="eventCreation.show"
+  //-   width="400"
+  //-   @close="eventCreation.cancel")
+  //-   label.text-sm.font-semibold.mb1 제목
+  //-   w-input(
+  //-     v-model="eventCreation.event.title"
+  //-     placeholder="일정 제목을 입력하세요")
+
+  //-   .w-flex.gap3
+  //-     .w-flex.column.flex-1
+  //-       label.text-sm.font-medium.text-gray-600.mb-1 시작 시간
+  //-       Datepicker(
+  //-         v-model="formStart"
+  //-         locale="ko"
+  //-         teleport  
+  //-         time-picker-inline
+  //-         :enable-time-picker="true"
+  //-         :is-24="true"
+  //-         :format="'yyyy-MM-dd HH:mm'"
+  //-         auto-apply)
+  //-     .w-flex.column.flex-1
+  //-       label.text-sm.font-medium.text-gray-600.mb-1 종료 시간
+  //-       Datepicker(
+  //-         v-model="formEnd"
+  //-         locale="ko"
+  //-         teleport
+  //-         time-picker-inline
+  //-         :enable-time-picker="true"
+  //-         :is-24="true"
+  //-         :format="'yyyy-MM-dd HH:mm'"
+  //-         auto-apply)
+
+  //-   label.text-sm.font-semibold.mb1 간호사 이름
+  //-   w-select(
+  //-     v-model="eventCreation.event.name"
+  //-     :items="nurseFilterOptions"
+  //-     placeholder="간호사를 선택하세요"
+  //-   )
+
+  //-   label.text-sm.font-semibold.mt3 비밀번호
+  //-   w-input(
+  //-     v-model="userPassword"
+  //-     type="password"
+  //-     placeholder="간호사 비밀번호 입력"
+  //-   )
+
+  //-   .w-flex.justify-end.mt4.gap2
+  //-     w-button(@click="eventCreation.cancel") 취소
+  //-     w-button.primary(@click="eventCreation.save") 저장
   
   w-dialog(
     v-if="eventSelection.event"
     v-model="eventSelection.showDialog"
-    :title="eventSelection.event.title"
-    width="380")
-    .w-flex.justify-end.mt2.gap2
-      //- w-button(@click="updateSelectedEvent") 수정
-      w-button(v-if="!eventSelection.event.originalId" @click="updateSelectedEvent") 수정
-      //- w-button.danger(@click="deleteSelectedEvent") 삭제
-      //- w-button.danger(@click="deleteConfirm.show = true") 삭제
-      //- w-button.danger(@click="openDeleteDialog") 삭제
-      w-button.danger(v-if="!eventSelection.event.originalId" @click="openDeleteDialog") 삭제
-      w-button(@click="eventSelection.showDialog = false") 닫기
-    .w-flex.align-center.justify-end.gap2
-      w-icon.grey mdi mdi-calendar
-      small {{ eventSelection.event.start.format() }}
-      w-icon.grey.ml2 mdi mdi-clock-outline
-      small {{ eventSelection.event.start.formatTime() }} - {{ eventSelection.event.end.formatTime() }}
-      .w-flex.align-center.justify-start.mt2
-        w-icon.grey mdi mdi-tag-outline
-        small {{ getClassLabel(eventSelection.event.name) }}
+    width="420"
+  )
+    //- .w-flex.column
+    label.text-sm.font-semibold.mb1 제목: 
+    span.input-basic {{ eventSelection.event.title }}
+    
+    .w-flex.row
+      label.text-sm.font-semibold.mb1 이름: 
+      span.input-basic {{ getClassLabel(eventSelection.event.name) }}
+    
+    .time-input-row
+      .time-input-column
+        //- label.text-sm.font-medium.mb1 시작 시간
+        span.input-basic {{ eventSelection.event.start.format('YYYY-MM-DD HH:mm') }} - {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
+      //- .time-input-column
+        //- label.text-sm.font-medium.mb1 종료 시간
+        //- span.input-basic {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
+
+
+    .modal-btns.mt4
+      v-btn(
+        v-if="!eventSelection.event.originalId"
+        size="small"
+        variant="tonal"
+        color="primary"
+        @click="updateSelectedEvent"
+      ) 수정
+      v-btn(
+        v-if="!eventSelection.event.originalId"
+        size="small"
+        variant="tonal"
+        color="error"
+        @click="openDeleteDialog"
+      ) 삭제
+      v-btn(size="small" variant="tonal" @click="eventSelection.showDialog = false") 닫기
+
   
   w-dialog(
     v-model="deleteConfirm.show"
@@ -188,6 +290,8 @@
   import '@vuepic/vue-datepicker/dist/main.css'
   
   addDatePrototypes()
+
+  const scheduleType = ref('personal'); // 'work', 'personal', 'surgery'
 
   const allCalendarEvents = ref([]);
 
@@ -372,7 +476,7 @@
     hideWeekends: ref(false),
     hideWeekdays,
     viewDayOffset: ref(0),
-    clickToNavigate: ref(false),
+    clickToNavigate: computed(() => mainVuecalConfig.view === 'year' || mainVuecalConfig.view === 'years'),
     watchRealTime: ref(true),
     // events: filteredEvents,
     events: calendarEvents,
@@ -399,7 +503,7 @@
     //     sun: { from: 7 * 60, to: 20 * 60, class: 'closed', label: '<strong>Closed</strong>' }
     //   } : undefined
     // }),
-    editableEvents: ref(false)
+    editableEvents: computed(() => true)
   })
   
   let eventCounter = 2 // Starts with 2 events in the array.
@@ -495,7 +599,7 @@
       calendarEvents.value = [...filteredEvents.value];
     
       eventSelection.showDialog = false;
-      await loadSchedules();
+      await loadAllEvents();
       eventSelection.event = null;
       deleteConfirm.show = false;
       userPassword.value = ''; // 초기화
@@ -510,6 +614,7 @@
   const eventCreation = reactive({
     show: ref(false),
     resolve: null,
+    isEdit: false,
     event: {
       title: '',
       background: false,
@@ -518,6 +623,7 @@
     open: ({ event, resolve }) => {
       eventCreation.show = true
       eventCreation.event = { ...event }
+      eventCreation.isEdit = !!event.id
       if (cellDragStartTime.value && cellDragEndTime.value) {
         formStart.value = formatLocalDateTime(cellDragStartTime.value)
         formEnd.value = formatLocalDateTime(cellDragEndTime.value)
@@ -542,18 +648,26 @@
     save: async () => {
   
       function toUTCISOStringFromLocalInput(datetimeStr) {
-        if (!datetimeStr || !datetimeStr.includes('T')) return NaN;
-
+        if (!datetimeStr) return NaN;
+            
+        // datetimeStr이 Date 객체일 경우 문자열로 변환
+        if (datetimeStr instanceof Date) {
+          return new Date(datetimeStr.getTime() - datetimeStr.getTimezoneOffset() * 60000).toISOString();
+        }
+      
+        if (typeof datetimeStr !== 'string' || !datetimeStr.includes('T')) return NaN;
+      
         const [datePart, timePart] = datetimeStr.split('T');
         if (!datePart || !timePart) return NaN;
-
+      
         const [year, month, day] = datePart.split('-').map(Number);
         const [hour, minute] = timePart.split(':').map(Number);
         if ([year, month, day, hour, minute].some(isNaN)) return NaN;
-
+      
         const localDate = new Date(year, month - 1, day, hour, minute);
         return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000).toISOString();
       }
+
 
       const startDate = toUTCISOStringFromLocalInput(formStart.value);
       const endDate = toUTCISOStringFromLocalInput(formEnd.value);
@@ -627,12 +741,12 @@
             calendarEvents.value = [...filteredEvents.value];
           }
         }
-  
+        
         eventCreation.resolve?.(newEvent);
         eventCreation.show = false;
         userPassword.value = '';
         await nextTick();
-        await loadSchedules();
+        await loadAllEvents();
         calendarEvents.value = [...filteredEvents.value];
         mainVuecalConfig.events = calendarEvents.value
         cellDragStartTime.value = null
@@ -646,6 +760,25 @@
     }
     
   })
+
+const loadWorkSchedules = async () => {
+  try {
+    const response = await apiClient.get('/schedules');
+    return response.data.map(event => ({
+      id: event.workScheduleId,
+      title: event.content || event.codeLabel || '근무 일정',
+      start: parseLocalDate(event.startTime),
+      end: parseLocalDate(event.endTime),
+      name: Number(event.nurseId),
+      editable: false,
+      class: 'work'
+    }));
+  } catch (error) {
+    console.error('근무 일정 로딩 실패:', error);
+    return [];
+  }
+};
+
 
   // 일정 불러오기 함수
 const loadSchedules = async () => {
@@ -703,22 +836,38 @@ const loadOrsSchedules = async () => {
   }
 };
 
+// const loadAllEvents = async () => {
+//   const [scheduleEvents, orsEvents] = await Promise.all([
+//     loadSchedules(),
+//     loadOrsSchedules()
+//   ]);
+//   // allCalendarEvents.value = [...scheduleEvents, ...orsEvents];
+//   rawEvents.value = [...scheduleEvents, ...orsEvents];
+//   calendarEvents.value = [...filteredEvents.value];
+// };
 const loadAllEvents = async () => {
-  const [scheduleEvents, orsEvents] = await Promise.all([
-    loadSchedules(),
-    loadOrsSchedules()
-  ]);
-  // allCalendarEvents.value = [...scheduleEvents, ...orsEvents];
-  rawEvents.value = [...scheduleEvents, ...orsEvents];
+  let events = [];
+  if (scheduleType.value === 'personal') {
+    const personalEvents = await loadSchedules();
+    events = personalEvents;
+  } else if (scheduleType.value === 'surgery') {
+    events = await loadOrsSchedules();
+  } else if (scheduleType.value === 'work') {
+    events = await loadWorkSchedules();
+  }
+
+  rawEvents.value = events;
   calendarEvents.value = [...filteredEvents.value];
 };
 
 
-watch(selectedClassFilter, async () => {
-  // await loadSchedules();
-  // await loadOrsSchedules();
+// watch(selectedClassFilter, async () => {
+//   await loadAllEvents();
+// });
+watch([selectedClassFilter, scheduleType], async () => {
   await loadAllEvents();
 });
+
   
 onMounted(async () => {
   // await loadSchedules();
@@ -749,6 +898,96 @@ onMounted(async () => {
   </script>
   
   <style lang="scss">
+
+  .modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+.modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 350px;
+  min-height: 400px;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 32px 24px 32px;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 320px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.modal-content label {
+  align-self: flex-start;
+  margin-bottom: 4px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.modal-content input {
+  width: 220px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.time-input-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.time-input-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  justify-content: center;
+  width: 100%;
+}
+  
+  .custom-btn {
+    padding: 4px 8px !important;
+    font-size: 12px;
+    min-height: 32px !important;
+  }
+
   .page--playground {
     /* padding: 40px 0 8px; */
     padding: 0 0 8px;
@@ -782,11 +1021,11 @@ onMounted(async () => {
       padding: 0;
     }
   
-    .config-panel {
+    /* .config-panel {
       padding: 12px;
       background-color: color-mix(in srgb, var(--w-contrast-bg-color) 5%, transparent);
       border-bottom: 1px solid color-mix(in srgb, var(--w-contrast-bg-color) 8%, transparent);
-    }
+    } */
   
     .vue-cal--main {--vuecal-height: 100%;}
   

@@ -1,28 +1,30 @@
 <template>
-  <v-container class="main-wrapper">
-    <v-row justify="space-between">
-      <v-col cols="3">
+  <div class="main-page">
+  <v-card style="width: 70.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+    <v-row justify="end" class="mb-1">
+      <v-col cols="3" class="d-flex justify-end">
         <v-select
           v-model="selectedRoomId"
-          class="small-select"
           :items="roomOptions"
+          class="small-select no-shadow"
+          density="compact"
+          variant="solo"
           item-title="label"
           item-value="id"
           label="수술실 선택"
-          density="compact"
-          variant="outlined"
+          style="border-radius: 10px"
+          hide-details
+          flat
+          bg-color="#edf7ff"
           :return-object="false"
         ></v-select>
-      </v-col>
-      <v-col class="text-end">
-        <v-btn color="success" variant="tonal" class="custom-btn" size="small" @click="openCreateDialog">예약</v-btn>
       </v-col>
     </v-row>
 
     <vue-cal
+      style="height: 450px;"
       ref="vueCalRef"
       class="vuecal--blue-theme rounded-lg elevation-1"
-      style="height: 550px"
       locale="ko"
       :views="{
         day: { label: '일간' },
@@ -35,9 +37,92 @@
       default-view="week"
       @event-click="onEventClick"
     />
+    <v-row justify="space-between" class="mt-1">
+      <v-col class="text-end">
+        <v-btn color="success" variant="tonal" class="custom-btn" size="small" @click="openCreateDialog">예약</v-btn>
+      </v-col>
+    </v-row>
+  </v-card>
+  </div>
 
     <!-- 수술 일정 생성 -->
-    <v-dialog v-model="createDialogVisible" max-width="600px">
+  <div class="modal-mask" v-if="createDialogVisible" @click.self="closeCreateDialog">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+        <div class="modal-content">
+          <div class="modal-title">수술 일정 생성</div>
+
+          <label>수술실</label>
+          <select v-model="newEvent.roomId" class="modal-select">
+            <option v-for="room in roomOptions" :key="room.id" :value="room.id">
+              {{ room.id }}
+            </option>
+          </select>
+
+          <label>간호사 선택</label>
+          <v-virtual-scroll
+            :items="nurseOptions"
+            class="nurse-list"
+          >
+            <template v-slot:default="{ item }">
+              <v-checkbox
+                v-model="newEvent.nurseIds"
+                :label="item.name"
+                :value="item.id"
+                density="compact"
+              />
+            </template>
+          </v-virtual-scroll>
+
+          <label>내용</label>
+          <textarea
+            v-model="newEvent.content"
+            class="modal-input"
+            placeholder="내용 입력"
+            style="width: 300px;"
+            rows="4"
+          />
+
+          <label>시작 시간</label>
+          <Datepicker
+            v-model="newEvent.startTime"
+            locale="ko"
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          />
+
+          <label>종료 시간</label>
+          <Datepicker
+            v-model="newEvent.endTime"
+            locale="ko"
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          />
+
+          <label>비밀번호</label>
+          <input
+            type="password"
+            v-model="newEvent.password"
+            placeholder="비밀번호 입력"
+            class="modal-input"
+          />
+
+          <div class="modal-btns">
+            <v-btn size="small" variant="tonal" color="primary" @click="createSchedule">저장</v-btn>
+            <v-btn size="small" variant="tonal" color="error" @click="closeCreateDialog">취소</v-btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- 
+  <v-dialog v-model="createDialogVisible" max-width="600px">
       <v-card>
         <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
           <span>수술 일정 생성</span>
@@ -121,17 +206,14 @@
           <v-btn color="primary" @click="createSchedule">저장</v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
     <!-- 수술 일정 상세 -->
     <v-dialog v-model="detailDialogVisible" max-width="500px">
       <v-card>
-        <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
+        <!-- <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
           <span>수술 일정 상세 보기</span>
-          <v-btn icon @click="closeDetailDialog">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
+        </v-card-title> -->
 
         <v-card-text>
           <v-list-item>
@@ -161,15 +243,35 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-text-field
+          <!-- <v-text-field
             v-model="deletePassword"
             label="비밀번호 입력"
             type="password"
             density="compact"
             variant="outlined"
             class="mt-4 password-field"
+          /> -->
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>비밀번호</v-list-item-title>
+              <input
+            style="padding: 10px;"
+            v-model="deletePassword"
+            placeholder="비밀번호 입력"
+            type="password"
+            class="modal-input"
           />
+            </v-list-item-content>
+          </v-list-item>
         </v-card-text>
+        <!-- <label>비밀번호</label>
+        <input
+          style="padding: 10px;"
+          v-model="deletePassword"
+          placeholder="비밀번호 입력"
+          type="password"
+          class="modal-input"
+        /> -->
 
         <v-card-actions>
           <v-spacer />
@@ -178,7 +280,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-container>
 </template>
   
   <script setup>
@@ -350,32 +451,149 @@
   
 <style scoped>
 
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw; height: 100vh;
+}
+
+.modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 350px;
+  min-height: 450px;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 32px 24px 32px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 320px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.modal-content label {
+  align-self: flex-start;
+  margin-bottom: 4px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.modal-input, .modal-select {
+  /* width: 220px; */
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+/* ::v-deep(.nurse-list .v-label) {
+  font-size: 12px;
+} */
+
+::v-deep(.nurse-list .v-selection-control) {
+  margin: 2px 0 !important;         
+  padding: 0 !important;
+  min-height: 24px !important;      
+}
+
+::v-deep(.nurse-list .v-label) {
+  font-size: 12px !important;       
+  line-height: 1 !important;
+}
+
+
+.nurse-list {
+  width: 300px;
+  margin-bottom: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  padding: 6px 10px;
+  background: #f9f9f9;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  justify-content: center;
+  width: 100%;
+}
+
+.main-page {
+  padding: 24px;
+  border-radius: 10px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
 ::v-deep(.password-field .v-input) {
   max-width: 200px !important;
   width: 200px !important;
 }
 
-::v-deep(.password-field .v-field) {
+/* ::v-deep(.password-field .v-field) {
   min-height: 36px !important;
   height: 36px !important;
   font-size: 13px !important;
   padding: 0 !important;
 }
 
-.small-select {
-  .v-field {
-    min-height: 32px !important;
-    font-size: 13px !important;
-  }
+::v-deep(.small-select .v-field) {
+  min-height: 35px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-radius: 8px;
+} */
 
-  .v-field__input {
-    padding-top: 4px !important;
-    padding-bottom: 4px !important;
-    font-size: 13px !important;
-  }
-
+::v-deep(.small-select .v-field) {
+  min-height: 35px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-radius: 8px;
 }
 
+::v-deep(.small-select) {
+  max-width: 200px;
+  font-size: 13px;
+}
 
 .v-col {
   height: 70px;
