@@ -20,7 +20,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
 .base-layout {
   display: flex;
   height: 100vh;
-  overflow: hidden;
+  overflow: scroll;
 }
 
 .sidebar {
@@ -46,7 +46,6 @@ import Sidebar from '@/components/common/Sidebar.vue'
 .page-container {
   flex: 1;
   padding: 24px;
-  overflow-y: auto;
   background-color: #edf7ff;
   margin-left: 56px;
 }
