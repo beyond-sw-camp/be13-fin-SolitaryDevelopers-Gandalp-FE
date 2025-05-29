@@ -30,8 +30,8 @@
           <label>비밀번호</label>
           <input type="password" v-model="password" placeholder="비밀번호 입력" />
           <div class="modal-btns">
-            <button @click="submit">확인</button>
-            <button @click="$emit('close')">취소</button>
+            <v-btn size="small" variant="tonal" color="primary" @click="submit">확인</v-btn>
+            <v-btn size="small" variant="tonal" color="error" class="ml-2" @click="$emit('close')">취소</v-btn>
           </div>
         </div>
       </div>
@@ -50,6 +50,7 @@ const email = ref('')
 const password = ref('')
 const nurseList = ref([])
 const showSuggestions = ref(false)
+
 
 const filteredNames = computed(() =>
   nurseList.value.filter(n => n.name.includes(name.value))
@@ -78,6 +79,7 @@ function submit() {
   }
   emit('submit', { email: submitEmail, password: password.value })
 }
+
 
 </script>
 
@@ -186,7 +188,7 @@ function submit() {
   color: #888;
 }
 
-.modal-btns {
+/* .modal-btns {
   display: flex;
   gap: 16px;
   margin-top: 18px;
@@ -208,6 +210,6 @@ function submit() {
 }
 .modal-btns button:hover {
   background: #bfc7cc;
-}
+} */
 
 </style>

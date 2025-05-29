@@ -1,25 +1,50 @@
 <template>
   <div class="shift-create-page">
-    <h2 class="title">교대근무 교환 신청</h2>
+    <span class="title">교대근무 교환 신청</span>
+    <br><br>
+
+    <v-card class="form-card" flat>
+      <v-row class="form-row" dense>
+        <v-col cols="3.5">
+          <v-select
+            v-model="selectedMonth"
+            :items="months"
+            label="월"
+            variant="outlined"
+            density="compact"
+            hide-details
+          />
+        </v-col>
+
+        <v-col cols="3.5">
+          <v-select
+            v-model="selectedDay"
+            :items="daysInMonth"
+            label="일"
+            variant="outlined"
+            density="compact"
+            hide-details
+          />
+        </v-col>
+
+        <v-col cols="5">
+          <v-select
+            v-model="selectedTime"
+            :items="times"
+            label="타임"
+            variant="outlined"
+            density="compact"
+            hide-details
+          />
+        </v-col>
+      </v-row>
+
+      <v-row class="btn-row" justify="center" dense>
+        <v-btn class="btn" size="small" variant="tonal" color="primary" @click="openUserCheckModal">확인</v-btn>
+        <v-btn class="btn" size="small" variant="tonal" color="error" @click="resetForm">취소</v-btn>
+      </v-row>
+    </v-card>
     
-    <div class="shift-form">
-      <select v-model="selectedMonth">
-        <option disabled value="">월</option>
-        <option v-for="month in months" :key="month" :value="month">{{ month }}월</option>
-      </select>
-      <select v-model="selectedDay">
-        <option disabled value="">일</option>
-        <option v-for="day in daysInMonth" :key="day" :value="day">{{ day }}일</option>
-      </select>
-      <select v-model="selectedTime">
-        <option disabled value="">타임</option>
-        <option v-for="time in times" :key="time" :value="time">{{ time }}</option>
-      </select>
-    </div>
-    <div class="btns">
-      <button class="submit-btn" @click="openUserCheckModal">확인</button>
-      <button class="cancel-btn" @click="resetForm">취소</button>
-    </div>
   </div>
 
   <!-- 사용자 확인 모달 -->
@@ -66,19 +91,6 @@ const handleSubmit = async ({ email, password }) => {
     await submitShift()
 
   } catch (err) {
-  // let msg = '계정 확인 실패: ';
-  // if (err.response && err.response.data) {
-  //   if (typeof err.response.data === 'string') {
-  //     msg += err.response.data;
-  //   } else if (err.response.data.message) {
-  //     msg += err.response.data.message;
-  //   } else {
-  //     msg += JSON.stringify(err.response.data);
-  //   }
-  // } else {
-  //   msg += err.message;
-  // }
-  // alert(msg);
   alert('이메일이나 비밀번호가 잘못 입력되었습니다.')
   showModal.value = false;
   }
@@ -90,8 +102,6 @@ const resetForm = () => {
   selectedTime.value = ''
   router.push({ name: 'shift-list' }) // ← 취소 시 이동
 }
-
-// 새로 추가
 
 // 과거 선택 방지 코드
 const now = new Date()
@@ -118,14 +128,6 @@ const openUserCheckModal = () => {
   showModal.value = true
 }
 
-// const openUserCheckModal = () => {
-//   if (!selectedMonth.value || !selectedDay.value || !selectedTime.value) {
-//     alert('월, 일, 타임을 모두 선택해 주세요.')
-//     return
-//   }
-//   showModal.value = true
-// }
-
 const submitShift = async () => {
   const year = new Date().getFullYear()
   const month = selectedMonth.value
@@ -148,19 +150,6 @@ const submitShift = async () => {
   router.push({ name: 'shift-list' })
 }
 
-// const submitShift = async () => {
-//   const content = `${selectedMonth.value}월 ${selectedDay.value}일 ${selectedTime.value}`
-//   try {
-//     // await apiClient.post('/shifts/create', { content })
-//     await apiClient.post('/shifts/create', { content, nurseId: nurseInfo.value.id })
-//     alert('교대근무 교환 신청이 완료되었습니다.')
-//     resetForm()
-//     router.push({ name: 'shift-list' }) // ← 신청 후 이동
-//   } catch (err) {
-//     alert('신청 중 오류가 발생했습니다.')
-//     console.error(err)
-//   }
-// }
 
 </script>
 
@@ -181,12 +170,12 @@ const submitShift = async () => {
 }
 
 .btn-row {
-  gap: 16px;
+  gap: 10px;
 }
 
-.btn {
+/* .btn {
   min-width: 100px;
-}
+} */
 
 .shift-create-page {
   padding: 24px;
@@ -223,12 +212,6 @@ const submitShift = async () => {
   outline: none;
 }
 
-/* 버튼 스타일 참고본에서 가져옴 */
-.btns {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
 
 .submit-btn, .cancel-btn {
   height: 32px;

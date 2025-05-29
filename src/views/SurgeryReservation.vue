@@ -1,27 +1,30 @@
 <template>
-  <v-container class="main-wrapper">
-    <v-row justify="space-between">
-      <v-col cols="3">
+  <div class="main-page">
+  <v-card style="width: 70.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+    <v-row justify="end" class="mb-1">
+      <v-col cols="3" class="d-flex justify-end">
         <v-select
           v-model="selectedRoomId"
           :items="roomOptions"
+          class="small-select no-shadow"
+          density="compact"
+          variant="solo"
           item-title="label"
           item-value="id"
           label="수술실 선택"
-          density="compact"
-          variant="outlined"
+          style="border-radius: 10px"
+          hide-details
+          flat
+          bg-color="#edf7ff"
           :return-object="false"
         ></v-select>
-      </v-col>
-      <v-col class="text-end">
-        <v-btn class="custom-btn" @click="openCreateDialog">수술 예약</v-btn>
       </v-col>
     </v-row>
 
     <vue-cal
+      style="height: 450px;"
       ref="vueCalRef"
       class="vuecal--blue-theme rounded-lg elevation-1"
-      style="height: 550px"
       locale="ko"
       :views="{
         day: { label: '일간' },
@@ -34,14 +37,97 @@
       default-view="week"
       @event-click="onEventClick"
     />
+    <v-row justify="space-between" class="mt-1">
+      <v-col class="text-end">
+        <v-btn color="success" variant="tonal" class="custom-btn" size="small" @click="openCreateDialog">예약</v-btn>
+      </v-col>
+    </v-row>
+  </v-card>
+  </div>
 
     <!-- 수술 일정 생성 -->
-    <v-dialog v-model="createDialogVisible" max-width="600px">
+  <div class="modal-mask" v-if="createDialogVisible" @click.self="closeCreateDialog">
+    <div class="modal-wrapper">
+      <div class="modal-container">
+        <div class="modal-content">
+          <div class="modal-title">수술 일정 생성</div>
+
+          <label>수술실</label>
+          <select v-model="newEvent.roomId" class="modal-select">
+            <option v-for="room in roomOptions" :key="room.id" :value="room.id">
+              {{ room.id }}
+            </option>
+          </select>
+
+          <label>간호사 선택</label>
+          <v-virtual-scroll
+            :items="nurseOptions"
+            class="nurse-list"
+          >
+            <template v-slot:default="{ item }">
+              <v-checkbox
+                v-model="newEvent.nurseIds"
+                :label="item.name"
+                :value="item.id"
+                density="compact"
+              />
+            </template>
+          </v-virtual-scroll>
+
+          <label>내용</label>
+          <textarea
+            v-model="newEvent.content"
+            class="modal-input"
+            placeholder="내용 입력"
+            style="width: 300px;"
+            rows="4"
+          />
+
+          <label>시작 시간</label>
+          <Datepicker
+            v-model="newEvent.startTime"
+            locale="ko"
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          />
+
+          <label>종료 시간</label>
+          <Datepicker
+            v-model="newEvent.endTime"
+            locale="ko"
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          />
+
+          <label>비밀번호</label>
+          <input
+            type="password"
+            v-model="newEvent.password"
+            placeholder="비밀번호 입력"
+            class="modal-input"
+          />
+
+          <div class="modal-btns">
+            <v-btn size="small" variant="tonal" color="primary" @click="createSchedule">저장</v-btn>
+            <v-btn size="small" variant="tonal" color="error" @click="closeCreateDialog">취소</v-btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- 
+  <v-dialog v-model="createDialogVisible" max-width="600px">
       <v-card>
         <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
-          <span>📝 수술 일정 생성</span>
-          <v-btn icon @click="closeCreateDialog">
-            <v-icon>mdi-close</v-icon>
+          <span>수술 일정 생성</span>
+          <v-btn icon variant="text" elevation="0" class="no-bg-icon" @click="closeDetailDialog">
+            
           </v-btn>
         </v-card-title>
 
@@ -60,18 +146,18 @@
                 />
               </v-col>
 
-              <v-col cols="12">
-                <div class="mb-2 text-subtitle-2 font-weight-medium">수술 간호사</div>
-                <v-checkbox
-                  v-for="nurse in nurseOptions"
-                  :key="nurse.id"
-                  v-model="newEvent.nurseIds"
-                  :label="nurse.name"
-                  :value="nurse.id"
-                  hide-details
-                  density="compact"
-                />
-              </v-col>
+              <v-virtual-scroll
+                :items="nurseOptions"
+              >
+                <template v-slot:default="{ item }">
+                  <v-checkbox
+                    v-model="newEvent.nurseIds"
+                    :label="item.name"
+                    :value="item.id"
+                    density="compact"
+                  />
+                </template>
+              </v-virtual-scroll>
 
               <v-col cols="12">
                 <v-text-field v-model="newEvent.content" label="내용" density="compact" variant="outlined" />
@@ -120,17 +206,14 @@
           <v-btn color="primary" @click="createSchedule">저장</v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
     <!-- 수술 일정 상세 -->
     <v-dialog v-model="detailDialogVisible" max-width="500px">
       <v-card>
-        <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
+        <!-- <v-card-title class="text-h6 font-weight-bold d-flex justify-space-between align-center">
           <span>수술 일정 상세 보기</span>
-          <v-btn icon @click="closeDetailDialog">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
+        </v-card-title> -->
 
         <v-card-text>
           <v-list-item>
@@ -160,15 +243,35 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-text-field
+          <!-- <v-text-field
             v-model="deletePassword"
             label="비밀번호 입력"
             type="password"
             density="compact"
             variant="outlined"
-            class="mt-4"
+            class="mt-4 password-field"
+          /> -->
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>비밀번호</v-list-item-title>
+              <input
+            style="padding: 10px;"
+            v-model="deletePassword"
+            placeholder="비밀번호 입력"
+            type="password"
+            class="modal-input"
           />
+            </v-list-item-content>
+          </v-list-item>
         </v-card-text>
+        <!-- <label>비밀번호</label>
+        <input
+          style="padding: 10px;"
+          v-model="deletePassword"
+          placeholder="비밀번호 입력"
+          type="password"
+          class="modal-input"
+        /> -->
 
         <v-card-actions>
           <v-spacer />
@@ -177,7 +280,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  </v-container>
 </template>
   
   <script setup>
@@ -347,7 +449,151 @@
   };
   </script>
   
-<style lang="scss">
+<style scoped>
+
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw; height: 100vh;
+}
+
+.modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 350px;
+  min-height: 450px;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 36px 32px 24px 32px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 320px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.modal-content label {
+  align-self: flex-start;
+  margin-bottom: 4px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.modal-input, .modal-select {
+  /* width: 220px; */
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+/* ::v-deep(.nurse-list .v-label) {
+  font-size: 12px;
+} */
+
+::v-deep(.nurse-list .v-selection-control) {
+  margin: 2px 0 !important;         
+  padding: 0 !important;
+  min-height: 24px !important;      
+}
+
+::v-deep(.nurse-list .v-label) {
+  font-size: 12px !important;       
+  line-height: 1 !important;
+}
+
+
+.nurse-list {
+  width: 300px;
+  margin-bottom: 8px;
+  max-height: 120px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+  padding: 6px 10px;
+  background: #f9f9f9;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 16px;
+  margin-top: 18px;
+  justify-content: center;
+  width: 100%;
+}
+
+.main-page {
+  padding: 24px;
+  border-radius: 10px;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+::v-deep(.password-field .v-input) {
+  max-width: 200px !important;
+  width: 200px !important;
+}
+
+/* ::v-deep(.password-field .v-field) {
+  min-height: 36px !important;
+  height: 36px !important;
+  font-size: 13px !important;
+  padding: 0 !important;
+}
+
+::v-deep(.small-select .v-field) {
+  min-height: 35px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-radius: 8px;
+} */
+
+::v-deep(.small-select .v-field) {
+  min-height: 35px !important;
+  height: 40px !important;
+  font-size: 13px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-radius: 8px;
+}
+
+::v-deep(.small-select) {
+  max-width: 200px;
+  font-size: 13px;
+}
 
 .v-col {
   height: 70px;
@@ -360,10 +606,8 @@
 
 .custom-btn {
   padding: 4px 8px !important;
-  font-size: 12px;
-  min-height: 32px !important;
-  /* background: linear-gradient(to right, #8d8f91 0%, #828486 100%) !important; */
-  background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%) !important;
+  font-size: 12px !important;
+  min-height: 10px !important;
 }
 
 dialog.dialog {
@@ -408,14 +652,13 @@ dialog.dialog {
 }
 
 .btn.reservation:hover {
-  background: #d1d5db; /* hover 시 좀 더 진한 회색 */
+  background: #d1d5db;
 }
 
 .filters {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  // gap: 12px;
   margin-bottom: 12px;
 }
 
@@ -424,7 +667,7 @@ dialog.dialog {
   .vuecal__event.surgery {
     background-color: #57cea9cc;
     border-color: #90d2be;
-    color: #ffffff; /* 글씨 색상 */
+    color: #ffffff; 
   }
 
   .schedule-calendar {
@@ -438,7 +681,7 @@ dialog.dialog {
 .password-row {
   display: flex;
   align-items: center;
-  gap: 12px; // 라벨과 input 간 간격
+  gap: 12px; 
   margin-top: 16px;
 }
 
@@ -474,14 +717,10 @@ dialog.dialog {
     overflow: hidden;
   }
 
-  /* dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.4);
-  } */
-  
   .dialog-form {
-    // border: 1px solid #ccc;
+    /* // border: 1px solid #ccc; */
     /* padding: 24px; */
-    // background: white;
+    /* // background: white; */
     width: 100%;
     /* max-width: 400px; */
     max-height: 80vh;
@@ -494,7 +733,7 @@ dialog.dialog {
     color: white;
     padding: 16px 24px;
     font-size: 18px;
-    // font-weight: bold;
+    /* // font-weight: bold; */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -503,7 +742,7 @@ dialog.dialog {
   .dialog-header .close-btn {
     background: none;
     border: none;
-    // color: white;
+    /* // color: white; */
     font-size: 20px;
     cursor: pointer;
   }
@@ -512,7 +751,7 @@ dialog.dialog {
     padding: 24px;
     display: flex;
     flex-direction: column;
-    // gap: 2px;
+    /* // gap: 2px; */
   }
   
   .dialog-body label {
@@ -535,8 +774,8 @@ dialog.dialog {
   }
   
   .nurse-checkboxes .checkbox-item {
-    // display: flex;
-    // align-items: center;
+    /* // display: flex; */
+    /* // align-items: center; */
     gap: 6px;
     background-color: #f1f5f9;
     padding: 6px 10px;
@@ -554,7 +793,7 @@ dialog.dialog {
   }
 
 .form-section {
-  margin-bottom: 20px; // 항목 간 간격
+  margin-bottom: 20px;
 
   label {
     display: block;

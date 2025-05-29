@@ -1,98 +1,104 @@
 <template>
   <div class="shift-exchange-page">
     <h2 class="title">교대근무 교환 게시판</h2>
+      <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+        <div class="search-bar">
+          <v-select
+            v-model="searchType"
+            :items="searchOptions"
+            density="compact"
+            variant="solo"
+            label="검색 기준 선택"
+            class="small-select no-shadow"
+            style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
+            hide-details
+            flat
+            bg-color="#edf7ff"
+          />
+          
+          <v-text-field
+            v-model="searchKeyword"
+            placeholder="교대 타임을 입력하세요"
+            @keydown.enter="onSearchClick"
+            clearable
+            rounded="lg"
+            variant="Outlined"
+            density="compact"
+            append-inner-icon="mdi-magnify"
+            @click:append-inner="onSearchClick"
+            hide-details
+            class="small-text-field"
+            style="flex: 1;"
+            bg-color="#edf7ff"
+            
+          />
+        </div>
 
-    <div class="search-bar">
-      <v-select
-        v-model="searchType"
-        :items="searchOptions"
-        label="검색 기준 선택"
-        density="compact"
-        variant="outlined"
-        class="small-select"
-        style="width: 100px"
-        hide-details
-      ></v-select>
-      
-      <v-text-field
-        v-model="searchKeyword"
-        placeholder="검색어를 입력하세요"
-        @keydown.enter="onSearchClick"
-        clearable
-        rounded
-        variant="outlined"
-        density="compact"
-        append-inner-icon="mdi-magnify"
-        @click:append-inner="onSearchClick"
-        hide-details
-        class="small-text-field"
-        style="flex: 1;"
-      />
-    </div>
-
-    <v-table fixed-header height="580px" class="elevation-1">
-      <thead>
-        <tr>
-          <th class="text-center">바꿀 교대 타임</th>
-          <th class="text-center">상태</th>
-          <th class="text-center">작성일자</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in shiftList" :key="item.boardId">
-          <!-- <td style="text-align: left;">{{ item.content }}</td> -->
-          <td
-  class="content-cell"
-  :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
-  :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
-  @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
->
-  {{ item.content }}
-</td>
-
-
-
-
-          <td class="text-center">
-            <span
-              :class="{
-                badge: true,
-                completed: item.boardStatusLabel === '요청 수리됨',
-                waiting: item.boardStatusLabel === '요청 대기중'
-              }"
-            >
-              {{ item.boardStatusLabel }}
-            </span>
-          </td>
-          <td class="text-center">
-            {{ formatDateTime(item.updatedAt) }}
-          </td>
-       </tr>
-      </tbody>
-    </v-table>
+        <v-table class="elevation-1" density="comfortable" style="border-radius: 10px;">
+          <thead>
+            <tr style="background-color: #4f72f5;">
+              <th class="text-center" style="color: white;">바꿀 교대 타임</th>
+              <th class="text-center" style="color: white;">상태</th>
+              <th class="text-center" style="color: white;">작성일자</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in shiftList" :key="item.boardId">
+              <!-- <td style="text-align: left;">{{ item.content }}</td> -->
+              <td
+      class="content-cell"
+      :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
+      :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; color: #aaa; cursor: not-allowed;' : 'cursor: pointer;'"
+      @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
+    >
+      {{ item.content }}
+    </td>
 
 
-    <div class="pagination-bar">
-      <div class="pagination">
-        <v-pagination
-          v-model="currentPage"
-          :length="totalPages"
-          :total-visible="5"
-          color="black"
-          size="small"
-          @update:modelValue="changePage"
-        />
+
+
+              <td class="text-center">
+                <span
+                  :class="{
+                    badge: true,
+                    completed: item.boardStatusLabel === '요청 수리됨',
+                    waiting: item.boardStatusLabel === '요청 대기중'
+                  }"
+                >
+                  {{ item.boardStatusLabel }}
+                </span>
+              </td>
+              <td class="text-center">
+                {{ formatDateTime(item.updatedAt) }}
+              </td>
+          </tr>
+          </tbody>
+        </v-table>
+
+
+        <div class="pagination-bar">
+          <div class="pagination">
+            <v-pagination
+              v-model="currentPage"
+              :length="totalPages"
+              :total-visible="5"
+              color="black"
+              size="small"
+              @update:modelValue="changePage"
+            />
+          </div>
+        
+          <v-btn
+            size="small"
+            variant="tonal"
+            color="success"
+            @click="goToCreateShift"
+          >
+            <v-icon size="12" class="mr-1 icon-black" style="vertical-align: middle">mdi-pencil</v-icon>
+            <span>작성</span>
+          </v-btn>
       </div>
-    
-      <v-btn
-        size="small"
-        class="custom-btn"
-        @click="goToCreateShift"
-      >
-        <v-icon size="12" class="mr-1 icon-black" style="vertical-align: middle">mdi-pencil</v-icon>
-        <span class="text-black">작성</span>
-      </v-btn>
-   </div>
+    </v-card>
   </div>
 </template>
 
@@ -206,6 +212,18 @@ const formatDateTime = (dtStr) => {
   <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
 
+h2.title {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  color: #000 !important;
+}
+h2.title::after,
+h2.title::before {
+  display: none !important;
+}
+
+
+
 .shift-exchange-page {
   padding: 24px;
   border-radius: 10px;
@@ -229,37 +247,37 @@ const formatDateTime = (dtStr) => {
 } */
 
 /*.search-bar {
- display: flex;
+  display: flex;
   gap: 8px;
   margin-bottom: 16px;
   justify-content: flex-end;
 }*/
 
 .search-bar {
-  display: flex;
+  display: flex;  
   gap: 12px;
   align-items: center;
   margin-bottom: 16px;
+  justify-content: flex-end
 }
 
-::v-deep(.v-table) {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  overflow: hidden;
-}
 
 /* ::v-deep(.v-table th:last-child),
 ::v-deep(.v-table td:last-child) {
   border-right: none;
 } */
 
+::v-deep(.v-table tbody tr:hover) {
+  background-color: #e5edf9;
+}
 
 ::v-deep(.small-select .v-field) {
   min-height: 35px !important;
-  height: 35px !important;
+  height: 40px !important;
   font-size: 13px !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+  border-radius: 8px;
 }
 
 ::v-deep(.small-select) {
@@ -299,6 +317,13 @@ const formatDateTime = (dtStr) => {
   padding: 0 !important;
   line-height: 36px !important;
   height: 36px !important;
+}
+
+::v-deep(.v-overlay-container .v-list .v-list-item) {
+  min-height: 32px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  font-size: 13px !important;
 }
 
 .search-bar select,
@@ -368,8 +393,11 @@ const formatDateTime = (dtStr) => {
   font-size: 13px;
   font-family: 'Noto Sans KR', sans-serif;
 }
-.content-cell:hover {
-  background: #a9b4b9;
+
+
+.content-cell:not(.disabled-cell):hover {
+  background: #eaf0ff;
+  transition: background 0.2s, color 0.2s;
 }
 
 /* 상태 뱃지 스타일 */
@@ -457,8 +485,13 @@ const formatDateTime = (dtStr) => {
   padding: 4px 8px !important;
   font-size: 12px;
   min-height: 32px !important;
-  /* background: linear-gradient(to right, #8d8f91 0%, #828486 100%) !important; */
   background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%);
 }
-
   </style>
+
+  <style>
+.v-overlay .v-list-item {
+  min-height: 5px !important;
+  font-size: 11px !important;
+}
+</style> 

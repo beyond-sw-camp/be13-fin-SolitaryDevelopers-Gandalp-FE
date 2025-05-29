@@ -26,7 +26,7 @@ const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
 .sidebar {
   width: 240px;
   padding: 16px;
-  background-color: #f5f5f5;
+  background-color: #edf7ff;
   box-sizing: border-box;
   border: none;              /* ✅ 테두리 없음 */
   display: flex;

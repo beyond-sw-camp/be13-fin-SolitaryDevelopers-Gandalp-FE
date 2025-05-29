@@ -1,4 +1,9 @@
 <template>
+  <div class="create-off-page">
+  <h2 class="title">오프 신청</h2>
+  <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+    
+    
     <vue-cal
       :views="{ month: { label: '월간' } }"
       view="month"
@@ -6,7 +11,7 @@
       v-model:selected-date="selectedDate"
       :events="[]"
       @cell-click="onCellClick"
-      style="height: 600px"
+      style="height: 550px"
     >
       <!-- 날짜 셀 커스텀 -->
       <template #cell-date="{ cell }">
@@ -21,21 +26,27 @@
         </div>
       </template>
     </vue-cal>
-      <button class="create-off" @click="createOff">오프 신청</button>
 
+    <v-row justify="flex-end" style="margin-top: 10px;">
+      <v-col class="text-end">
+        <v-btn size="small" variant="tonal" color="success"  @click="createOff">오프 신청</v-btn>
+      </v-col>
+    </v-row>
     <!-- 사용자 확인 모달 -->
-    <UserCheckModal
+    <UserCheckModalV2
       v-if="showModal"
       @close="showModal = false"
       @submit="handleSubmit"
     />
+    </v-card>
+    </div>
   </template>
   
   <script setup>
   import { VueCal } from '@/vue-cal'
   import { ref } from 'vue'
   import { useRouter } from 'vue-router'
-  import UserCheckModal from '@/components/UserCheckModal.vue'
+  import UserCheckModalV2 from '@/components/UserCheckModalV2.vue'
   import apiClient from '@/api/axios'
 
   const router = useRouter()
@@ -130,6 +141,39 @@ const formatKST = (date) => {
   </script>
   
   <style scoped>
+
+  .create-off-page {
+    padding: 24px;
+    border-radius: 10px;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+    .title {
+    color: black;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    margin-top: 5px;
+  }
+
+.v-col {
+  height: 70px;
+}
+
+.main-wrapper {
+  margin: 0 auto;
+  padding: 0px 100px !important;
+}
+
+  .custom-btn {
+    padding: 4px 8px !important;
+    font-size: 12px;
+    min-height: 32px !important;
+    /* background: linear-gradient(to right, #8d8f91 0%, #828486 100%) !important; */
+    background: linear-gradient(to right, #e4e7eb 0%, #e4e7eb 100%) !important;
+  }
+
   .cell-date-wrapper {
     display: flex;
     justify-content: center;
@@ -180,4 +224,3 @@ const formatKST = (date) => {
 }
 
   </style>
-  
