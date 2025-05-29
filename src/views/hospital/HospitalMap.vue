@@ -65,7 +65,7 @@ function onFindLocation({lat, lon}) {
     sidebarRef.value.fetchHospitals('')
          .then(() => { hospitals.value = sidebarRef.value.hospitals })
     }
-  
+
 
   if(mapRef.value) {
     mapRef.value.centerOn(lat, lon)
