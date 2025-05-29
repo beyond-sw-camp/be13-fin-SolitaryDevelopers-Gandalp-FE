@@ -6,8 +6,26 @@
     <td>{{ member.departmentName }}</td>
     <td>{{ member.accountId }}</td>
     <td class="actions">
-      <button class="edit"   @click="emit('edit',   member)">수정</button>
-      <button class="delete" @click="onDelete">삭제</button>
+
+      <v-btn
+      small
+      variant="tonal"
+      color="warning"
+      class="action-btn"
+      @click="emit('edit', member)">
+        수정
+      </v-btn>
+
+      <v-btn
+        small
+        variant="tonal"
+        color="error"
+        class="action-btn"
+        @click="onDelete">
+        삭제
+      </v-btn>
+
+
     </td>
   </tr>
 </template>
@@ -30,7 +48,25 @@ const onDelete = async () => {
 </script>
 
 <style scoped>
-.actions { display: flex; gap: 4px; flex-direction: column; }
-.edit  { background: #f0ad4e; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
-.delete{ background: #d9534f; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; }
+
+.actions {
+  display: flex;
+  gap: 8px;
+  /* 세로가 아니라 가로로 정렬 */
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+/* Vuetify 버튼 커스텀 여유 패딩 */
+.action-btn {
+  min-width: 64px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+/* Tonal variant 라운드 추가 */
+.v-btn[variant="tonal"] {
+  border-radius: 8px;
+}
 </style>

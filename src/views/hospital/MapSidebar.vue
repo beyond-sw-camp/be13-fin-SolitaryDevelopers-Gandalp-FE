@@ -71,6 +71,50 @@ import SockJS from 'sockjs-client'
 
 const stompClient = ref(null)
 
+// 위치 전송을 위한 상태
+let lastSent = {lat: null, lon: null, time: 0}
+const SEND_INTERVAL = 10_000 // 10초
+const SEND_DISTANCE = 500 // 500m
+
+
+// Haversine 거리 계산 함수 ( 이런 작은 계산에서는 하버사인 거리 계산 코드를 직접 씀)
+function calcDistance(lat1, lon1, lat2, lon2) {
+  const toRad = d => d * Math.PI / 180
+  const R = 6371e3
+  const φ1 = toRad(lat1), φ2 = toRad(lat2)
+  const Δφ = toRad(lat2 - lat1), Δλ = toRad(lon2 - lon1)
+  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2)**2
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+// 위치 전송 조건
+function trySendLocation(lat, lon) {
+  const now = Date.now()
+  const dist = lastSent.lat !== null
+  ? calcDistance(lastSent.lat, lastSent.lon, lat, lon)
+    : Infinity
+
+  if(now - lastSent.time > SEND_INTERVAL || dist > SEND_DISTANCE) {
+
+   stompClient.value.publish({
+     destination : '/publish/location',
+     body: JSON.stringify({lat, lon})
+   })
+
+    console.log(
+      `[STOMP] 위치 전송: lat=${lat.toFixed(6)}, lon=${lon.toFixed(6)}, ` +
+      `interval=${now - lastSent.time}ms, dist=${dist.toFixed(1)}m`
+    )
+
+
+    lastSent = {lat, lon, time : now}
+
+  }
+}
+
+
+
 
 const emit = defineEmits(['select-hospital', 'find-location'])
 
@@ -134,7 +178,7 @@ onMounted(() => {
 
 
 
-
+// stomp 연결 및 subscribe  설정
 const connectWebSocket = () => {
   const socket = new SockJS('http://localhost:8080/connect')
   stompClient.value = Stomp.over(socket)
@@ -146,18 +190,47 @@ const connectWebSocket = () => {
     () => {
       console.log('✅ STOMP 연결됨')
 
+
+      // 1:1 응답을 받을 구독 경로
+             stompClient.value.subscribe(
+                '/user/queue/near-hospitals',
+                 ({ body }) => {
+                   hospitals.value = JSON.parse(body)
+                  totalPages.value = Math.ceil(hospitals.value.length/ pageSize.value)
+                   }
+            )
+
       stompClient.value.subscribe('/topic/er-status', (message) => {
         const updated = JSON.parse(message.body)
         console.log('📦 병상 수 갱신 수신:', updated)
         updateHospitalInList(updated)
       })
+
+
+      // 위치 전송용 토픽
+
+      if(navigator.geolocation){
+        navigator.geolocation.watchPosition(
+          ({coords}) => {
+
+            const lat = coords.latitude
+            const lon = coords.longitude
+
+            position.value = {lat, lon}
+
+            trySendLocation(lat, lon)
+          },
+          err =>  console.error('위치 추적 오류:', err),
+          {enableHighAccuracy : true, maximumAge: 5000}
+        )
+      }
     },
     (error) => {
       console.error('❌ STOMP 연결 실패:', error)
     }
   )
 }
-
+// 병상 수 갱신 로직
 function updateHospitalInList(updatedHospital){
   const idx = hospitals.value.findIndex(h => h.id === updatedHospital.id)
   if(idx !== -1){
@@ -166,56 +239,63 @@ function updateHospitalInList(updatedHospital){
 }
 
 
-
+// 초기 위치 조회 및 전송
 async function locateMe() {
-
+  console.log('[locateMe] 호출됨')
   if( !('geolocation' in navigator)){
       alert('브라우저에서 Geolocation을 지원하지 않습니다.')
     return
   }
 
-  if(navigator.permissions) {
-    try{
 
-      const status = await navigator.permissions.query({name : 'geolocation'})
-      switch (status.state) {
-        case 'granted' :
-          getCurrentPosition()
-          break
-        case 'prompt' :
-          getCurrentPosition()
-          break
-        case 'denied' :
-          alert('위치 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.')
-          break
-      }
-      // 권한 상태 변경 시 다시 처리 가능하게 함
-      status.onchange = () => {
-        if(status.state === 'granted') getCurrentPosition()
-      }
-    }catch(e) { // permission api 오류 시 바로 위치 조회
-      getCurrentPosition()
-    }
-  } else { // permission api 미지원 시 위치 조회
-    getCurrentPosition()
-  }
+      // granted, prompt
+
+      navigator.geolocation.getCurrentPosition(
+
+        ({coords}) => {
+          const lat = coords.latitude
+          const lon = coords.longitude
+
+          searchKeyword.value = ''
+          currentPage.value = 0
+
+          position.value = { lat, lon }
+          lastSent = {lat, lon, time : Date.now()}
+          stompClient.value.publish({ destination : '/publish/location',
+            body: JSON.stringify({lat, lon})
+            })
+
+          console.log(`[STOMP] 초기 위치 전송: lat=${lat}, lon=${lon}`)
+
+          fetchHospitals()
+        },
+        err => {
+          console.error('초기 위치 조회 실패:', err)
+          alert('위치 정보를 가져올 수 없습니다.')
+        },
+        {enableHighAccuracy : true}
+      )
+
+
+
 }
 
 // 현재 위치 가져옴
-function getCurrentPosition() {
-  navigator.geolocation.getCurrentPosition(
-    ({ coords }) => {
-      position.value.lat = coords.latitude
-      position.value.lon = coords.longitude
-
-      emit('find-location', {lat: coords.latitude, lon : coords.longitude})
-    },
-    (err) => {
-      console.error('위치 조회 실패:', err.message)
-      alert('위치 정보를 가져오지 못했습니다.')
-    }
-  )
-}
+// function getCurrentPosition() {
+//   navigator.geolocation.getCurrentPosition(
+//     ({ coords }) => {
+//       position.value.lat = coords.latitude
+//       position.value.lon = coords.longitude
+//
+//       emit('find-location', {lat: coords.latitude, lon : coords.longitude})
+//     },
+//     (err) => {
+//       console.error('위치 조회 실패:', err.message)
+//       alert('위치 정보를 가져오지 못했습니다.'),
+//         {enableHighAccuracy: true}
+//     }
+//   )
+// }
 
 // 병원 데이터 호출
 async function fetchHospitals(keyword) {
@@ -258,11 +338,11 @@ async function fetchHospitals(keyword) {
 }
 
 // 검색창에 키워드 있는 경우 처리
-function onSearch(keyword){
-  searchKeyword.value = keyword
-  currentPage.value = 0
-  fetchHospitals()
-}
+// function onSearch(keyword){
+//   searchKeyword.value = keyword
+//   currentPage.value = 0
+//   fetchHospitals()
+// }
 
 function changeSort(option) {
   if (SORT_OPTIONS.includes(option)) {
