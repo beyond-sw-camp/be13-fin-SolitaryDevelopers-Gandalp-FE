@@ -32,6 +32,8 @@
         <p class="addr">📍 {{ h.address }}</p>
         <p class="phone">📞 {{ h.phoneNumber }}</p>
         <p class="beds"> 가용 병상 수 {{ h.availableErCount }} / 전체 {{ h.totalErCount }}</p>
+        <p class="km">최단 거리 {{h.distanceKm}} km</p>
+        <p class="duration">예상 소요 시간 {{formatDuration(h.durationSec)}}</p>
       </li>
     </ul>
 
@@ -75,13 +77,44 @@ const emit = defineEmits(['select-hospital', 'find-location'])
 // 정렬 옵션
 const SORT_OPTIONS = ['DISTANCE', 'ER_COUNT']
 
-const hospitals = ref([])
+const hospitals = ref([]) // 서버에서 받은 전체 데이터
 const sortBy = ref('DISTANCE')
 const position = ref({ lat: null, lon: null })
-const totalPages = ref(0)
+const totalPages = computed(() => Math.ceil(hospitals.value.length/ pageSize.value))
 const currentPage = ref(0)
 const pageSize = ref(10)
 const searchKeyword = ref('') // 검색어 관리
+
+
+// 서버에서 받은 병원 데이터를 한 번 더 검사해서 다시 정렬
+const sortedHospitals = computed(() => {
+  let list = [...hospitals.value]
+  if(sortBy.value === 'ER_COUNT' ) {
+    list.sort((a, b) => b.availableErCount - a.availableErCount)
+  } else {
+    list.sort((a, b) => a.distanceKm - b.distanceKm)
+  }
+  const start = currentPage.value * pageSize.value
+
+  return list.slice(start, start + pageSize.value)
+})
+
+
+const formatDuration = (ms) => {
+  const totalSec = Math.round(ms/1000)
+  const hours = Math.floor(totalSec / 3600)
+  const minutse = Math.floor((totalSec % 3600)/ 60)
+
+  if(hours === 0) {
+     // 1시간 이하
+    return `${Math.ceil(totalSec / 60)} 분`
+  }
+
+  const hh = String(hours).padStart(2,'0' )
+  const mm = String(minutse).padStart(2,'0' )
+
+  return `${hh}시간 ${mm}분`
+}
 
 // 위치가 정해지면 API 호출
 watch(
@@ -132,14 +165,6 @@ function updateHospitalInList(updatedHospital){
   }
 }
 
-
-// 병상수가 수정되면 그에 따라 가용 병상 순 리스트가 수정된다.
-const sortedHospitals = computed(() => {
-  if(sortBy.value === 'ER_COUNT'){
-    return [...hospitals.value].sort((a,b) => b.availableErCount - a.availableErCount)
-  }
-  return hospitals.value
-})
 
 
 async function locateMe() {
@@ -192,12 +217,14 @@ function getCurrentPosition() {
   )
 }
 
+// 병원 데이터 호출
 async function fetchHospitals(keyword) {
 
   if(typeof keyword === 'string'){
     searchKeyword.value =  keyword.trim()
     currentPage.value = 0
   }
+
 
   try {
     const res = await apiClient.post(
@@ -209,15 +236,22 @@ async function fetchHospitals(keyword) {
           lon:        position.value.lon,
           sortOption: sortBy.value,
           keyword:    searchKeyword.value || undefined,
-          size: pageSize.value,
-          page: currentPage.value
-
         }
       }
     )
-    hospitals.value = res.data.content || []
-    totalPages.value = res.data.totalPages
+
+    console.log('✅ [fetchHospitals] 요청 URL   :', res.config.baseURL + res.config.url)
+    console.log('✅ [fetchHospitals] 요청 params:', res.config.params)
+    hospitals.value = res.data || []
+    totalPages.value = Math.ceil(hospitals.value.length/pageSize.value)
+
+    // 디버그 로그
+    console.log('서버에서 받은 전체 병원 수:', hospitals.value.length)
+    console.log('총 페이지 수:', totalPages.value)
+
   } catch (err) {
+    console.error('❌ [fetchHospitals] 에러 상태:', err.response?.status)
+    console.error('❌ [fetchHospitals] 에러 메시지:', err.response?.data)
     hospitals.value = []
     totalPages.value = 0
   }
@@ -261,6 +295,7 @@ function  nextPage() {
 
 
 
+
 defineExpose({ fetchHospitals, hospitals, searchKeyword, currentPage })
 </script>
 
@@ -292,6 +327,7 @@ defineExpose({ fetchHospitals, hospitals, searchKeyword, currentPage })
 .tab-menu {
   display: flex;
   gap: 8px;
+  user-select: none;
 }
 .tab-menu button {
   flex: 1;
@@ -331,9 +367,23 @@ defineExpose({ fetchHospitals, hospitals, searchKeyword, currentPage })
   color: #555;
 }
 
+.km {
+  margin: 2px 0;
+  font-size: 13px;
+  /*color: #4ca58a;*/
+  color: #52abef;
+}
+
+.duration {
+  margin: 2px 0;
+  font-size: 13px;
+  color: #555;
+}
+
 .beds {
   margin: 2px 0;
   font-size: 13px;
+  font-weight: bold;
   color : #ff6b81;
 }
 
