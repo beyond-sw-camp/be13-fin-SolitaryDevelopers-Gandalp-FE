@@ -604,8 +604,9 @@ const deleteBoard = async (nurseId) => {
   if (!confirm('정말 삭제하시겠습니까?')) return
   try {
     await apiClient.delete(`/shifts/${detail.value.boardId}`, {
-      data: { nurseId }
+    params: { nurseId } // 쿼리스트링으로 nurseId 전송
     })
+
     alert('삭제되었습니다.')
     router.push({ name: 'shift-list' })
   } catch (err) {
@@ -613,16 +614,6 @@ const deleteBoard = async (nurseId) => {
   }
 }
 
-// const deleteBoard = async () => {
-//   if (!confirm('정말 삭제하시겠습니까?')) return
-//   try {
-//     await apiClient.delete(`/shifts/${detail.value.boardId}`)
-//     alert('삭제되었습니다.')
-//     router.push({ name: 'shift-list' })
-//   } catch (err) {
-//     alert('삭제 중 오류가 발생했습니다.')
-//   }
-// }
 
 // 날짜+시간 포맷: "2025-05-12 14:00"
 const formatDateTime = (dtStr) => {

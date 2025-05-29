@@ -43,8 +43,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in shiftList" :key="item.boardId">
-              <!-- <td style="text-align: left;">{{ item.content }}</td> -->
+            <tr v-for="item in shiftList" :key="item.boardId"
+            :class="{ 'disabled-row': item.boardStatusLabel === '요청 수리됨' }">
               <td
       class="content-cell"
       :class="{ 'disabled-cell': item.boardStatusLabel === '요청 수리됨' }"
@@ -53,24 +53,30 @@
     >
       {{ item.content }}
     </td>
+    <td class="text-center">
+      <span
+        :class="{
+          badge: true,
+          completed: item.boardStatusLabel === '요청 수리됨',
+          waiting: item.boardStatusLabel === '요청 대기중'
+        }"
+        :style="item.boardStatusLabel === '요청 대기중'
+          ? 'cursor: pointer;'
+          : 'pointer-events: none; cursor: not-allowed;'"
+        @click="item.boardStatusLabel === '요청 대기중' ? goToDetails(item.boardId) : null"
+      >
+        {{ item.boardStatusLabel }}
+      </span>
+    </td>
 
+              <td
+              class="text-center"
+              :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; cursor: not-allowed; color: #aaa;' : 'cursor: pointer;'"
+              @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
+            >
+              {{ formatDateTime(item.updatedAt) }}
+            </td>
 
-
-
-              <td class="text-center">
-                <span
-                  :class="{
-                    badge: true,
-                    completed: item.boardStatusLabel === '요청 수리됨',
-                    waiting: item.boardStatusLabel === '요청 대기중'
-                  }"
-                >
-                  {{ item.boardStatusLabel }}
-                </span>
-              </td>
-              <td class="text-center">
-                {{ formatDateTime(item.updatedAt) }}
-              </td>
           </tr>
           </tbody>
         </v-table>
@@ -262,10 +268,10 @@ h2.title::before {
 }
 
 
-/* ::v-deep(.v-table th:last-child),
-::v-deep(.v-table td:last-child) {
-  border-right: none;
-} */
+::v-deep(.v-table tbody tr.disabled-row:hover) {
+  background-color: inherit !important;
+}
+
 
 ::v-deep(.v-table tbody tr:hover) {
   background-color: #e5edf9;
@@ -394,11 +400,6 @@ h2.title::before {
   font-family: 'Noto Sans KR', sans-serif;
 }
 
-
-.content-cell:not(.disabled-cell):hover {
-  background: #eaf0ff;
-  transition: background 0.2s, color 0.2s;
-}
 
 /* 상태 뱃지 스타일 */
 .badge {
