@@ -19,7 +19,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
 <style scoped>
 .base-layout {
   display: flex;
-  height: 100vh;
+  height: max-content;
   overflow: scroll;
 }
 
@@ -28,7 +28,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
   border-right: none;
   padding: 20px;
   box-sizing: border-box;
-  height: 100vh;
+  height: 100%;
   overflow-y: auto;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
@@ -39,7 +39,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
   display: flex;
   flex-direction: column;
   flex: 1;
-  height: 100vh;
+  height: max-content;
   overflow: hidden;
 }
 
