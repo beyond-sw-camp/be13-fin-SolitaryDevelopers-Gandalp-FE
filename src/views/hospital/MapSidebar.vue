@@ -77,42 +77,6 @@ const SEND_INTERVAL = 10_000 // 10초
 const SEND_DISTANCE = 500 // 500m
 
 
-// Haversine 거리 계산 함수 ( 이런 작은 계산에서는 하버사인 거리 계산 코드를 직접 씀)
-function calcDistance(lat1, lon1, lat2, lon2) {
-  const toRad = d => d * Math.PI / 180
-  const R = 6371e3
-  const φ1 = toRad(lat1), φ2 = toRad(lat2)
-  const Δφ = toRad(lat2 - lat1), Δλ = toRad(lon2 - lon1)
-  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2)**2
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  return R * c
-}
-
-// 위치 전송 조건
-function trySendLocation(lat, lon) {
-  const now = Date.now()
-  const dist = lastSent.lat !== null
-  ? calcDistance(lastSent.lat, lastSent.lon, lat, lon)
-    : Infinity
-
-  if(now - lastSent.time > SEND_INTERVAL || dist > SEND_DISTANCE) {
-
-   stompClient.value.publish({
-     destination : '/publish/location',
-     body: JSON.stringify({lat, lon})
-   })
-
-    console.log(
-      `[STOMP] 위치 전송: lat=${lat.toFixed(6)}, lon=${lon.toFixed(6)}, ` +
-      `interval=${now - lastSent.time}ms, dist=${dist.toFixed(1)}m`
-    )
-
-
-    lastSent = {lat, lon, time : now}
-
-  }
-}
-
 
 
 
@@ -128,6 +92,46 @@ const totalPages = computed(() => Math.ceil(hospitals.value.length/ pageSize.val
 const currentPage = ref(0)
 const pageSize = ref(10)
 const searchKeyword = ref('') // 검색어 관리
+const token = localStorage.getItem('accessToken')
+
+
+// Haversine 거리 계산 함수 ( 이런 작은 계산에서는 하버사인 거리 계산 코드를 직접 씀)
+function calcDistance(lat1, lon1, lat2, lon2) {
+  const toRad = d => d * Math.PI / 180
+  const R = 6371e3
+  const φ1 = toRad(lat1), φ2 = toRad(lat2)
+  const Δφ = toRad(lat2 - lat1), Δλ = toRad(lon2 - lon1)
+  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2)**2
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+// 위치 전송 조건
+function trySendLocation(lat, lon) {
+  const now = Date.now()
+  const dist = lastSent.lat !== null
+    ? calcDistance(lastSent.lat, lastSent.lon, lat, lon)
+    : Infinity
+
+  if(now - lastSent.time > SEND_INTERVAL || dist > SEND_DISTANCE) {
+
+    stompClient.value.publish({
+      destination : '/publish/location',
+      headers: { Authorization: 'Bearer ' + token },
+      body: JSON.stringify({lat, lon})
+    })
+
+    console.log(
+      `[STOMP] 위치 전송: lat=${lat.toFixed(6)}, lon=${lon.toFixed(6)}, ` +
+      `interval=${now - lastSent.time}ms, dist=${dist.toFixed(1)}m`
+    )
+
+
+    lastSent = {lat, lon, time : now}
+
+  }
+}
+
 
 
 // 서버에서 받은 병원 데이터를 한 번 더 검사해서 다시 정렬
@@ -171,7 +175,6 @@ watch(
 )
 
 onMounted(() => {
-  connectWebSocket()
   locateMe()
 })
 
@@ -196,8 +199,9 @@ const connectWebSocket = () => {
                 '/user/queue/near-hospitals',
                  ({ body }) => {
                    hospitals.value = JSON.parse(body)
-                  totalPages.value = Math.ceil(hospitals.value.length/ pageSize.value)
-                   }
+                  //totalPages.value = Math.ceil(hospitals.value.length/ pageSize.value)
+                   emit('update-list', hospitals.value)
+                }
             )
 
       stompClient.value.subscribe('/topic/er-status', (message) => {
@@ -239,8 +243,8 @@ function updateHospitalInList(updatedHospital){
 }
 
 
-// 초기 위치 조회 및 전송
-async function locateMe() {
+// 초기 위치 조회 및 전송 + rest 호출
+function locateMe() {
   console.log('[locateMe] 호출됨')
   if( !('geolocation' in navigator)){
       alert('브라우저에서 Geolocation을 지원하지 않습니다.')
@@ -249,34 +253,47 @@ async function locateMe() {
 
 
       // granted, prompt
-
-      navigator.geolocation.getCurrentPosition(
-
-        ({coords}) => {
-          const lat = coords.latitude
-          const lon = coords.longitude
-
-          searchKeyword.value = ''
-          currentPage.value = 0
-
-          position.value = { lat, lon }
-          lastSent = {lat, lon, time : Date.now()}
-          stompClient.value.publish({ destination : '/publish/location',
-            body: JSON.stringify({lat, lon})
-            })
-
-          console.log(`[STOMP] 초기 위치 전송: lat=${lat}, lon=${lon}`)
-
-          fetchHospitals()
-        },
-        err => {
-          console.error('초기 위치 조회 실패:', err)
-          alert('위치 정보를 가져올 수 없습니다.')
-        },
-        {enableHighAccuracy : true}
-      )
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      async ({coords}) => {
+        const lat = coords.latitude
+        const lon = coords.longitude
 
 
+        position.value = {lat, lon}
+
+        // 검색어 초기화
+        searchKeyword.value = ''
+        currentPage.value = 0
+
+
+        // 최초 한 번 rest로 데이터 받아옴
+        await fetchHospitals('')
+
+        // rest 후에 stomp 연결
+        connectWebSocket()
+
+        // 최초 위치도 stomp로 보냄 (10초 대기일 수 있으니까...)
+        stompClient.value.publish({
+          destination: '/publish/location',
+          headers: {Authorization: 'Bearer ' + token},
+          body: JSON.stringify({lat, lon})
+        })
+
+
+        emit('find-location', { lat, lon })
+
+        resolve()
+      },
+      err => {
+        console.error('초기 위치 조회 실패:', err)
+        alert('위치 정보를 가져올 수 없습니다.')
+      },
+      {enableHighAccuracy: true}
+    )
+
+
+  })
 
 }
 
@@ -323,8 +340,9 @@ async function fetchHospitals(keyword) {
     console.log('✅ [fetchHospitals] 요청 URL   :', res.config.baseURL + res.config.url)
     console.log('✅ [fetchHospitals] 요청 params:', res.config.params)
     hospitals.value = res.data || []
-    totalPages.value = Math.ceil(hospitals.value.length/pageSize.value)
+    //totalPages.value = Math.ceil(hospitals.value.length/pageSize.value)
 
+    emit('update-list', hospitals.value)
     // 디버그 로그
     console.log('서버에서 받은 전체 병원 수:', hospitals.value.length)
     console.log('총 페이지 수:', totalPages.value)
@@ -333,7 +351,7 @@ async function fetchHospitals(keyword) {
     console.error('❌ [fetchHospitals] 에러 상태:', err.response?.status)
     console.error('❌ [fetchHospitals] 에러 메시지:', err.response?.data)
     hospitals.value = []
-    totalPages.value = 0
+    //totalPages.value = 0
   }
 }
 
@@ -376,7 +394,7 @@ function  nextPage() {
 
 
 
-defineExpose({ fetchHospitals, hospitals, searchKeyword, currentPage })
+defineExpose({ fetchHospitals, hospitals, searchKeyword, currentPage, locateMe })
 </script>
 
 <style scoped>
