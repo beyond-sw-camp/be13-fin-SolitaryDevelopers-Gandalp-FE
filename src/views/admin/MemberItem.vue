@@ -2,22 +2,22 @@
   <tr>
     <td>{{ index }}</td>
     <td>{{ member.hospitalName }}</td>
-    <td>{{ member.type }}</td>
+    <td>{{ member.codeLabel }}</td>
     <td>{{ member.departmentName }}</td>
     <td>{{ member.accountId }}</td>
     <td class="actions">
 
       <v-btn
-      small
-      variant="tonal"
-      color="warning"
-      class="action-btn"
-      @click="emit('edit', member)">
+        size = "small"
+        variant="tonal"
+        color="warning"
+        class="action-btn"
+        @click="emit('edit', member)">
         수정
       </v-btn>
 
       <v-btn
-        small
+        size = "small"
         variant="tonal"
         color="error"
         class="action-btn"

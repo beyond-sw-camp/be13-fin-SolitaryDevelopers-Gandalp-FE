@@ -2,6 +2,10 @@
   <div class="member-list-page">
     <h2 class="title">계정 목록</h2>
 
+    <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+
+
+    <!--  검색바-->
     <form class="search-bar"
           @submit.prevent="onSearch"
           @keydown.enter.prevent="onSearch"
@@ -9,8 +13,8 @@
 
       <select v-model="selectedType">
         <option value="">전체 타입</option>
-        <option v-for="t in types" :key="t" :value="t">
-          {{ t }}
+        <option v-for="t in types" :key="t.value" :value="t.value">
+          {{ t.label }}
         </option>
       </select>
 
@@ -87,6 +91,7 @@
     </div>
 
 
+    </v-card>
 
   </div>
 </template>
@@ -104,7 +109,12 @@ const size       = ref(10)
 const totalPages = ref(1)
 const selectedType  = ref('')
 const selectedOption= ref('')
-const types = ['ADMIN','PARAMEDIC','HEAD_NURSE','NURSE']
+const types = [
+  { value: 'ADMIN',    label: '관리자' },
+  { value: 'PARAMEDIC',  label: '구급대원' },
+  { value: 'HEAD_NURSE',  label: '수간호사' },
+  { value: 'NURSE',  label: '간호사' },
+]
 const options = [
   { value: 'HOSPITAL',    label: '병원명' },
   { value: 'DEPARTMENT',  label: '진료과' },
@@ -165,6 +175,29 @@ onMounted(fetchMembers)
 </script>
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+
+h2.title {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  color: #000 !important;
+}
+h2.title::after,
+h2.title::before {
+  display: none !important;
+}
+
+.title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  margin-top: 5px;
+  color: black;
+}
+
+
 .member-list-page {
   padding: 24px;
 }
@@ -176,12 +209,7 @@ onMounted(fetchMembers)
   background: white;
   font-size: 14px;
 }
-.title {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 16px;
-  border-bottom: none;
-}
+
 .search-bar {
   height: 40px;
   max-width: 600px;
@@ -235,15 +263,15 @@ onMounted(fetchMembers)
 .member-table thead th {
   padding: 8px;
   text-align: center;
-  border-bottom: 2px solid #ddd; /* 헤더 아래 가로선 */
+  border-bottom: 1px solid #ddd; /* 헤더 아래 가로선 */
   border-left: none;
   border-right: none;
 }
-.member-table tbody td {
+::v-deep .member-table td {
   padding: 8px;
   text-align: center;
   border-bottom: 1px solid #ddd; /* 본문 각 행 사이 가로선 */
-  border: none;
+
 }
 .member-table tbody tr:last-child td {
   border-bottom: none;

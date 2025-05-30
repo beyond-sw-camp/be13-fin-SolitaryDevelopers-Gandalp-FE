@@ -1,7 +1,7 @@
 <template>
   <div class="modal-backdrop" @click.self="close">
     <div class="modal">
-      <h3>회원 정보 수정</h3>
+      <h2 class="title">회원 정보 수정</h2>
       <form @submit.prevent="onSubmit">
         <div class="form-group">
           <label for="accountId">아이디</label>
@@ -13,10 +13,10 @@
                  placeholder="변경할 비밀번호 입력" />
         </div>
         <div class="buttons">
-          <button type="button" class="btn-cancel" @click="close">취소</button>
-          <button type="submit" class="btn-save" :disabled="loading">
+          <v-btn  size="small" variant="tonal" color="error" type="button" class="btn-cancel" @click="close">취소</v-btn>
+          <v-btn   size="small" variant="tonal" color="primary" type="submit" class="btn-save" :disabled="loading">
             {{ loading ? '저장 중…' : '저장' }}
-          </button>
+          </v-btn>
         </div>
       </form>
     </div>
@@ -68,13 +68,25 @@ const onSubmit = async () => {
 </script>
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+
+.title {
+  text-align: center;
+  font-size: 18px;
+  margin-bottom: 16px;
+  margin-top: 5px;
+  color: #454444;
+}
 .modal-backdrop {
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.4);
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  position: fixed;
+  z-index: 9998;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal {
@@ -86,6 +98,7 @@ const onSubmit = async () => {
 
 .form-group {
   margin-bottom:16px;
+  font-size: 13px;
 }
 
 .form-group label {
@@ -98,6 +111,8 @@ const onSubmit = async () => {
   padding:6px 8px;
   border:1px solid #ccc;
   border-radius:4px;
+  font-size: 13px;
+  color: grey;
 }
 
 .buttons {
@@ -114,7 +129,6 @@ const onSubmit = async () => {
 }
 
 .btn-save   {
-  background:#1b9aaa;
   color:#fff;
   border:none;
   padding:6px 12px;

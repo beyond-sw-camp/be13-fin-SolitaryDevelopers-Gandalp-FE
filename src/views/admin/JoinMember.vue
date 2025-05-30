@@ -1,11 +1,18 @@
 <template>
 
-      <div class="join-content">
+  <div class="join-page">
 
 
-        <div class="title-container">
-          <h2 class="title">계정 생성</h2>
-        </div>
+
+  <div class="title-container">
+    <h2 class="title">계정 생성</h2>
+  </div>
+
+
+  <v-card class="join-content-card">
+
+        <div class="join-box">
+
 
 
      <!-- 계정 생성-->
@@ -60,14 +67,19 @@
 
 
         <div class="btn-box">
-          <button @click="enroll">등록</button>
+          <v-btn  size="small" variant="tonal" color="primary" @click="enroll">등록</v-btn>
         </div>
 
         <div v-if="message" :class="['alert', success ? 'success' : 'error']">
           {{ message }}
         </div>
 
-      </div>
+        </div>
+
+      </v-card>
+
+
+  </div>
 
 </template>
 
@@ -128,22 +140,57 @@ const enroll = async() =>{
 </script>
 
 <style scoped>
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+
+
+.join-page{
+  height: 100vh;
+}
+h2.title {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  color: #000 !important;
+}
+h2.title::after,
+h2.title::before {
+  display: none !important;
+}
+
+.title {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  margin-top: 25px;
+  color: black;
+}
+
+
 .member-input label.disabled input {
   background-color: #f5f5f5;
   color: #999;
   cursor: not-allowed;
 }
 
-.title-container .title {
-  border-bottom: none;
+.join-content-card {
+  width: 75.6vw;
+  margin-left: 25px;
+  min-height: 480px;
+  background-color: white;
+  padding: 40px 60px;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  gap: 20px;
 }
 
-.join-content {
-  max-width: 1000px;
-  margin: 0 0 auto;
-  padding: 24px;
-  background: #fff;
-  border-radius: 8px;
+.join-box{
+  width: 600px;
 }
 
 /* 2) 라디오 버튼 */
@@ -166,17 +213,17 @@ const enroll = async() =>{
 
   /* label 텍스트 스타일 */
   .box-label {
-    padding: 6px 12px;
+    padding: 5px 11px;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: 5px;
     transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
 
   /* 선택된 라디오의 + sibling 으로 붙어 있는 .box-label 스타일 */
   input:checked + .box-label {
-    background: #1b9aaa;
+    background: #8cbacf;
     color: #fff;
-    border-color: #1b9aaa;
+    border-color: #8cbacf;
   }
 }
 
@@ -222,16 +269,16 @@ const enroll = async() =>{
   margin-bottom: 16px;
 
   button {
-    padding: 10px 24px;
-    background: #1b9aaa;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
+    min-width: 70px;
+    height: 32px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.15s;
 
     &:hover {
-      background: #178a99;
+      background: #bfc7cc;
     }
   }
 }

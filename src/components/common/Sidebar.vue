@@ -3,7 +3,7 @@
     <div class="logo">
       <img :src="gandalpLogo" alt="GANDALP 로고" />
     </div>
-      <NoticeSidebar />
+      <NoticeSidebar v-if="!isAdmin"/>
         <!--  -->
       <NurseStatusSidebar v-if="!isAdmin"/>
     </div>
@@ -35,7 +35,7 @@ const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
   gap: 20px;
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
-  
+
 }
 
 .logo {
