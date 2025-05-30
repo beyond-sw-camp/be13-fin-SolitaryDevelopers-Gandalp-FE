@@ -119,8 +119,9 @@ defineExpose({centerOn})
 
 <style scoped>
 .map-container {
-  width: 100%;
+  margin-left: 107px;
   height: 100%;
+  width: 75.4vw;
 }
 #map {
   width: 100%;
