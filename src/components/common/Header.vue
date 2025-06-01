@@ -22,7 +22,7 @@
           <v-list>
             <v-list-item to="/showOff" title="오프" />
             <v-list-item to="/manageOff" title="오프 관리" />
-            <v-list-item to="/work-management" title="근무 관리" />
+            <v-list-item v-if="isHeadNurse" to="/work-management" title="근무 관리" />
           </v-list>
         </v-menu>
 
