@@ -10,29 +10,13 @@ const banner = `/**
   * @license MIT
   */\n`
 
-const bundlingConf = {
-  minify: true,
-  lib: {
-    entry: resolve(__dirname, 'src/vue-cal/index.js'),
-    name: 'vuecal',
-    fileName: format => `vue-cal.${format}.js`
-  },
-  rollupOptions: {
-    external: id => id === 'vue',
-    output: {
-      banner,
-      globals: { vue: 'Vue' },
-      chunkFileNames: chunkInfo => {
-        if (chunkInfo.facadeModuleId?.endsWith('.json')) return 'i18n/[name].js'
-        return '[name]-[hash].js'
-      }
-    }
-  },
-  copyPublicDir: false
-}
-
 export default defineConfig({
   base: '/vue-cal/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true
+  },
   define: {
     'process.env': {
       VITE_APP_VERSION: process.env.npm_package_version,
@@ -65,18 +49,11 @@ export default defineConfig({
       plugins: [autoprefixer]
     }
   },
-  build: process.env.BUNDLE
-    ? bundlingConf
-    : {
-        outDir: 'dist',
-        emptyOutDir: true,
-        assetsDir: 'assets', // 👉 이거 있어야 assets 폴더 분리됨
-      },
   server: {
     proxy: {
       '/api': {
         target: 'https://api-gandalp.service.com',
-        changeOrigin: true
+        changeOrigin: true,
       }
     }
   }
