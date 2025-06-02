@@ -10,6 +10,7 @@ pipeline {
         S3_BUCKET = 'gandalp-s3'
         CLOUDFRONT_DIST_ID = 'E1JTO3ZBAXZFKE'
     }
+
     stages {
         stage('Checkout') {
             steps {
@@ -33,15 +34,14 @@ pipeline {
         stage('Deploy to S3') {
             steps {
                 sh '''
-                aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
+                    # 전체 dist 폴더 통째로 업로드 (assets 포함)
+                    aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
                 '''
-                }
             }
-            
+        }
 
         stage('Invalidate CloudFront Cache') {
             steps {
-                // IAM Role이 EC2에서 자동으로 인증을 처리하므로 credentialsId 제거
                 sh '''
                     aws cloudfront create-invalidation \
                     --distribution-id $CLOUDFRONT_DIST_ID \
@@ -54,7 +54,7 @@ pipeline {
 
     post {
         always {
-            echo "Cleaning up workspace"
+            echo "🧹 Cleaning up workspace"
             deleteDir()
         }
     }
