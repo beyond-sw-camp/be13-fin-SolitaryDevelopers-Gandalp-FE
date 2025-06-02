@@ -7,6 +7,8 @@
     <td>{{ member.accountId }}</td>
     <td class="actions">
 
+      <template v-if="member.codeLabel !== '관리자'">
+
       <v-btn
         size = "small"
         variant="tonal"
@@ -24,6 +26,10 @@
         @click="onDelete">
         삭제
       </v-btn>
+      </template>
+      <template v-else>
+        &nbsp;
+      </template>
 
 
     </td>
@@ -64,6 +70,12 @@ const onDelete = async () => {
   font-weight: 600;
   text-transform: none;
 }
+
+td {
+  height: 82px;
+}
+
+
 
 /* Tonal variant 라운드 추가 */
 .v-btn[variant="tonal"] {
