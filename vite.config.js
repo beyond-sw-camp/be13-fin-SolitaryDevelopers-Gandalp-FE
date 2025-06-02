@@ -11,7 +11,7 @@ const banner = `/**
   */\n`
 
 export default defineConfig({
-  base: '/vue-cal/',
+  base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
