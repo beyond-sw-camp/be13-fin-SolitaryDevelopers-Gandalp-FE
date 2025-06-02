@@ -25,6 +25,7 @@ pipeline {
                         error("npm install failed")
                     }
                     sh 'npm run build'
+                    sh 'ls -al dist'
                 }
             }
         }
