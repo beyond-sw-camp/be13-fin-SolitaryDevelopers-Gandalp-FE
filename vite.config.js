@@ -36,7 +36,7 @@ const bundlingConf = {
 }
 
 export default defineConfig({
-  base: '/',
+  base: '/vue-cal/',
   define: {
     'process.env': {
       VITE_APP_VERSION: process.env.npm_package_version,
@@ -68,10 +68,6 @@ export default defineConfig({
     postcss: {
       plugins: [autoprefixer]
     }
-  },
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true
   },
   server: {
     proxy: {
