@@ -76,7 +76,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://api-gandalp.servie.com',
+        target: 'https://api-gandalp.service.com',
         changeOrigin: true,
       }
     }
