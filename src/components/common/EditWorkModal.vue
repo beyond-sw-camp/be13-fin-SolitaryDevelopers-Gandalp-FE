@@ -33,7 +33,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import apiClient from '@/api/axios'
+import apiClient from '@/api/axios.js'
 
 const props = defineProps({
   work: Array
