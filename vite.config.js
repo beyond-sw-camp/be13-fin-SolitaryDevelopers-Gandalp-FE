@@ -37,6 +37,11 @@ const bundlingConf = {
 
 export default defineConfig({
   base: '/vue-cal/',
+  build: {
+  assetsDir: 'assets', // 👉 이걸 명시적으로 넣어줘
+  outDir: 'dist',
+  emptyOutDir: true
+  },
   define: {
     'process.env': {
       VITE_APP_VERSION: process.env.npm_package_version,
