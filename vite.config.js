@@ -10,37 +10,12 @@ const banner = `/**
   * @license MIT
   */\n`
 
-const bundlingConf = {
-  minify: true,
-  lib: {
-    entry: resolve(__dirname, 'src/vue-cal/index.js'),
-    name: 'vuecal', // The global name of the library.
-    fileName: format => `vue-cal.${format}.js` // Output filename pattern.
-  },
-  rollupOptions: {
-    // Make sure to externalize deps that shouldn't be bundled into library.
-    external: id => {
-      if (id === 'vue') return true // Externalize vue.
-      return false
-    },
-    output: {
-      banner,
-      globals: { vue: 'Vue' }, // Vue should be treated as external and available as a global variable.
-      chunkFileNames: chunkInfo => {
-        if (chunkInfo.facadeModuleId.endsWith('.json')) return 'i18n/[name].js' // Match JSON to JS name without a hash.
-        return '[name]-[hash].js' // Default behavior.
-      }
-    }
-  },
-  copyPublicDir: false // Prevent copying `public/` to `dist` folder.
-}
-
 export default defineConfig({
-  base: '/vue-cal/',
+  base: '/',
   build: {
-  assetsDir: 'assets', // 👉 이걸 명시적으로 넣어줘
-  outDir: 'dist',
-  emptyOutDir: true
+    outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true
   },
   define: {
     'process.env': {
@@ -57,7 +32,7 @@ export default defineConfig({
         }
       }
     })
-  ], // https://vitejs.dev/config/
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
