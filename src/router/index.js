@@ -34,11 +34,6 @@ const routes = [
     component: BaseLayout,
     children: [
       {
-        path: 'ex',
-        name: 'ex',
-        component: Ex
-      },
-      {
         path: 'showOff',
         name: 'showOff',
         component: ShowOffVue
@@ -119,22 +114,28 @@ const routes = [
         path: '/updateEr',
         name: 'UpdateEr',
         component: UpdateEr
-      }
+      },
 
-    ],
-  },
-  {
-    path: '/calendar',
-    name: 'Calendarbase',
-    component: CalendarBaseLayout,
-    children: [
       {
         path: '',
         name: 'playground',
         component: () => import('@/documentation/examples/playground.vue')
       }
+
     ],
   },
+  // {
+  //   path: '/calendar',
+  //   name: 'Calendarbase',
+  //   component: CalendarBaseLayout,
+  //   children: [
+  //     {
+  //       path: '',
+  //       name: 'playground',
+  //       component: () => import('@/documentation/examples/playground.vue')
+  //     }
+  //   ],
+  // },
   {
     path: '/login',
     name: 'login',
