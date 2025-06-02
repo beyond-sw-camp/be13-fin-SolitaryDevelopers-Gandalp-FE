@@ -68,7 +68,10 @@ export default defineConfig({
       plugins: [autoprefixer]
     }
   },
-  build: process.env.BUNDLE ? bundlingConf : { outDir: 'dist' },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true
+  },
   server: {
     proxy: {
       '/api': {
