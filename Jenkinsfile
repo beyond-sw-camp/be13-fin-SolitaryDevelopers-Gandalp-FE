@@ -32,9 +32,18 @@ pipeline {
 
         stage('Deploy to S3') {
             steps {
-                // IAM Role이 EC2에서 자동으로 인증을 처리하므로 credentialsId 제거
                 sh '''
+                    # 1️⃣ 전체 싱크
                     aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
+
+                    # 2️⃣ JS 파일만 MIME type 덮어쓰기
+                    find dist -name "*.js" | while read filepath; do
+                    relative_path=${filepath#dist/}
+                    aws s3 cp "$filepath" "s3://$S3_BUCKET/$relative_path" \
+                        --region $AWS_REGION \
+                        --content-type "application/javascript" \
+                        --metadata-directive REPLACE
+                    done
                 '''
             }
         }
