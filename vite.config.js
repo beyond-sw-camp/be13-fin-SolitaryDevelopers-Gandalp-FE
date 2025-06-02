@@ -36,6 +36,7 @@ const bundlingConf = {
 }
 
 export default defineConfig({
+  base: '/',
   define: {
     'process.env': {
       VITE_APP_VERSION: process.env.npm_package_version,
