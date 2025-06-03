@@ -2,6 +2,14 @@
   <div class="work-management-page">
     <h2 class="title">근무 관리</h2>
     <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+<v-row justify="flex-end">
+  <v-col class="text-end">
+    <v-btn class="me-2" size="small" variant="tonal" color="primary" @click="onClickGenerate" :disabled="isLoading">자동 생성</v-btn>
+    <v-btn class="me-2" size="small" variant="tonal" color="primary" @click="goCal" :disabled="isLoading">캘린더로가기</v-btn>
+    <v-btn class="mx-2" size="small" variant="tonal" color="warning" @click="modify" :disabled="isLoading">근무 수정</v-btn>
+    <v-btn class="ms-2" size="small" variant="tonal" color="success" @click="goToCreateShift" :disabled="isLoading">근무 반영</v-btn>
+  </v-col>
+</v-row>
       <vue-cal
         :key="eventKey"
         ref="vueCalRef"
@@ -19,13 +27,7 @@
         </template>
       </vue-cal>
 
-      <v-row justify="flex-end" style="margin-top: 10px;">
-        <v-col class="text-end">
-          <v-btn size="small" variant="tonal" color="primary" @click="onClickGenerate" :disabled="isLoading">자동 생성</v-btn>
-          <v-btn size="small" variant="tonal" color="warning" @click="modify" :disabled="isLoading">근무 수정</v-btn>
-          <v-btn size="small" variant="tonal" color="success" @click="goToCreateShift" :disabled="isLoading">근무 반영</v-btn>
-        </v-col>
-      </v-row>
+
     </v-card>
 
     <EditWorkModal
@@ -67,6 +69,10 @@ function onCellClick({ cell }) {
   selectedDate.value = cell.start
 }
 
+const goCal = async () => {
+  router.push('/calendar');
+}
+
 const onClickGenerate = async () => {
   isLoading.value = true // ✅ 로딩 시작
   try {
@@ -98,6 +104,7 @@ const goToCreateShift = async () => {
     alert('근무 반영 실패: ' + (err.response?.data || err.message))
   } finally {
     isLoading.value = false
+    router.push('/calendar');
   }
 }
 

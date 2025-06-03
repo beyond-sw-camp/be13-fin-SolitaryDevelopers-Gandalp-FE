@@ -1093,7 +1093,7 @@ onMounted(async () => {
     /* padding: 40px 0 8px; */
     padding: 0 0 8px;
     border-left: none;
-    overflow: auto;
+    /* overflow: auto; */
     max-width: none;
     height: 100dvh;
   
