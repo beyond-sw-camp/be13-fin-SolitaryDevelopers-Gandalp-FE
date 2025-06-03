@@ -52,7 +52,7 @@
         <input type="password" v-model="form.password" placeholder="비밀번호" />
 
         <!-- 상태 선택 -->
-        <select v-model="form.workingStatus">
+        <select v-model="form.codeLabel">
           <option value="ON">근무 중</option>
           <option value="OFF">오프</option>
           <option value="IN_SURGERY">수술 중</option>
@@ -122,7 +122,7 @@ const filteredNurses = computed(() => {
 
 const form = reactive({
   password: '',
-  workingStatus: 'ON',
+  codeLabel: 'ON',
 })
 
 const fetchStatus = async () => {
@@ -160,7 +160,7 @@ const submitStatus = async () => {
     const payload = {
       nurseId: selectedNurseId.value,
       password: form.password,
-      workingStatus: form.workingStatus
+      codeLabel: form.codeLabel
     }
 
     console.log(payload)

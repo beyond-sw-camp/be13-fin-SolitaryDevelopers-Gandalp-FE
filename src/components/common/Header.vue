@@ -11,7 +11,7 @@
       </template>
 
       <template v-else>
-        <v-btn variant="text" class="nav-btn" to="/">캘린더</v-btn>
+        <v-btn variant="text" class="nav-btn" to="/calendar">캘린더</v-btn>
         <v-btn variant="text" class="nav-btn" to="/shifts">근무 교대 신청</v-btn>
         <v-btn variant="text" class="nav-btn" to="/surgeryReservation">수술실 예약</v-btn>
 

@@ -1,72 +1,70 @@
 <template lang="pug">
-  div(class="main-page")
-    h2(class="title") 캘린더
-    v-card(style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;")
-      v-row(justify="end" align="center")
-        v-col(cols="auto")
-          v-btn(size="small" variant="tonal" color="success" class="custom-btn" @click="addAndSaveEvent") 일정 생성
+  v-card(style="width: 71.5vw; background-color: white; padding: 2%; border-radius: 25px; overflow: visible")
+    v-row(justify="end" align="center")
+      v-col(cols="auto")
+        v-btn(size="small" variant="tonal" color="success" class="custom-btn" @click="addAndSaveEvent") 일정 생성
+
+      v-col(cols="auto")
+        v-btn-toggle(v-model="scheduleType" mandatory density="compact")
+          v-btn(value="work" style="background-color: #e3f2fd") 근무
+          v-btn(value="personal" style="background-color: #e3f2fd") 개인
+          v-btn(value="surgery" style="background-color: #e3f2fd") 수술
+          
+      v-col(cols="auto")
+        v-select(
+          v-model="selectedClassFilter"
+          :items="classFilterOptions"
+          item-title="label"
+          item-value="value"
+          density="compact"
+          variant="solo"
+          label="간호사 이름"
+          class="nurse-filter-select small-select no-shadow"
+          style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
+          hide-details
+          flat
+          bg-color="#edf7ff"
+        )
+
+
+
+    v-row(no-gutters class="mt-4")
+      v-col
+        vue-cal.vue-cal--main.grow(
+          style="min-height: 80vh; height: auto;"
+          ref="vueCalRef"
+          @cell-drag-start="onCellDragStart"
+          @cell-drag-end="onCellDragEnd"
+          v-model:view="mainVuecalConfig.view"
+          v-model:selected-date="mainVuecalConfig.selectedDate"
+          v-model:view-date="mainVuecalConfig.viewDate"
+          @update:view-date="pickerConfig.viewDate = $event"
+          v-bind="mainVuecalConfig"
+          @ready="log('ready', $event)"
+          @view-change="log('view-change', $event)"
+          @event-create="eventCreation.open"
+          @event-mousedown="log('event-mousedown', $event)"
+          @event-mouseup="log('event-mouseup', $event)"
+          @event-click="log('event-click', $event)"
+          @event-delayed-click="eventSelection.onEventDelayedClick"
+          @event-hold="log('event-hold', $event)"
+          @event-drag-start="log('event-drag-start', $event)"
+          @event-drag="log('event-drag', $event)"
+          @event-drag-end="log('event-drag-end', $event)"
+          @event-drop="log('event-drop', $event)"
+          @event-dropped="log('event-dropped', $event)"
+          @event-resize="log('event-resize', $event)"
+          @event-resize-end="log('event-resize-end', $event)"
+          @event-contextmenu="log('event-contextmenu', $event)"
+          @cell-click="log('cell-click', $event)"
+          @cell-dblclick="log('cell-dblclick', $event)"
+          @cell-drag="log('cell-drag', $event)"
+          @cell-hold="log('cell-hold', $event)"
+          @cell-mousedown="log('cell-mousedown', $event)"
+          @cell-mouseup="log('cell-mouseup', $event)"
+          @cell-touchstart="log('cell-touchstart', $event)"
+          @cell-contextmenu="log('cell-contextmenu', $event)")
   
-        v-col(cols="auto")
-          v-btn-toggle(v-model="scheduleType" mandatory density="compact")
-            v-btn(value="work" style="background-color: #e3f2fd") 근무
-            v-btn(value="personal" style="background-color: #e3f2fd") 개인
-            v-btn(value="surgery" style="background-color: #e3f2fd") 수술
-            
-        v-col(cols="auto")
-          v-select(
-            v-model="selectedClassFilter"
-            :items="classFilterOptions"
-            item-title="label"
-            item-value="value"
-            density="compact"
-            variant="solo"
-            label="간호사 이름"
-            class="nurse-filter-select small-select no-shadow"
-            style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
-            hide-details
-            flat
-            bg-color="#edf7ff"
-          )
-  
-  
-  
-      v-row(no-gutters class="mt-4")
-        v-col
-          vue-cal.vue-cal--main.grow(
-            style="min-height: 80vh; height: auto;"
-            ref="vueCalRef"
-            @cell-drag-start="onCellDragStart"
-            @cell-drag-end="onCellDragEnd"
-            v-model:view="mainVuecalConfig.view"
-            v-model:selected-date="mainVuecalConfig.selectedDate"
-            v-model:view-date="mainVuecalConfig.viewDate"
-            @update:view-date="pickerConfig.viewDate = $event"
-            v-bind="mainVuecalConfig"
-            @ready="log('ready', $event)"
-            @view-change="log('view-change', $event)"
-            @event-create="eventCreation.open"
-            @event-mousedown="log('event-mousedown', $event)"
-            @event-mouseup="log('event-mouseup', $event)"
-            @event-click="log('event-click', $event)"
-            @event-delayed-click="eventSelection.onEventDelayedClick"
-            @event-hold="log('event-hold', $event)"
-            @event-drag-start="log('event-drag-start', $event)"
-            @event-drag="log('event-drag', $event)"
-            @event-drag-end="log('event-drag-end', $event)"
-            @event-drop="log('event-drop', $event)"
-            @event-dropped="log('event-dropped', $event)"
-            @event-resize="log('event-resize', $event)"
-            @event-resize-end="log('event-resize-end', $event)"
-            @event-contextmenu="log('event-contextmenu', $event)"
-            @cell-click="log('cell-click', $event)"
-            @cell-dblclick="log('cell-dblclick', $event)"
-            @cell-drag="log('cell-drag', $event)"
-            @cell-hold="log('cell-hold', $event)"
-            @cell-mousedown="log('cell-mousedown', $event)"
-            @cell-mouseup="log('cell-mouseup', $event)"
-            @cell-touchstart="log('cell-touchstart', $event)"
-            @cell-contextmenu="log('cell-contextmenu', $event)")
-    
   w-dialog(
     v-if="eventCreation.event"
     v-model="eventCreation.show"
@@ -942,21 +940,6 @@ onMounted(async () => {
   
   <style lang="scss">
 
-.main-page {
-  padding: 24px;
-  border-radius: 10px;
-  font-family: 'Noto Sans KR', sans-serif;
-}
-
-  .title {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 16px;
-    margin-top: 5px;
-    color: black;
-  }
-
 ::v-deep(.vuecal__event.shift-etc) {
   background-color: #f0f0f0;
   color: #666;
@@ -1067,7 +1050,7 @@ onMounted(async () => {
     border-left: none;
     overflow: auto;
     max-width: none;
-    height: auto;
+    height: 100dvh;
   
     // Global.
     ~ footer, aside, h1 {display: none;}
