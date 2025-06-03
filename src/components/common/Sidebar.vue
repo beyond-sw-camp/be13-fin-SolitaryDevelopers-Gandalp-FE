@@ -4,7 +4,6 @@
       <img :src="gandalpLogo" alt="GANDALP 로고" @click="router.push('/')" class="logo-img"/>
     </div>
       <NoticeSidebar v-if="!isAdmin"/>
-        <!--  -->
       <NurseStatusSidebar v-if="!isAdmin"/>
     </div>
 </template>
@@ -23,8 +22,10 @@ const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
 
 </script>
 
+
 <style scoped>
-.sidebar {
+.sidebar {  
+  min-height: 100vh;    
   width: 240px;
   padding: 16px;
   background-color: #edf7ff;
