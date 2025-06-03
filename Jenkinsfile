@@ -37,18 +37,23 @@ pipeline {
                 echo "📦 S3에 dist 폴더 전체 업로드"
                 aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
 
-                echo "🛠️ JS 파일 MIME 타입 재설정"
-                find dist/assets -type f -name "*.js" | while read filepath; do
-                    filename=$(basename "$filepath")
-                    aws s3 cp "$filepath" "s3://$S3_BUCKET/assets/$filename" \
-                    --content-type "application/javascript" \
-                    --cache-control "max-age=31536000" \
-                    --metadata-directive REPLACE \
-                    --region $AWS_REGION
+                echo "🛠️ 전체 dist 하위의 JS 파일 MIME 타입 재설정"
+                find dist -type f -name "*.js" | while read filepath; do
+                    # dist/ 경로를 기준으로 상대 경로 추출
+                    relative_path="${filepath#dist/}"
+
+                    echo "⏳ 업로드 중: $relative_path"
+
+                    aws s3 cp "$filepath" "s3://$S3_BUCKET/$relative_path" \
+                        --content-type "application/javascript" \
+                        --cache-control "max-age=31536000" \
+                        --metadata-directive REPLACE \
+                        --region $AWS_REGION
                 done
                 '''
             }
         }
+
 
         stage('Invalidate CloudFront Cache') {
             steps {
