@@ -46,7 +46,6 @@ pipeline {
 
                     aws s3 cp "$filepath" "s3://$S3_BUCKET/$relative_path" \
                         --content-type "application/javascript" \
-                        --cache-control "max-age=31536000" \
                         --metadata-directive REPLACE \
                         --region $AWS_REGION
                 done
