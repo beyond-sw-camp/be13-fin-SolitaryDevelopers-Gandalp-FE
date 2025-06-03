@@ -68,7 +68,12 @@
         plugins: [autoprefixer]
       }
     },
-    build: process.env.BUNDLE ? bundlingConf : { outDir: 'dist' },
+    build: {
+      outDir: 'dist',
+      rollupOptions: {
+          input: resolve(__dirname, 'index.html')
+        }
+    },
     server: {
       proxy: {
         '/api': {
