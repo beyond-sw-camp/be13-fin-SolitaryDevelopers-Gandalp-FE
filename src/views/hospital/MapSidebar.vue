@@ -183,7 +183,7 @@ onMounted(() => {
 
 // stomp 연결 및 subscribe  설정
 const connectWebSocket = () => {
-  const socket = new SockJS('http://localhost:8080/connect')
+  const socket = new SockJS('https://api.gandalp-service.com/connect')
   stompClient.value = Stomp.over(socket)
 
   stompClient.value.connect(
