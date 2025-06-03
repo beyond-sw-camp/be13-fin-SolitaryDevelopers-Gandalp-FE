@@ -86,6 +86,7 @@
           <label>시작 시간</label>
           <Datepicker
             v-model="newEvent.startTime"
+            :max-date="newEvent.endTime"
             locale="ko"
             time-picker-inline
             :enable-time-picker="true"
@@ -97,6 +98,7 @@
           <label>종료 시간</label>
           <Datepicker
             v-model="newEvent.endTime"
+            :min-date="newEvent.startTime"
             locale="ko"
             time-picker-inline
             :enable-time-picker="true"
@@ -255,12 +257,12 @@
             <v-list-item-content>
               <v-list-item-title>비밀번호</v-list-item-title>
               <input
-            style="padding: 10px;"
-            v-model="deletePassword"
-            placeholder="비밀번호 입력"
-            type="password"
-            class="modal-input"
-          />
+                style="padding: 0px;"
+                v-model="deletePassword"
+                placeholder="비밀번호 입력"
+                type="password"
+                class="modal-input"
+              />
             </v-list-item-content>
           </v-list-item>
         </v-card-text>
@@ -503,7 +505,7 @@
 }
 
 .modal-input, .modal-select {
-  /* width: 220px; */
+  width: 300px;
   margin-bottom: 8px;
   padding: 8px 10px;
   border: 1px solid #ddd;
@@ -664,10 +666,22 @@ dialog.dialog {
 
   .vuecal__event.surgery {background-color: #57cea9cc;border-color: #90d2be;}
 
-  .vuecal__event.surgery {
+  ::v-deep(.vuecal__event.surgery) {
     background-color: #57cea9cc;
     border-color: #90d2be;
-    color: #ffffff; 
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 6px;
+    font-size: 12px;
+    padding: 4px 6px;
+    border: none;
+    margin: 5px;
+    display: inline-block;
+    width: auto;
+    max-width: 80%;         
+    white-space: normal;      
+    word-break: break-word;   
+    overflow-wrap: break-word;
   }
 
   .schedule-calendar {
