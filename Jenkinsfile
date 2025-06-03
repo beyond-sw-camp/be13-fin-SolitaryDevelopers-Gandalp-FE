@@ -34,8 +34,19 @@ pipeline {
         stage('Deploy to S3') {
             steps {
                 sh '''
-                    # 전체 dist 폴더 통째로 업로드 (assets 포함)
+                    echo "📦 S3에 dist 폴더 전체 업로드"
                     aws s3 sync dist/ s3://$S3_BUCKET/ --delete --region $AWS_REGION
+
+                    echo "🛠️ JS 파일 MIME 타입 재설정"
+                    find dist/assets -type f -name "*.js" | while read filepath; do
+                    filename=$(basename "$filepath")
+                    aws s3 cp "$filepath" "s3://$S3_BUCKET/assets/$filename" \
+                        --content-type "application/javascript" \
+                        --cache-control "max-age=31536000" \
+                        --metadata-directive REPLACE \
+                        --acl public-read \
+                        --region $AWS_REGION
+                    done
                 '''
             }
         }
