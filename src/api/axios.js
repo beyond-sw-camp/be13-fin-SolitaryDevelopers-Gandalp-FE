@@ -2,8 +2,8 @@ import router from '@/router';
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080/api/v1',
-  // baseURL: 'https://api.gandalp-service.com/api/v1',
+  // baseURL: 'http://localhost:8080/api/v1',
+  baseURL: 'https://api.gandalp-service.com/api/v1',
   withCredentials: true  // refreshCookie 받아야 하니까 true 로 설정 
 
 });
