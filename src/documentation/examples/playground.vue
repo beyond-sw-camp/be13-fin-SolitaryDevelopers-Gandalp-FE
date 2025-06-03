@@ -236,6 +236,7 @@
     v-if="eventSelection.event"
     v-model="eventSelection.showDialog"
     width="420"
+    content-class="custom-dialog"
   )
     //- .w-flex.column
     label.text-sm.font-semibold.mb1 제목:&nbsp
@@ -1053,6 +1054,10 @@ onMounted(async () => {
   margin-bottom: 4px;
   font-size: 13px;
   margin-top: 8px;
+}
+.custom-dialog {
+  background-color: white !important;
+  color: black !important;
 }
 
 .modal-content input {
