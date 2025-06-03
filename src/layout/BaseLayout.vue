@@ -19,7 +19,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
 <style scoped>
 .base-layout {
   display: flex;
-  height: max-content;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -46,7 +46,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
 .page-container {
   flex: 1;
   padding: 24px;
-  background-color: #edf7ff;
+  background-color: transparent;
   margin-left: 56px;
 }
 </style>

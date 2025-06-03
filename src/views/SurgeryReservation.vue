@@ -1,7 +1,6 @@
 <template>
   <div class="main-page">
-  <h2 class="title">수술실 예약</h2>
-  <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
+  <v-card style="width: 70.5vw; background-color: white; padding: 2%; border-radius: 25px;">
     <v-row justify="end" class="mb-1">
       <v-col cols="3" class="d-flex justify-end">
         <v-select
@@ -23,7 +22,7 @@
     </v-row>
 
     <vue-cal
-      style="min-height: 80vh; height: auto;"
+      style="height: 450px;"
       ref="vueCalRef"
       class="vuecal--blue-theme rounded-lg elevation-1"
       locale="ko"
@@ -452,15 +451,6 @@
   
 <style scoped>
 
-  .title {
-    text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 16px;
-    margin-top: 5px;
-    color: black;
-  }
-
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -525,23 +515,15 @@
   font-size: 12px;
 } */
 
-::v-deep(.nurse-list .v-input) {
-  display: flex !important;
-  align-items: center !important;
-}
-
 ::v-deep(.nurse-list .v-selection-control) {
-  flex-direction: row !important;
-  align-items: center !important;
-  gap: 6px;
+  margin: 2px 0 !important;         
   padding: 0 !important;
-  margin: 0 !important;
+  min-height: 24px !important;      
 }
 
 ::v-deep(.nurse-list .v-label) {
-  font-size: 13px !important;
-  white-space: nowrap;
-  margin-left: 4px;
+  font-size: 12px !important;       
+  line-height: 1 !important;
 }
 
 

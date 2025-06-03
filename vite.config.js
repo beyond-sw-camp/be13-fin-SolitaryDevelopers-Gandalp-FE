@@ -10,13 +10,32 @@ const banner = `/**
   * @license MIT
   */\n`
 
-export default defineConfig({
-  base: '/',
-  build: {
-    outDir: 'dist',
-    assetsDir: 'assets',
-    emptyOutDir: true
+const bundlingConf = {
+  minify: true,
+  lib: {
+    entry: resolve(__dirname, 'src/vue-cal/index.js'),
+    name: 'vuecal', // The global name of the library.
+    fileName: format => `vue-cal.${format}.js` // Output filename pattern.
   },
+  rollupOptions: {
+    // Make sure to externalize deps that shouldn't be bundled into library.
+    external: id => {
+      if (id === 'vue') return true // Externalize vue.
+      return false
+    },
+    output: {
+      banner,
+      globals: { vue: 'Vue' }, // Vue should be treated as external and available as a global variable.
+      chunkFileNames: chunkInfo => {
+        if (chunkInfo.facadeModuleId.endsWith('.json')) return 'i18n/[name].js' // Match JSON to JS name without a hash.
+        return '[name]-[hash].js' // Default behavior.
+      }
+    }
+  },
+  copyPublicDir: false // Prevent copying `public/` to `dist` folder.
+}
+
+export default defineConfig({
   define: {
     'process.env': {
       VITE_APP_VERSION: process.env.npm_package_version,
@@ -32,7 +51,7 @@ export default defineConfig({
         }
       }
     })
-  ],
+  ], // https://vitejs.dev/config/
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
@@ -49,10 +68,11 @@ export default defineConfig({
       plugins: [autoprefixer]
     }
   },
+  build: process.env.BUNDLE ? bundlingConf : { outDir: 'dist' },
   server: {
     proxy: {
       '/api': {
-        target: 'https://api-gandalp.service.com',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       }
     }

@@ -69,29 +69,19 @@ async function onFindLocation({lat, lon}) {
     hospitals.value = [...sidebarRef.value.hospitals.value]
     }
 
+
   if(mapRef.value) {
     mapRef.value.centerOn(lat, lon)
   }
 }
 
-// function onSelectHospital(h) {
-//   // 지도를 해당 병원 위치로 이동
-//   if(mapRef.value) {
-//     mapRef.value.centerOn(h.latitude, h.longitude)
-//   }
-// }
-
-
-// 사이드바에서 병원 정보 클릭
 function onSelectHospital(h) {
-  if (mapRef.value) {
-    //  지도를 해당 병원의 위/경도로 이동
+  // 지도를 해당 병원 위치로 이동
+  if(mapRef.value) {
     mapRef.value.centerOn(h.latitude, h.longitude)
-
-    //  해당 병원의 InfoWindow를 연다
-    mapRef.value.openInfoWindow(h)
   }
 }
+
 </script>
 
 <style scoped>
@@ -107,7 +97,7 @@ function onSelectHospital(h) {
   flex: 1;
   display: flex;
   flex-direction: column;
-  border-radius: 15px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   background: #fff;
@@ -117,8 +107,9 @@ function onSelectHospital(h) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 10px;
+  padding: 8px;
   background: #fafafa;
+  border-bottom: 1px solid #eee;
   gap: 8px;
 
 }
@@ -129,9 +120,7 @@ function onSelectHospital(h) {
   border: 1px solid #ff6b81;
   border-radius: 20px;
   outline: none;
-  margin: 40px 10px 40px 40px;
-  max-width: 1100px;
-  height: 40px;
+  margin-left: 107px;
 }
 
 .btn-search {

@@ -6,7 +6,7 @@
               <input v-model="accountId" placeholder="아이디" class="input-box" />
               <input v-model="password" placeholder="비밀번호" type ="password" class="input-box" />
               <button type="submit" class="login-btn">확인</button>
-
+              
               <p v-if="errorMessage"  class="error-text" v-html="errorMessage">
               </p>
             </form>
@@ -18,10 +18,8 @@
 <script setup>
 
 import { ref } from 'vue'
-import {useRouter} from "vue-router";
 import { useAuthStore } from '@/stores/auth'
 
-const router = useRouter()
 const accountId = ref('')
 const password = ref('')
 const auth = useAuthStore()
@@ -39,15 +37,6 @@ const login = async () => {
         password: password.value,
       })
       errorMessage.value = '';
-
-      const role = auth.userInfo.type
-      if(role === 'ADMIN') {
-        return router.push({name: 'memberList'})
-      }else if (role ==='PARAMEDIC') {
-        return router.push({name: 'hospitalMap'})
-      }
-
-      return router.push({name: 'home'})
     }catch (err){
       const error = err.response?.data?.error;
       errorMessage.value = typeof error === 'string' ? error : '로그인 실패';
