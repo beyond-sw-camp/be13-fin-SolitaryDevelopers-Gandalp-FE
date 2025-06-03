@@ -99,6 +99,7 @@ onMounted(async () => {
   if (auth.isLoggedIn) {
     try {
       const res = await apiClient.get('/members/myInfo')
+      console.log("res", res);
       myInfo.value = res.data
     } catch (e) {
       console.error('내 정보 조회 실패 : ', e)

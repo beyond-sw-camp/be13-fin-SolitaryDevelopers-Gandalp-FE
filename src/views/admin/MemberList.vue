@@ -11,25 +11,82 @@
           @keydown.enter.prevent="onSearch"
     >
 
-      <select v-model="selectedType">
-        <option value="">전체 타입</option>
-        <option v-for="t in types" :key="t.value" :value="t.value">
-          {{ t.label }}
-        </option>
-      </select>
+<!--      <select v-model="selectedType">-->
+<!--        <option value="">전체 타입</option>-->
+<!--        <option v-for="t in types" :key="t.value" :value="t.value">-->
+<!--          {{ t.label }}-->
+<!--        </option>-->
+<!--      </select>-->
 
-      <select v-model="selectedOption">
-        <option value="">전체 검색</option>
-        <option v-for="opt in options" :key="opt.value" :value="opt.value">
-          {{ opt.label }}
-        </option>
-      </select>
+<!--      <select v-model="selectedOption">-->
+<!--        <option value="">전체 검색</option>-->
+<!--        <option v-for="opt in options" :key="opt.value" :value="opt.value">-->
+<!--          {{ opt.label }}-->
+<!--        </option>-->
+<!--      </select>-->
 
 
-      <input v-model="keyword"
-             placeholder="검색어를 입력하세요" />
+<!--      <input v-model="keyword"-->
+<!--             placeholder="검색어를 입력하세요" />-->
 
-      <button class=search-btn type="submit">검색</button>
+<!--      <button class=search-btn type="submit">검색</button>-->
+    <div class="search-container">
+      <div>
+          <v-select
+            v-model="selectedType"
+            :items="types"
+            item-value="value"
+            item-title="text"
+            density="compact"
+            variant="solo"
+            label="검색 타입"
+            class="small-select no-shadow"
+            style="width: 130px; border-radius: 10px; background-color: #edf7ff;"
+            hide-details
+            flat
+            bg-color="#edf7ff"
+          />
+        </div>
+
+      <div>
+          <v-select
+            v-model="selectedOption"
+            :items="options"
+            item-value="value"
+            item-title="text"
+            density="compact"
+            variant="solo"
+            label="검색 기준"
+            class="small-select no-shadow"
+            style="width: 200px; border-radius: 10px; background-color: #edf7ff;"
+            hide-details
+            flat
+            bg-color="#edf7ff"
+          />
+        </div>
+
+      <div>
+          <v-text-field
+            v-model="keyword"
+            placeholder="검색어를 입력하세요"
+            density="compact"
+            variant="Outlined"
+            rounded="lg"
+            clearable
+            append-inner-icon="mdi-magnify"
+            @click:append-inner="onSearch"
+            hide-details
+            class="small-text-field"
+            style="width: 400px; border-radius: 10px; background-color: #edf7ff;"
+            bg-color="#edf7ff"
+          />
+        </div>
+
+<!--        <div>-->
+<!--          <v-btn class="search-btn" color="primary" @click="onSearch" small>검색</v-btn>-->
+<!--        </div>-->
+
+      </div>
     </form>
 
     <div class="table-container">
@@ -79,16 +136,27 @@
       @closed="editingMember = null"
     />
 
-    <div class="pagination">
-      <button :disabled="page===1" @click="changePage(page-1)">&lt;</button>
-      <button
-        v-for="p in totalPages"
-        :key="p"
-        :class="{ active: page===p }"
-        @click="changePage(p)"
-      >{{ p }}</button>
-      <button :disabled="page===totalPages" @click="changePage(page+1)">&gt;</button>
-    </div>
+<!--    <div class="pagination">-->
+<!--      <button :disabled="page===1" @click="changePage(page-1)">&lt;</button>-->
+<!--      <button-->
+<!--        v-for="p in totalPages"-->
+<!--        :key="p"-->
+<!--        :class="{ active: page===p }"-->
+<!--        @click="changePage(p)"-->
+<!--      >{{ p }}</button>-->
+<!--      <button :disabled="page===totalPages" @click="changePage(page+1)">&gt;</button>-->
+<!--    </div>-->
+
+      <div class="pagination-bar">
+        <v-pagination
+          v-model="page"
+          :length="totalPages"
+          :total-visible="5"
+          color="black"
+          size="small"
+          @update:modelValue="changePage"
+        />
+      </div>
 
 
     </v-card>
@@ -109,17 +177,22 @@ const size       = ref(10)
 const totalPages = ref(1)
 const selectedType  = ref('')
 const selectedOption= ref('')
+
 const types = [
-  { value: 'ADMIN',    label: '관리자' },
-  { value: 'PARAMEDIC',  label: '구급대원' },
-  { value: 'HEAD_NURSE',  label: '수간호사' },
-  { value: 'NURSE',  label: '간호사' },
+  { value: '',           text: '전체' },
+  { value: 'ADMIN',      text: '관리자' },
+  { value: 'PARAMEDIC',  text: '응급요원' },
+  { value: 'HEAD_NURSE', text: '수간호사' },
+  { value: 'NURSE',      text: '간호사' },
 ]
+
 const options = [
-  { value: 'HOSPITAL',    label: '병원명' },
-  { value: 'DEPARTMENT',  label: '진료과' },
-  { value: 'ACCOUNT_ID',  label: '아이디' },
+  { value: '',           text: '전체 검색' },
+  { value: 'HOSPITAL',   text: '병원명' },
+  { value: 'DEPARTMENT', text: '진료과' },
+  { value: 'ACCOUNT_ID', text: '아이디' },
 ]
+
 const offset = computed(() => (page.value - 1) * size.value)
 const loading = ref(false)
 
@@ -189,6 +262,7 @@ h2.title::before {
 }
 
 .title {
+  width: 75.5vw;
   text-align: center;
   font-size: 18px;
   font-weight: bold;
@@ -200,6 +274,23 @@ h2.title::before {
 
 .member-list-page {
   padding: 24px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 30px;
+  justify-content: flex-end;
+}
+
+.search-container{
+  display: flex;
+  margin-left: 5px;
+
+}
+.search-bar .small-select {
+  margin-right: 10px;
 }
 .search-bar select {
   padding: 6px 10px;
@@ -229,8 +320,9 @@ h2.title::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  margin-left: 10px;
   writing-mode: horizontal-tb;
-  width:100px;
+  width:70px;
   padding: 8px 16px;
   background: #1b9aaa;
   color: #fff;
@@ -291,4 +383,45 @@ h2.title::before {
   background: #1b9aaa;
   color: white;
 }
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination-bar ::v-deep .v-pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.pagination-bar ::v-deep .v-pagination .v-pagination__item {
+  min-width: 25px;
+  min-height: 25px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #444;
+  padding: 0;
+
+}
+
+.pagination-bar::v-deep .v-pagination .v-pagination__item:hover:not(.v-pagination__item--active) {
+  border-color: #a9adb4;
+  color: #a9adb4;
+}
+
+.pagination-bar::v-deep .v-pagination .v-pagination__item--active {
+  border: 2px solid #a9adb4;
+  color: #a9adb4;
+  font-weight: bold;
+}
+
+.pagination-bar::v-deep .v-pagination .v-pagination__item:disabled {
+  color: #ccc;
+  border-color: #eee;
+  cursor: not-allowed;
+}
+
 </style>
