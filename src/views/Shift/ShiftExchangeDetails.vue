@@ -5,15 +5,15 @@
     <br><br>
     <v-card elevation="2" class="pa-6 mb-6" style="border-radius: 10px;">
       
-      <v-row no-gutters class="highlight-row">
-        <v-col cols="4" class="detail-label py-3 px-4">게시글 번호</v-col>
-        <v-col cols="8" class="py-3 px-4">{{ detail.boardId }}</v-col>
-      </v-row>
-      <v-divider></v-divider>
-      
       <v-row no-gutters>
         <v-col cols="4" class="detail-label py-3 px-4">바꿀 교대 타임</v-col>
         <v-col cols="8" class="py-3 px-4">{{ detail.content }}</v-col>
+      </v-row>
+      <v-divider></v-divider>
+
+      <v-row no-gutters class="highlight-row">
+        <v-col cols="4" class="detail-label py-3 px-4">작성자</v-col>
+        <v-col cols="8" class="py-3 px-4">{{ detail.nurseName  }}</v-col>
       </v-row>
       <v-divider></v-divider>
 
@@ -38,7 +38,7 @@
     
 
     <!-- 댓글 카드 -->
-    <h2 class="text-h6 font-weight-bold mb-4">댓글</h2>
+    <h2 class="text-h6 font-weight-bold mb-4">교환 요청</h2>
       <v-row justify="end" class="mb-2" >
         <v-btn size="small" variant="tonal" color="success" class="write-btn" @click="openWriteForm" v-if="!showWriteForm">
           작성
@@ -65,11 +65,29 @@
   <!-- 왼쪽: 댓글 내용 (수직 가운데 정렬) -->
     <v-col class="d-flex align-center">
       <div class="comment-content">{{ comment.content }}</div>
+      
     </v-col>
 
+    <!-- 
+    <v-col class="d-flex flex-column align-start">
+  <div class="comment-content">{{ comment.content }}</div>
+  <div class="comment-nurseName">{{ comment.nurseName }}</div>
+</v-col> 
+-->
+
     <!-- 오른쪽: 상단 날짜 + 하단 버튼 -->
-    <v-col cols="auto" class="d-flex flex-column align-end justify-space-between text-right">
+     <v-col cols="auto" class="d-flex flex-column align-end justify-space-between text-right">
+  <div class="comment-date mt-2">{{ formatDateTime(comment.createdAt) }}</div>
+  <div class="comment-nurseName mt-2">{{ comment.nurseName }}</div>
+  <div class="mt-2">
+    <v-btn size="small" variant="tonal" color="primary" class="commentedit-btn" @click.stop="openEditForm(comment)">수정</v-btn>
+    <v-btn size="small" variant="tonal" color="error" class="commentdelete-btn" @click.stop="openCommentDeleteModal(comment)">삭제</v-btn>
+  </div>
+</v-col>
+
+    <!-- <v-col cols="auto" class="d-flex flex-column align-end justify-space-between text-right">
       <div class="comment-date mb-2">{{ formatDateTime(comment.createdAt) }}</div>
+      <div class="comment-nurseName">{{ comment.nurseName }}</div>
       <div>
         <v-btn size="small" variant="tonal" color="primary" class="commentedit-btn" @click.stop="openEditForm(comment)">수정</v-btn>
         <v-btn size="small" variant="tonal" color="error" 
@@ -78,7 +96,7 @@
               
 
       </div>
-    </v-col>
+    </v-col> -->
   </v-row>
   </v-card>                    
 
@@ -285,18 +303,6 @@ async function submitEdit() {
   showModal.value = true
 }
 
-// async function submitEdit() {
-//   if (!editMonth.value || !editDay.value || !editTime.value) {
-//     alert('월, 일, 타임을 모두 선택해 주세요.')
-//     return
-//   }
-//   if (isPast(editMonth.value, editDay.value, editTime.value)) {
-//     alert('과거 일정은 선택할 수 없습니다.')
-//     return
-//   }
-//   showModal.value = true
-// }
-
 
 // 인증 모달에서 nurseId 받으면 호출
 async function submitEditWithNurse() {
@@ -370,7 +376,7 @@ function isValidCommentShift(boardContent, commentTime) {
   return false
 }
 
-// 댓글 작성 버튼 클릭
+// 1. 댓글 작성 버튼 클릭
 function submitComment() {
   if (!writeMonth.value || !writeDay.value || !writeTime.value) {
     alert('월, 일, 타임을 모두 선택해 주세요.')
@@ -391,22 +397,6 @@ function submitComment() {
   editingComment.value = null
 }
 
-
-// // 1. 댓글 작성 버튼 클릭
-// function submitComment() {
-//   if (!writeMonth.value || !writeDay.value || !writeTime.value) {
-//     alert('월, 일, 타임을 모두 선택해 주세요.')
-//     return
-//   }
-//   if (isPast(writeMonth.value, writeDay.value, writeTime.value)) {
-//     alert('과거 일정은 선택할 수 없습니다.')
-//     return
-//   }
-//   isWritingComment.value = true
-//   showModal.value = true
-//   deleteTargetComment.value = null
-//   editingComment.value = null
-// }
 
 
 // 2. 모달에서 인증 성공 시 handleSubmit에서 nurseInfo.value에 nurseId 저장됨
@@ -460,34 +450,6 @@ const handleSubmit = async ({ email, password }) => {
 }
 
 
-// const handleSubmit = async ({ email, password }) => {
-//   try {
-//     const res = await apiClient.post('schedules/check', null, {
-//       params: { email, password }
-//     })
-//     nurseInfo.value = res.data
-//     showModal.value = false
-
-//     if (isWritingComment.value) {
-//       await submitCommentWithNurse()
-//       isWritingComment.value = false
-//     } else if (editingComment.value) {
-//       await submitEditWithNurse()
-//     } else if (deleteTargetComment.value) {
-//       await deleteCommentConfirmed(deleteTargetComment.value)
-//     } else {
-//       await deleteBoard(nurseInfo.value.id)
-//     }
-//   } catch (err) {
-//     alert('계정 확인 실패: ' + (typeof err.response?.data === 'object'
-//     ? JSON.stringify(err.response.data)
-//     : err.response?.data || err.message))
-//     // alert('이메일이나 비밀번호가 잘못 입력되었습니다.')
-//     showModal.value = false
-//     isWritingComment.value = false
-//   }
-// }
-
 // 3. nurseId 포함해서 댓글 작성
   async function submitCommentWithNurse() {
   // 1. 자기 글에 댓글 작성 방지
@@ -523,23 +485,6 @@ const handleSubmit = async ({ email, password }) => {
     console.error(e)
   }
 }
-
-
-// async function submitCommentWithNurse() {
-//   const content = `${writeMonth.value}월 ${writeDay.value}일 ${writeTime.value}`
-//   try {
-//     await apiClient.post(`/shifts/comments/${boardId}`, { 
-//       boardId, 
-//       content, 
-//       nurseId: nurseInfo.value.id })
-//     alert('댓글이 작성되었습니다.')
-//     await fetchDetail()
-//     commentCancelWrite()
-//   } catch (e) {
-//     alert('댓글 등록 실패')
-//     console.error(e)
-//   }
-// }
 
 const isWritingComment = ref(false)
 const showModal = ref(false)
@@ -699,9 +644,9 @@ onMounted(fetchDetail)
 .comment-row {
   transition: background 0.2s;
 }
-.comment-hover {
+/* .comment-hover {
   background: #ebebeb;
-}
+} */
 
 h2.text-h6 {
   border-bottom: none !important;
