@@ -111,6 +111,7 @@ const requestDto = {
 
     const res = await apiClient.post('schedules/off', requestDto)
     alert('오프 신청 완료!')
+    router.back()
   } catch (err) {
     alert('오프 신청 실패: ' + (err.response?.data || err.message))
   }
