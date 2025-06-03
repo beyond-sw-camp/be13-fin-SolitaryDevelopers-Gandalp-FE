@@ -8,7 +8,7 @@ pipeline {
     environment {
         AWS_REGION = 'ap-northeast-2'
         S3_BUCKET = 'gandalp-s3'
-        CLOUDFRONT_DIST_ID = 'E1JTO3ZBAXZFKE'
+        CLOUDFRONT_DIST_ID = 'ENFC7UGCOOPPS'
     }
 
     stages {
@@ -60,7 +60,6 @@ pipeline {
                     aws cloudfront create-invalidation \
                     --distribution-id $CLOUDFRONT_DIST_ID \
                     --paths "/*" \
-                    --region $AWS_REGION
                 '''
             }
         }
