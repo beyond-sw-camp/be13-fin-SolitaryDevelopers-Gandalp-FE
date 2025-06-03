@@ -19,7 +19,8 @@ import Sidebar from '@/components/common/Sidebar.vue'
 <style scoped>
 .base-layout {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  height: max-content;
   overflow: hidden;
 }
 
