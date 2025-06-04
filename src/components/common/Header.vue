@@ -14,13 +14,13 @@
       </template>
 
       <template v-else>
-        <v-btn variant="text" class="nav-btn" to="/">캘린더</v-btn>
+        <v-btn variant="text" class="nav-btn" to="/" exact>캘린더</v-btn>
         <v-btn variant="text" class="nav-btn" to="/shifts">근무 교환 신청</v-btn>
         <v-btn variant="text" class="nav-btn" to="/surgeryReservation">수술실 예약</v-btn>
 
         <v-menu open-on-hover offset-y>
           <template #activator="{ props }">
-            <v-btn v-bind="props" variant="text" class="nav-btn">근무 관리 ▾</v-btn>
+            <v-btn v-bind="props" variant="text" class="nav-btn" :class="{ 'router-link-exact-active': isWorkMenuActive }">근무 관리 ▾</v-btn>
           </template>
           <v-list>
             <v-list-item to="/showOff" title="오프 조회 및 신청" />
@@ -33,7 +33,7 @@
 
         <v-menu v-if="isHeadNurse" open-on-hover offset-y>
           <template #activator="{ props }">
-            <v-btn v-bind="props" variant="text" class="nav-btn">간호사 관리 ▾</v-btn>
+            <v-btn v-bind="props" variant="text" class="nav-btn" :class="{ 'router-link-exact-active': isNurseMenuActive }">간호사 관리 ▾</v-btn>
           </template>
           <v-list>
             <v-list-item to="/nurses" title="간호사 생성" />
@@ -82,16 +82,25 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import SvgIcon from '@jamescoyle/vue-icon'
 import { mdiAccount } from '@mdi/js'
 import apiClient from '@/api/axios'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
 const isParamedic = computed(() => auth.userInfo.type === 'PARAMEDIC')
 const isHeadNurse = computed(() => auth.userInfo.type === 'HEAD_NURSE')
+
+const isWorkMenuActive = computed(() =>
+  ['/showOff', '/manageOff', '/work-management'].includes(route.path)
+)
+
+const isNurseMenuActive = computed(() =>
+  ['/nurses', '/nurseList'].includes(route.path)
+)
 
 const myInfo = ref({ hospitalName: '', deptName: '', type: '' })
 
@@ -117,6 +126,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.router-link-exact-active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
 .profile-btn {
   background-color: transparent !important;
   box-shadow: none !important;
