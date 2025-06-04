@@ -90,6 +90,7 @@ let stompClient = null;
 
 // websocket 연결 및 구독
 const connectWebSocket = () => {
+  // const socket = new SockJS('https://api.gandalp-service.com/connect')
   const socket = new SockJS('http://localhost:8080/connect')
   stompClient = Stomp.over(socket)
 

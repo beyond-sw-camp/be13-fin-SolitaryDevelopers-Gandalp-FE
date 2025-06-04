@@ -4,7 +4,7 @@
     v-card(style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;")
       v-row(justify="end" align="center")
         v-col(cols="auto")
-          v-btn(size="small" variant="tonal" color="success" class="custom-btn" @click="addAndSaveEvent") 일정 생성
+          v-btn(size="default" style="font-size: 14px;" variant="tonal" color="success" class="custom-btn" @click="addAndSaveEvent") 일정 생성
   
         v-col(cols="auto")
           v-btn-toggle(v-model="scheduleType" mandatory density="compact")
@@ -33,6 +33,7 @@
       v-row(no-gutters class="mt-4")
         v-col
           vue-cal.vue-cal--main.grow(
+            v-if="!isLoading"
             style="min-height: 80vh; height: auto;"
             ref="vueCalRef"
             @cell-drag-start="onCellDragStart"
@@ -50,22 +51,25 @@
             @event-click="log('event-click', $event)"
             @event-delayed-click="eventSelection.onEventDelayedClick"
             @event-hold="log('event-hold', $event)"
-            @event-drag-start="log('event-drag-start', $event)"
-            @event-drag="log('event-drag', $event)"
-            @event-drag-end="log('event-drag-end', $event)"
-            @event-drop="log('event-drop', $event)"
-            @event-dropped="log('event-dropped', $event)"
-            @event-resize="log('event-resize', $event)"
-            @event-resize-end="log('event-resize-end', $event)"
+            @event-drag-start="() => false"
+            @event-drag="() => false"
+            @event-drag-end="() => false"
+            @event-drop="() => false"
+            @event-dropped="() => false"
+            @event-resize="() => false"
+            @event-resize-end="() => false"
             @event-contextmenu="log('event-contextmenu', $event)"
             @cell-click="log('cell-click', $event)"
             @cell-dblclick="log('cell-dblclick', $event)"
             @cell-drag="log('cell-drag', $event)"
-            @cell-hold="log('cell-hold', $event)"
+            @cell-hold="() => false"
             @cell-mousedown="log('cell-mousedown', $event)"
             @cell-mouseup="log('cell-mouseup', $event)"
             @cell-touchstart="log('cell-touchstart', $event)"
             @cell-contextmenu="log('cell-contextmenu', $event)")
+
+          div(v-else style="min-height: 80vh; display: flex; align-items: center; justify-content: center;")
+            //- span 로딩 중...
     
   w-dialog(
     v-if="eventCreation.event"
@@ -73,60 +77,63 @@
     width="420"
     @close="eventCreation.cancel"
   )
-    .w-flex.column
-      label.text-sm.font-semibold.mb2 제목
-      input(
-        v-model="eventCreation.event.title"
-        placeholder="일정 제목을 입력하세요"
-        class="input-basic"
-      )
-  
-    .time-input-row
-      .time-input-column
-        label.text-sm.font-medium.mb1 시작 시간
-        Datepicker(
-          v-model="formStart"
-          locale="ko"
-          teleport
-          time-picker-inline
-          :enable-time-picker="true"
-          :is-24="true"
-          :format="'yyyy-MM-dd HH:mm'"
-          auto-apply
+    .event-detail(style="padding-left: 12px; padding-top: 8px; font-size: 18px")
+      .w-flex.column
+        label.text-sm.font-semibold.mb2 제목
+        input(
+          v-model="eventCreation.event.title"
+          placeholder="일정 제목을 입력하세요"
+          class="input-basic"
         )
-      .time-input-column
-        label.text-sm.font-medium.mb-1 종료 시간
-        Datepicker(
-          v-model="formEnd"
-          locale="ko"
-          teleport
-          time-picker-inline
-          :enable-time-picker="true"
-          :is-24="true"
-          :format="'yyyy-MM-dd HH:mm'"
-          auto-apply
-        )
-  
-    label.text-sm.font-semibold.mt1 간호사 이름
-    w-select(
-      v-model="eventCreation.event.name"
-      :items="nurseFilterOptions"
-      placeholder="간호사를 선택하세요"
-      :disabled="eventCreation.isEdit"
-    )
-  
-    .w-flex.column
-      label.text-sm.font-semibold.mt3.mb2 비밀번호
-      input(
-        v-model="userPassword"
-        type="password"
-        placeholder="간호사 비밀번호 입력"
-        class="input-basic"
+    
+      .time-input-row.mt4.mb4
+        .time-input-column
+          label.text-sm.font-medium.mb1 시작 시간
+          Datepicker(
+            v-model="formStart"
+            :max-date="formEnd"
+            locale="ko"
+            teleport
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          )
+        .time-input-column
+          label.text-sm.font-medium.mb-1 종료 시간
+          Datepicker(
+            v-model="formEnd"
+            :min-date="formStart"
+            locale="ko"
+            teleport
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          )
+    
+      label.text-sm.font-semibold.mt3 간호사 이름
+      w-select(
+        v-model="eventCreation.event.name"
+        :items="nurseFilterOptions"
+        placeholder="간호사를 선택하세요"
+        :disabled="eventCreation.isEdit"
       )
+    
+      .w-flex.column
+        label.text-sm.font-semibold.mt4.mb2 비밀번호
+        input(
+          v-model="userPassword"
+          type="password"
+          placeholder="간호사 비밀번호 입력"
+          class="input-basic"
+        )
   
     .modal-btns.mt4
-      v-btn(size="small" variant="tonal" color="primary" @click="eventCreation.save") 저장
-      v-btn(size="small" variant="tonal" color="error" @click="eventCreation.cancel") 취소
+      v-btn(size="default" variant="tonal" color="primary" @click="eventCreation.save") 저장
+      v-btn(size="default" variant="tonal" color="error" @click="eventCreation.cancel") 취소
 
 
   //- .modal-mask(v-if="eventCreation.event && eventCreation.show" @click.self="eventCreation.cancel")
@@ -231,55 +238,66 @@
     v-model="eventSelection.showDialog"
     width="420"
   )
-    //- .w-flex.column
-    label.text-sm.font-semibold.mb1 제목: 
-    span.input-basic {{ eventSelection.event.title }}
-    
-    .w-flex.row
-      label.text-sm.font-semibold.mb1 이름: 
-      span.input-basic {{ getClassLabel(eventSelection.event.name) }}
-    
-    .time-input-row
-      .time-input-column
-        //- label.text-sm.font-medium.mb1 시작 시간
-        span.input-basic {{ eventSelection.event.start.format('YYYY-MM-DD HH:mm') }} - {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
-      //- .time-input-column
-        //- label.text-sm.font-medium.mb1 종료 시간
-        //- span.input-basic {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
+    .event-detail(style="padding-left: 12px; padding-top: 8px; font-size: 18px")
+      label.text-sm.font-semibold.mb1 제목:&nbsp
+      span.input-basic {{ eventSelection.event.title }}
+
+      .w-flex.row.mt2
+        label.text-sm.font-semibold.mb1 이름:&nbsp
+        span.input-basic {{ getClassLabel(eventSelection.event.name) }}
+
+      .time-input-row.mt2
+        .time-input-column
+          //- label.text-sm.font-medium.mb1 시작 시간
+          span.input-basic {{ eventSelection.event.start.format('YYYY-MM-DD HH:mm') }} - {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
+        //- .time-input-column
+          //- label.text-sm.font-medium.mb1 종료 시간
+          //- span.input-basic {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
 
 
     .modal-btns.mt4
-      v-btn(
-        v-if="!eventSelection.event.originalId"
-        size="small"
-        variant="tonal"
-        color="primary"
-        @click="updateSelectedEvent"
-      ) 수정
-      v-btn(
-        v-if="!eventSelection.event.originalId"
-        size="small"
-        variant="tonal"
-        color="error"
-        @click="openDeleteDialog"
-      ) 삭제
-      v-btn(size="small" variant="tonal" @click="eventSelection.showDialog = false") 닫기
+      template(v-if="eventSelection.event.class === 'personal'")
+        v-btn(
+          v-if="!eventSelection.event.originalId"
+          size="default"
+          variant="tonal"
+          color="primary"
+          @click="updateSelectedEvent"
+        ) 수정
+        v-btn(
+          v-if="!eventSelection.event.originalId"
+          size="default"
+          variant="tonal"
+          color="error"
+          @click="openDeleteDialog"
+        ) 삭제
+      v-btn(size="default" variant="tonal" @click="eventSelection.showDialog = false") 닫기
 
   
   w-dialog(
     v-model="deleteConfirm.show"
     title="비밀번호 입력"
+    style="font-size: 16px;"
     width="300"
   )
     w-input(
       v-model="userPassword"
       type="password"
       label="비밀번호"
+      style="font-size: 16px; padding: 10px 0px;"
       placeholder="비밀번호를 입력하세요"
     )
     .w-flex.justify-end.mt2.gap2
-      w-button(@click="deleteConfirm.show = false") 취소
-      w-button.danger(@click="confirmDeleteEvent") 삭제
+      v-btn(size="default" variant="tonal" @click="deleteConfirm.show = false") 닫기
+      //- w-button(@click="deleteConfirm.show = false") 취소
+      v-btn(
+        v-if="!eventSelection.event.originalId"
+        size="default"
+        variant="tonal"
+        color="error"
+        @click="confirmDeleteEvent"
+      ) 삭제
+      //- w-button.danger(@click="confirmDeleteEvent") 삭제
   </template>
   
   <script setup>
@@ -293,7 +311,9 @@
   
   addDatePrototypes()
 
-  const scheduleType = ref('personal'); // 'work', 'personal', 'surgery'
+  const isLoading = ref(false)
+
+  const scheduleType = ref('work'); // 'work', 'personal', 'surgery'
 
   const allCalendarEvents = ref([]);
 
@@ -316,7 +336,7 @@
     cellDragStartTime.value = start;
     cellDragEndTime.value = end;
 
-    selectedClassFilter.value = -1;
+    // selectedClassFilter.value = -1;
 
     const dummyEvent = {
       title: '',
@@ -378,8 +398,11 @@
   });
 
   
+  // watch(filteredEvents, (newEvents) => {
+  //   calendarEvents.value = newEvents
+  // })
   watch(filteredEvents, (newEvents) => {
-    calendarEvents.value = newEvents
+    calendarEvents.value.splice(0, calendarEvents.value.length, ...newEvents)
   })
   
   
@@ -462,7 +485,7 @@
   
   const mainVuecalConfig = reactive({
     views,
-    view: ref('week'),
+    view: ref('month'),
     // dark: computed(() => store.darkMode),
     selectedDate: ref(null),
     viewDate: ref(new Date()),
@@ -505,7 +528,7 @@
     //     sun: { from: 7 * 60, to: 20 * 60, class: 'closed', label: '<strong>Closed</strong>' }
     //   } : undefined
     // }),
-    editableEvents: computed(() => true)
+    editableEvents: computed(() => true) // 달력 편집 이벤트 실행
   })
   
   let eventCounter = 2 // Starts with 2 events in the array.
@@ -767,9 +790,9 @@ const getShiftType = (startDate, endDate) => {
   const startHour = startDate.getHours();
   const endHour = endDate.getHours();
 
-  if (startHour === 6 && endHour === 14) return 'day';     // 데이
-  if (startHour === 14 && endHour === 22) return 'evening'; // 이브닝
-  if (startHour === 22 && (endHour === 6 || endHour === 5)) return 'night'; // 나이트
+  if (startHour === 6 && endHour === 14) return '데이';     // 데이
+  if (startHour === 14 && endHour === 22) return '이브닝'; // 이브닝
+  if (startHour === 22 && (endHour === 6 || endHour === 5)) return '나이트'; // 나이트
   return 'etc';
 };
 
@@ -782,14 +805,14 @@ const loadWorkSchedules = async () => {
       const shiftType = getShiftType(start, end);
 
       let shiftClass = '';
-      if (shiftType === 'day') shiftClass = 'shift-day';
-      else if (shiftType === 'evening') shiftClass = 'shift-evening';
-      else if (shiftType === 'night') shiftClass = 'shift-night';
-      else shiftClass = 'shift-etc';
+      if (shiftType === '데이') shiftClass = 'shift-day';
+      else if (shiftType === '이브닝') shiftClass = 'shift-evening';
+      else if (shiftType === '나이트') shiftClass = 'shift-night';
+      // else shiftClass = 'shift-etc';
 
       return {
         id: event.workScheduleId,
-        title: event.content || event.codeLabel || '근무 일정',
+        title: `${shiftType} - ${event.nurseName}`,
         start,
         end,
         name: Number(event.nurseId),
@@ -840,7 +863,7 @@ const loadSchedules = async () => {
       end: parseLocalDate(event.endTime),
       name: Number(event.nurseId),
       editable: false,
-      class: 'work'
+      class: 'personal'
     }));
 
     // rawEvents.value = fetchedEvents;
@@ -889,6 +912,12 @@ const loadOrsSchedules = async () => {
 //   calendarEvents.value = [...filteredEvents.value];
 // };
 const loadAllEvents = async () => {
+
+  isLoading.value = true
+
+  calendarEvents.value = []
+  await nextTick()
+
   let events = [];
   if (scheduleType.value === 'personal') {
     const personalEvents = await loadSchedules();
@@ -901,6 +930,8 @@ const loadAllEvents = async () => {
 
   rawEvents.value = events;
   calendarEvents.value = [...filteredEvents.value];
+
+  isLoading.value = false
 };
 
 
@@ -957,7 +988,7 @@ onMounted(async () => {
     color: black;
   }
 
-::v-deep(.vuecal__event.shift-etc) {
+/* ::v-deep(.vuecal__event.shift-etc) {
   background-color: #f0f0f0;
   color: #666;
   font-weight: bold;
@@ -969,7 +1000,7 @@ onMounted(async () => {
   white-space: normal;
   word-break: break-word;
   max-width: 80%;
-}
+} */
 
 
   .modal-mask {
@@ -1141,7 +1172,7 @@ onMounted(async () => {
     // .vuecal__event.leisure {background-color: #fd9c42d9;border-color: #e9882e;}
     // .vuecal__event.health {background-color: #57cea9cc;border-color: #90d2be;}
     // .vuecal__event.sport {background-color: #ff6666d9;border-color: #eb5252;}
-    .vuecal__event.work {background-color: #9b76d8d9;border-color: #9b76d8d9;font-weight: bold;
+    .vuecal__event.personal {background-color: #9b76d8d9;border-color: #9b76d8d9;font-weight: bold;
                               border-radius: 6px;
                               font-size: 12px;
                               padding: 4px 6px;
@@ -1208,7 +1239,7 @@ onMounted(async () => {
                               white-space: normal;      
                               word-break: break-word;  
                               overflow-wrap: break-word;}
-    .vuecal__event.shift-etc {
+    /* .vuecal__event.shift-etc {
                                   background-color: #f0f0f0;
                               color: #666;
                               font-weight: bold;
@@ -1220,7 +1251,7 @@ onMounted(async () => {
                               white-space: normal;
                               word-break: break-word;
                               max-width: 80%;
-                              }
+                              } */
   }
   
   // Media queries.

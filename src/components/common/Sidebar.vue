@@ -1,10 +1,9 @@
 <template>
   <div class="sidebar">
     <div class="logo">
-      <img :src="gandalpLogo" alt="GANDALP 로고" />
+      <img :src="gandalpLogo" alt="GANDALP 로고" @click="router.push('/')" class="logo-img"/>
     </div>
       <NoticeSidebar v-if="!isAdmin"/>
-        <!--  -->
       <NurseStatusSidebar v-if="!isAdmin"/>
     </div>
 </template>
@@ -14,16 +13,19 @@ import NurseStatusSidebar from './NurseStatusSidebar.vue';
 import NoticeSidebar from './NoticeSidebar.vue';
 import {useAuthStore} from "@/stores/auth.js";
 import {computed} from "vue";
+import { useRouter } from 'vue-router';
 
-
+const router = useRouter()
 const auth    = useAuthStore()
 const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
 
 
 </script>
 
+
 <style scoped>
-.sidebar {
+.sidebar {  
+  min-height: 100vh;    
   width: 240px;
   padding: 16px;
   background-color: #edf7ff;
@@ -100,6 +102,10 @@ const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
   height: 12px;
   border-radius: 50%;
   margin-right: 8px;
+}
+
+.logo-img {
+  cursor: pointer;
 }
 
 .pink { background-color: #f48fb1; }

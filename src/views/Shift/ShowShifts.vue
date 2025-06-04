@@ -39,6 +39,7 @@
             <tr style="background-color: #4f72f5;">
               <th class="text-center" style="color: white;">바꿀 교대 타임</th>
               <th class="text-center" style="color: white;">상태</th>
+              <th class="text-center" style="color: white;">작성자</th>
               <th class="text-center" style="color: white;">작성일자</th>
             </tr>
           </thead>
@@ -53,28 +54,34 @@
     >
       {{ item.content }}
     </td>
-    <td class="text-center">
-      <span
-        :class="{
-          badge: true,
-          completed: item.boardStatusLabel === '요청 수리됨',
-          waiting: item.boardStatusLabel === '요청 대기중'
-        }"
-        :style="item.boardStatusLabel === '요청 대기중'
-          ? 'cursor: pointer;'
-          : 'pointer-events: none; cursor: not-allowed;'"
-        @click="item.boardStatusLabel === '요청 대기중' ? goToDetails(item.boardId) : null"
-      >
-        {{ item.boardStatusLabel }}
-      </span>
-    </td>
+    <td
+  class="text-center boardStatusLabel"
+  :style="item.boardStatusLabel === '요청 대기중'
+    ? 'cursor: pointer;'
+    : 'pointer-events: none; cursor: not-allowed;'"
+  @click="item.boardStatusLabel === '요청 대기중' ? goToDetails(item.boardId) : null"
+>
+  <span
+    :class="{
+      badge: true,
+      completed: item.boardStatusLabel === '요청 수리됨',
+      waiting: item.boardStatusLabel === '요청 대기중'
+    }"
+  >
+    {{ item.boardStatusLabel }}
+  </span>
+</td>
 
-              <td
-              class="text-center"
+        <td class="text-center"
+          :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; cursor: not-allowed; color: #aaa;' : 'cursor: pointer;'"
+          @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
+        >{{ item.nurseName }}</td>
+
+            <td class="text-center"
               :style="item.boardStatusLabel === '요청 수리됨' ? 'pointer-events: none; cursor: not-allowed; color: #aaa;' : 'cursor: pointer;'"
               @click="item.boardStatusLabel === '요청 수리됨' ? null : goToDetails(item.boardId)"
             >
-              {{ formatDateTime(item.updatedAt) }}
+              {{ formatDateTime(item.createdAt) }}
             </td>
 
           </tr>
@@ -130,6 +137,7 @@ const searchOptions = [
 const headers = [
   { text: '바꿀 교대 타임', value: 'content', align: 'start' },
   { text: '상태', value: 'boardStatusLabel' },
+  { text: '작성자', value: 'nurseName' },
   { text: '작성일자', value: 'updatedAt' },
 ];
 
@@ -146,30 +154,6 @@ const goToDetails = (boardId) => {
   }
   router.push({ name: 'ShiftExchangeDetails', params: { boardId } })
 }
-
-// 교대 요청 글 검색 & 조회
-const fetchListByContent = async (page = 1) => {
-  if (!searchType.value || !searchKeyword.value) {
-    alert('검색 기준과 키워드를 모두 입력해주세요.');
-    return;
-  }
-  try {
-    const { data } = await apiClient.get('/shifts/search', {
-      params: {
-        keyword: searchKeyword.value,
-        searchOption: searchType.value.toUpperCase(), // "CONTENT" 등 대문자로 변환
-        page: page - 1, // Spring Pageable은 0-base
-        size: 10
-      },
-    });
-    shiftList.value = data.content;
-    totalPages.value = data.totalPages;
-    currentPage.value = page;
-  } catch (err) {
-    alert('검색 중 오류가 발생했습니다.');
-    console.error(err);
-  }
-};
 
 // 페이지 변경
 const changePage = (page) => {
@@ -189,14 +173,47 @@ const fetchList = async (page = 1) => {
         size: 10
       },
     });
+    console.log('전체 목록 응답:', data);               
+    console.log('totalPages:', data.totalPages);    
+    console.log('shiftList:', shiftList.value);
+
     shiftList.value = data.content;
-    totalPages.value = data.totalPages;
+    totalPages.value = data.page.totalPages;
     currentPage.value = page;
   } catch (err) {
     alert('목록 조회 중 오류가 발생했습니다.');
     console.error(err);
   }
 };
+
+// 교대 요청 글 검색 & 조회
+const fetchListByContent = async (page = 1) => {
+  if (!searchType.value || !searchKeyword.value) {
+    alert('검색 기준과 키워드를 모두 입력해주세요.');
+    return;
+  }
+  try {
+    const { data } = await apiClient.get('/shifts/search', {
+      params: {
+        keyword: searchKeyword.value,
+        searchOption: searchType.value.toUpperCase(),
+        page: page - 1,
+        size: 10
+      },
+    });
+    console.log('검색 목록 응답:', data);              
+    console.log('totalPages:', data.totalPages);
+    console.log('shiftList:', shiftList.value);
+
+    shiftList.value = data.content;
+    totalPages.value = data.page.totalPages;   
+    currentPage.value = page;
+  } catch (err) {
+    alert('검색 중 오류가 발생했습니다.');
+    console.error(err);
+  }
+};
+
 
 // 검색 버튼 클릭 시 1페이지부터 검색
 const onSearchClick = () => {

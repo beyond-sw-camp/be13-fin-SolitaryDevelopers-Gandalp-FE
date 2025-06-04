@@ -21,7 +21,7 @@
 
     <!-- 3) 카드 + 차트 -->
     <div class="card">
-      <h2 class="card-title">응급실 병상 시간대별 사용 통계</h2>
+      <h2 class="card-title"> {{ hospital.name }} 응급실 병상 시간대별 사용 통계</h2>
       <div class="chart-area">
         <canvas ref="chartCanvas"></canvas>
       </div>
@@ -38,6 +38,7 @@ Chart.register(LineController, LineElement, PointElement, CategoryScale, LinearS
 
 const tabs    = ['응급실 병상 통계', '간호사 근무 분석', '간호사별 업무 비율 분석']
 const activeTab = ref(tabs[0])
+const hospital = ref({id: null, name: '', totalErCount:0 }) 
 
 const periods = [
   { label: '일', value: 'DAY' },
@@ -52,6 +53,12 @@ const day   = ref(new Date().getDate())
 
 const chartCanvas  = ref(null)
 let   chartInstance = null
+
+async function loadHospitalInfo() {
+  const res = await apiClient.get('/hospitals/data')
+  hospital.value = res.data
+}
+
 
 async function loadData() {
   // API 경로·파라미터는 실제 엔드포인트에 맞춰 조정하세요.
@@ -123,13 +130,19 @@ async function loadData() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: true }
+        y: { 
+          beginAtZero: true,
+          max: hospital.value.totalErCount // ✅ y축 최대값!
+        }
       }
     }
   })
 }
 
-onMounted(loadData)
+onMounted( async () => {
+  await loadHospitalInfo()
+  loadData()
+})
 </script>
 
 <style scoped>

@@ -14,8 +14,8 @@
       </template>
 
       <template v-else>
-        <v-btn variant="text" class="nav-btn" to="/">캘린더</v-btn>
-        <v-btn variant="text" class="nav-btn" to="/shifts">근무 교대 신청</v-btn>
+        <v-btn variant="text" class="nav-btn" to="/calendar">캘린더</v-btn>
+        <v-btn variant="text" class="nav-btn" to="/shifts">근무 교환 신청</v-btn>
         <v-btn variant="text" class="nav-btn" to="/surgeryReservation">수술실 예약</v-btn>
 
         <v-menu open-on-hover offset-y>
@@ -23,9 +23,9 @@
             <v-btn v-bind="props" variant="text" class="nav-btn">근무 관리 ▾</v-btn>
           </template>
           <v-list>
-            <v-list-item to="/showOff" title="오프" />
-            <v-list-item to="/manageOff" title="오프 관리" />
-            <v-list-item v-if="isHeadNurse" to="/work-management" title="근무 관리" />
+            <v-list-item to="/showOff" title="오프 조회 및 신청" />
+            <v-list-item to="/manageOff" title="오프 승인 및 반려" />
+            <v-list-item v-if="isHeadNurse" to="/work-management" title="근무 생성 및 반영" />
           </v-list>
         </v-menu>
 
@@ -107,6 +107,7 @@ onMounted(async () => {
   if (auth.isLoggedIn) {
     try {
       const res = await apiClient.get('/members/myInfo')
+      console.log("res", res);
       myInfo.value = res.data
     } catch (e) {
       console.error('내 정보 조회 실패 : ', e)

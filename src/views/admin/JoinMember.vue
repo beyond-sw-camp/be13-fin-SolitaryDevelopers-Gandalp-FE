@@ -17,42 +17,55 @@
 
      <!-- 계정 생성-->
         <div class="select-job">
-<!--          <label class="radio-box">-->
-<!--            <input type="radio" name="type" value="PARAMEDIC" v-model="type">-->
-<!--            <span class="box-label">구급대원</span>-->
-<!--          </label>-->
 
-          <label class="radio-box">
-            <input type="radio" name="type" value="HEAD_NURSE" v-model="type">
-            <span class="box-label">수간호사</span>
-          </label>
 
           <label class="radio-box">
             <input type="radio" name="type" value="NURSE" v-model="type">
             <span class="box-label">간호사</span>
+          </label>
+          <label class="radio-box">
+            <input type="radio" name="type" value="HEAD_NURSE" v-model="type">
+            <span class="box-label">수간호사</span>
+          </label>
+          <label class="radio-box">
+            <input type="radio" name="type" value="HEAD_NURSE" v-model="type">
+            <span class="box-label">야간 전담 간호사</span>
           </label>
 
         </div>
 
         <div class="member-input">
 
-          <label class="hospital-label" :class="{ disabled: isParamedic }">
+          <label class="hospital-label">
             <span class="hospital-label">병원</span>
-            <input type="text" v-model="hospital" :disabled="isParamedic" placeholder="병원명을 입력하세요">
+            <input class="hospital-input" type="text" v-model="hospital" disabled />
           </label>
 
-          <label class="department-label" :class="{ disabled: isParamedic }">
+
+          <label class="department-label">
             <span class="department-label">진료과</span>
-            <input type="text" v-model="department" :disabled="isParamedic" placeholder="진료과를 입력하세요" />
+            <v-select
+              v-model="department"
+              :items="departmentList"
+              item-title="departmentName"
+              item-value="departmentName"
+              label="진료과를 선택해주세요."
+              class="small-select"
+              variant="solo"
+              density="compact"
+              hide-details
+              style="border-radius: 10px; background-color: #edf7ff;"
+              flat
+              bg-color="#edf7ff"
+            />
           </label>
+
 
           <label class="name-label">
             <span class="name-label">아이디</span>
             <input type="text" v-model="accountId"
                    required
-                   :placeholder="isParamedic
-                  ? 'ID 를 입력하세요 (구급대원 예시 : 동작소방서1호차)'
-                  : 'ID 를 입력하세요'"
+                   placeholder="ID 를 입력하세요"
             />
           </label>
 
@@ -84,24 +97,36 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, watch, onMounted } from 'vue'
 import apiClient from '@/api/axios.js'
 
-const type = ref('HEAD_NURSE')
+const type = ref('NURSE')
 const hospital = ref('')
 const accountId = ref('')
 const password = ref('')
+const departmentList = ref([]) // 부서 리스트
 const department = ref('')
 const message = ref('')
-// PARAMEDIC인지 확인
-//const isParamedic = computed(() => type.value === 'PARAMEDIC')
 const success = ref(false)
+
+onMounted(async() => {
+  try {
+
+    const response = await apiClient.get('/members/myInfo')
+    hospital.value = response.data.hospitalName
+
+    const deptResponse = await apiClient.get('/hospitals/departments')
+    console.log(deptResponse)
+    departmentList.value = deptResponse.data
+
+  } catch(err){
+    console.error('병원 정보를 가져올 수 없습니다.', err);
+  }
+})
 
 
 // 타입 변경 시 폼 초기화
 watch(type, () => {
-  hospital.value = ''
   department.value = ''
   accountId.value = ''
   password.value = ''
@@ -117,13 +142,12 @@ const enroll = async() =>{
   }
 
   try{
-     await apiClient.post('/auth/join',{
+      await apiClient.post('/auth/join',{
 
-      type : type.value,
-      hospital : hospital.value,
-      department : department.value,
-      accountId : accountId.value,
-      password: password.value
+        type : type.value,
+        department : department.value,
+        accountId : accountId.value,
+        password: password.value
     })
 
     message.value = '계정 생성이 완료되었습니다'
@@ -165,13 +189,15 @@ h2.title::before {
   margin-top: 25px;
   color: black;
 }
-
-
-.member-input label.disabled input {
-  background-color: #f5f5f5;
-  color: #999;
+.hospital-input {
+  background-color: #edf7ff;
+  color: #333;
   cursor: not-allowed;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
 }
+
 
 .join-content-card {
   width: 75.6vw;

@@ -177,36 +177,6 @@ const size       = ref(10)
 const totalPages = ref(1)
 const selectedType  = ref('')
 const selectedOption= ref('')
-//---
-// const types = [
-//   { value: 'ADMIN',    label: '관리자' },
-//   { value: 'PARAMEDIC',  label: '응급요원' },
-//   { value: 'HEAD_NURSE',  label: '수간호사' },
-//   { value: 'NURSE',  label: '간호사' },
-// ]
-// const options = [
-//   { value: 'HOSPITAL',    label: '병원명' },
-//   { value: 'DEPARTMENT',  label: '진료과' },
-//   { value: 'ACCOUNT_ID',  label: '아이디' },
-// ]
-
-//---
-
-
-// const types = [
-//   { value: '', text: '전체 타입' },
-//   { value: 'ADMIN',    text: '관리자' },
-//   { value: 'PARAMEDIC',text: '응급요원' },
-//   { value: 'HEAD_NURSE',text:'수간호사' },
-//   { value: 'NURSE',    text: '간호사' },
-// ]
-//
-// const options = [
-//   { value: '', text: '전체 검색' },
-//   { value: 'HOSPITAL',   text: '병원명' },
-//   { value: 'DEPARTMENT', text: '진료과' },
-//   { value: 'ACCOUNT_ID', text: '아이디' },
-// ]
 
 const types = [
   { value: '',           text: '전체' },

@@ -56,17 +56,20 @@
         <table class="stats-table">
           <thead>
           <tr>
-              <th>간호사</th>
-              <!-- ON 상태일 때 -->
-              <th v-if="status === 'ON'">Day</th>
-              <th v-if="status === 'ON'">Evening</th>
-              <th v-if="status === 'ON'">Night</th>
-              <!-- IN_SURGERY 상태일 때 -->
-              <th v-else-if="status === 'IN_SURGERY'">Surgery</th>
-              <!-- OFF 상태일 때 -->
-              <th v-else-if="status === 'OFF'">Off</th>
-            </tr>
-            </thead>
+            <th>간호사</th>
+            <div v-if="status === 'ON'">
+            <th>Day</th>
+            <th>Evening</th>
+            <th>Night</th>
+            </div>
+            <div v-else-if="status === 'IN_SURGERY'">
+            <th>Surgery</th>
+            </div>
+            <div v-else-if="status === 'OFF'">
+            <th>Off</th>
+            </div>
+          </tr>
+          </thead>
           <tbody>
 
           <tr v-for="stat in statistics" :key="stat.nurseId">
@@ -85,9 +88,9 @@
             </template>
 
             <!-- OFF: Off only -->
-            <template v-else-if="status === 'OFF'">
+            <div v-else-if="status === 'OFF'">
               <td>{{ stat.offCount }}</td>
-            </template>
+            </div>
           </tr>
           </tbody>
         </table>
@@ -101,15 +104,11 @@ import { ref, onMounted, watch } from 'vue'
 import apiClient from '@/api/axios'
 import NurseStatisticsChart from './NurseStatisticsChart.vue'
 
-// “지난 달” 기본값 계산
 const now = new Date()
-// 현재가 1월이면 지난 달 = 작년 12월, 그렇지 않으면 getMonth() (0=1월,…) 그대로
-const defaultYear  = now.getMonth() === 0
-  ? now.getFullYear() - 1
-  : now.getFullYear()
-const defaultMonth = now.getMonth() === 0
-  ? 12
-  : now.getMonth()         // getMonth(): 0=1월,1=2월,… → 지난 달
+const defaultYear  = now.getFullYear()   // 그냥 올해
+const defaultMonth = now.getMonth() + 1  // 0부터 시작이라 +1
+
+
 
 const selectOption = ref('MONTH')
 const year         = ref(defaultYear)

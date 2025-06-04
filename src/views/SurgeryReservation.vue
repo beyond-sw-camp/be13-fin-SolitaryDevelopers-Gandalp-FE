@@ -2,8 +2,12 @@
   <div class="main-page">
   <h2 class="title">수술실 예약</h2>
   <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
-    <v-row justify="end" class="mb-1">
-      <v-col cols="3" class="d-flex justify-end">
+    <v-row class="mb-1" align="center" justify="end">
+      <v-col cols="auto" class="d-flex align-center" style="gap: 12px;">
+        <v-btn color="success" variant="tonal" class="custom-btn" size="default" style="font-size: 14px;" @click="openCreateDialog">
+          예약
+        </v-btn>
+      
         <v-select
           v-model="selectedRoomId"
           :items="roomOptions"
@@ -13,7 +17,7 @@
           item-title="label"
           item-value="id"
           label="수술실 선택"
-          style="border-radius: 10px"
+          style="border-radius: 10px; min-width: 180px;"
           hide-details
           flat
           bg-color="#edf7ff"
@@ -21,6 +25,7 @@
         ></v-select>
       </v-col>
     </v-row>
+
 
     <vue-cal
       style="min-height: 80vh; height: auto;"
@@ -35,14 +40,9 @@
       :events="calendarEvents"
       :editable-events="false"
       :events-on-month-view="true"
-      default-view="week"
+      v-model:view="calendarView"
       @event-click="onEventClick"
     />
-    <v-row justify="space-between" class="mt-1">
-      <v-col class="text-end">
-        <v-btn color="success" variant="tonal" class="custom-btn" size="small" @click="openCreateDialog">예약</v-btn>
-      </v-col>
-    </v-row>
   </v-card>
   </div>
 
@@ -87,6 +87,7 @@
           <label>시작 시간</label>
           <Datepicker
             v-model="newEvent.startTime"
+            :max-date="newEvent.endTime"
             locale="ko"
             time-picker-inline
             :enable-time-picker="true"
@@ -98,6 +99,7 @@
           <label>종료 시간</label>
           <Datepicker
             v-model="newEvent.endTime"
+            :min-date="newEvent.startTime"
             locale="ko"
             time-picker-inline
             :enable-time-picker="true"
@@ -115,8 +117,8 @@
           />
 
           <div class="modal-btns">
-            <v-btn size="small" variant="tonal" color="primary" @click="createSchedule">저장</v-btn>
-            <v-btn size="small" variant="tonal" color="error" @click="closeCreateDialog">취소</v-btn>
+            <v-btn size="default" variant="tonal" color="primary" @click="createSchedule">저장</v-btn>
+            <v-btn size="default" variant="tonal" color="error" @click="closeCreateDialog">취소</v-btn>
           </div>
         </div>
       </div>
@@ -256,12 +258,11 @@
             <v-list-item-content>
               <v-list-item-title>비밀번호</v-list-item-title>
               <input
-            style="padding: 10px;"
-            v-model="deletePassword"
-            placeholder="비밀번호 입력"
-            type="password"
-            class="modal-input"
-          />
+                v-model="deletePassword"
+                placeholder="비밀번호 입력"
+                type="password"
+                class="modal-input"
+              />
             </v-list-item-content>
           </v-list-item>
         </v-card-text>
@@ -276,8 +277,8 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn text @click="closeDetailDialog">닫기</v-btn>
-          <v-btn color="error" @click="confirmDelete">삭제</v-btn>
+          <v-btn text size="large" @click="closeDetailDialog">닫기</v-btn>
+          <v-btn color="error" size="large" @click="confirmDelete">삭제</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -292,6 +293,8 @@
 
   const createDialogVisible = ref(false)
   const detailDialogVisible = ref(false)
+
+  const calendarView = ref('month')
   
   const selectedRoomId = ref(null);
   const roomOptions = ref([]);
@@ -331,11 +334,15 @@
   
   const loadSchedules = async () => {
     try {
+      calendarEvents.value = [];
+
       const response = await apiClient.get('/ors');
       const allEvents = response.data;
+
+      const filteredRoomId = selectedRoomId.value;
   
       const events = allEvents
-        .filter(event => selectedRoomId.value === -1 || event.roomId === selectedRoomId.value)
+        .filter(event => selectedRoomId.value === -1 || event.roomId === filteredRoomId)
         .map(event => ({
           id: event.surgeryScheduleId,
           title: event.content,
@@ -371,7 +378,7 @@
     }
   };
   
-  watch(selectedRoomId, loadSchedules);
+  watch(selectedRoomId, loadSchedules, { immediate: true });
   
   onMounted(async () => {
     await loadRooms();
@@ -451,6 +458,26 @@
   </script>
   
 <style scoped>
+/* 상세 보기 다이얼로그 텍스트 크기 키우기 */
+::v-deep(.v-list-item-title) {
+  font-size: 17px !important;
+  padding: 0px 0px;
+}
+
+::v-deep(.v-list-item-subtitle) {
+  font-size: 15px !important;
+  padding: 5px 0px;
+}
+
+/* 비밀번호 입력 필드 크기 키우기 */
+::v-deep(input.modal-input) {
+  font-size: 14px;
+  height: 44px;
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
 
   .title {
     text-align: center;
@@ -513,7 +540,7 @@
 }
 
 .modal-input, .modal-select {
-  /* width: 220px; */
+  width: 300px;
   margin-bottom: 8px;
   padding: 8px 10px;
   border: 1px solid #ddd;
@@ -527,22 +554,26 @@
 
 ::v-deep(.nurse-list .v-input) {
   display: flex !important;
-  align-items: center !important;
+  align-items: center !important; 
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 ::v-deep(.nurse-list .v-selection-control) {
   flex-direction: row !important;
   align-items: center !important;
-  gap: 6px;
+  gap: 8px !important;  
   padding: 0 !important;
-  margin: 0 !important;
+  margin: 0 0 4px 0 !important; 
 }
 
 ::v-deep(.nurse-list .v-label) {
   font-size: 13px !important;
   white-space: nowrap;
-  margin-left: 4px;
+  margin: 0 !important;
+  padding: 0 !important;
 }
+
 
 
 .nurse-list {
@@ -622,11 +653,11 @@
   padding: 0px 100px !important;
 }
 
-.custom-btn {
+/* .custom-btn {
   padding: 4px 8px !important;
   font-size: 12px !important;
   min-height: 10px !important;
-}
+} */
 
 dialog.dialog {
   position: fixed;
@@ -682,10 +713,22 @@ dialog.dialog {
 
   .vuecal__event.surgery {background-color: #57cea9cc;border-color: #90d2be;}
 
-  .vuecal__event.surgery {
+  ::v-deep(.vuecal__event.surgery) {
     background-color: #57cea9cc;
     border-color: #90d2be;
-    color: #ffffff; 
+    color: #ffffff;
+    font-weight: bold;
+    border-radius: 6px;
+    font-size: 12px;
+    padding: 4px 6px;
+    border: none;
+    margin: 5px;
+    display: inline-block;
+    width: auto;
+    max-width: 80%;         
+    white-space: normal;      
+    word-break: break-word;   
+    overflow-wrap: break-word;
   }
 
   .schedule-calendar {
