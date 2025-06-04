@@ -251,61 +251,60 @@ function updateHospitalInList(updatedHospital) {
 // STOMP 연결 실시간 업데이트
 
 function connectWebSocket() {
-  if (stompClient.value && stompClient.value.connected) return
-  // STOMP 팩토리로 SockJS 함수를 넘기면 자동 재연결이 살아남
-  stompClient.value = Stomp.over(() => new SockJS('http://localhost:8080/connect'))
-  const socket = new SockJS('http://localhost:8080/connect')
-  stompClient.value = Stomp.over(socket
-    ,{factory: () => new WebSocket('ws://localhost:8080/connect')
-    })
+  if (stompClient.value && stompClient.value.connected) return;
 
+  // ✅ SockJS 객체 생성
+  const socket = new SockJS('https://api.gandalp-service.com/connect');
+
+  // ✅ SockJS로 STOMP 클라이언트 생성 (factory 생략)
+  stompClient.value = Stomp.over(socket);
+
+  // ✅ 연결 시도
   stompClient.value.connect(
     {
-      Authorization: 'Bearer ' + localStorage.getItem('accessToken')
+      Authorization: 'Bearer ' + localStorage.getItem('accessToken'),
     },
-    () => {
-      console.log('✅ STOMP 연결됨')
+    onConnected,
+    onError
+  );
+}
 
+// 📌 연결 성공 시 콜백
+function onConnected() {
+  console.log('✅ STOMP 연결됨');
 
-      // 1:1 응답을 받을 구독 경로
-      stompClient.value.subscribe(
-        '/user/queue/near-hospitals',
-        ({ body }) => {
-          hospitals.value = JSON.parse(body)
-          //totalPages.value = Math.ceil(hospitals.value.length/ pageSize.value)
-          emit('update-list', hospitals.value)
-        }
-      )
+  // ✅ 병원 리스트 수신 (1:1 큐)
+  stompClient.value.subscribe('/user/queue/near-hospitals', ({ body }) => {
+    hospitals.value = JSON.parse(body);
+    emit('update-list', hospitals.value);
+  });
 
-      stompClient.value.subscribe('/topic/er-status', (message) => {
-        const updated = JSON.parse(message.body)
-        console.log('📦 병상 수 갱신 수신:', updated)
-        updateHospitalInList(updated)
-      })
+  // ✅ 병상 수 실시간 업데이트
+  stompClient.value.subscribe('/topic/er-status', (message) => {
+    const updated = JSON.parse(message.body);
+    console.log('📦 병상 수 갱신 수신:', updated);
+    updateHospitalInList(updated);
+  });
 
-      // 위치 전송용 토픽
+  // ✅ 위치 추적 및 전송
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(
+      ({ coords }) => {
+        const lat = roundToFiveDecimal(coords.latitude);
+        const lon = roundToFiveDecimal(coords.longitude);
+        userPosition.lat = lat;
+        userPosition.lon = lon;
+        trySendLocation(lat, lon);
+      },
+      (err) => console.error('위치 추적 오류:', err),
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+  }
+}
 
-      if(navigator.geolocation){
-        navigator.geolocation.watchPosition(
-          ({coords}) => {
-
-            const lat = roundToFiveDecimal(coords.latitude);
-            const lon = roundToFiveDecimal(coords.longitude);
-
-            userPosition.lat = lat
-            userPosition.lon = lon
-
-            trySendLocation(lat, lon)
-          },
-          err =>  console.error('위치 추적 오류:', err),
-          {enableHighAccuracy : true, maximumAge: 5000}
-        )
-      }
-    },
-    (error) => {
-      console.error('❌ STOMP 연결 실패:', error)
-    }
-  )
+// 📌 연결 실패 시 콜백
+function onError(error) {
+  console.error('❌ STOMP 연결 실패:', error);
 }
 
 
