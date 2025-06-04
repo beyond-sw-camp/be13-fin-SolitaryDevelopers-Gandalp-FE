@@ -1,6 +1,9 @@
 <template>
   <header class="header">
     <div class="header-inner">
+
+      <div class="header-right">
+
       <template v-if="isAdmin">
         <v-btn variant="text" class="nav-btn" to="/joinMember">계정 생성</v-btn>
         <v-btn variant="text" class="nav-btn" to="/memberList">계정 목록</v-btn>
@@ -41,6 +44,10 @@
         <v-btn variant="text" class="nav-btn" to="/updateEr">병상 정보 수정</v-btn>
       </template>
 
+      </div>
+
+      <div class="header-left">
+
       <template v-if="auth.isLoggedIn">
         <v-menu open-on-click offset-y>
           <template #activator="{ props }">
@@ -67,6 +74,7 @@
           </v-card>
         </v-menu>
       </template>
+    </div>
     </div>
   </header>
 </template>
@@ -193,6 +201,14 @@ onMounted(async () => {
   align-items: center;
 }
 
+.header-right {
+  padding-left: 24px;
+  min-width: 1200px;
+  align-items: center;
+}
+
+
+
 .centered-title {
   text-align: center;
   width: 100%;
@@ -202,6 +218,7 @@ onMounted(async () => {
   color: white !important;
   font-size: 14px;
   text-transform: none;
+  margin-right: 90px;
   padding: 0 12px;
   height: 36px;
 }

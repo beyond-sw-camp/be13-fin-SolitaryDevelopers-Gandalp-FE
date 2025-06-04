@@ -39,7 +39,7 @@ import Sidebar from '@/components/common/Sidebar.vue'
   display: flex;
   flex-direction: column;
   flex: 1;
-  height: 100%;
+  min-height: 100vh;
   overflow: hidden;
 }
 

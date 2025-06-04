@@ -17,10 +17,10 @@
 
      <!-- 계정 생성-->
         <div class="select-job">
-          <label class="radio-box">
-            <input type="radio" name="type" value="PARAMEDIC" v-model="type">
-            <span class="box-label">구급대원</span>
-          </label>
+<!--          <label class="radio-box">-->
+<!--            <input type="radio" name="type" value="PARAMEDIC" v-model="type">-->
+<!--            <span class="box-label">구급대원</span>-->
+<!--          </label>-->
 
           <label class="radio-box">
             <input type="radio" name="type" value="HEAD_NURSE" v-model="type">
@@ -88,14 +88,14 @@ import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios.js'
 
-const type = ref('PARAMEDIC')
+const type = ref('HEAD_NURSE')
 const hospital = ref('')
 const accountId = ref('')
 const password = ref('')
 const department = ref('')
 const message = ref('')
 // PARAMEDIC인지 확인
-const isParamedic = computed(() => type.value === 'PARAMEDIC')
+//const isParamedic = computed(() => type.value === 'PARAMEDIC')
 const success = ref(false)
 
 

@@ -317,6 +317,7 @@ h2.title::before {
 .search-container{
   display: flex;
   margin-left: 5px;
+
 }
 .search-bar .small-select {
   margin-right: 10px;
