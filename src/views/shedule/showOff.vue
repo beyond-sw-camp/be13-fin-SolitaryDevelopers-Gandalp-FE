@@ -70,7 +70,7 @@
               size="x-small"
               color="error"
               variant="tonal"
-              @click="deleteOff(item.offScheduleTempId)"
+              @click="deleteBeforeCheck(item.offScheduleTempId)"
             >
               취소
             </v-btn>
@@ -102,6 +102,12 @@
       </v-btn>
     </div>
     </v-card>
+    <!-- 사용자 확인 모달 -->
+    <UserCheckModalV2
+    v-if="showModal"
+    @close="showModal = false"
+    @submit="handleSubmit"
+  />
   </div>
 </template>
 
@@ -109,9 +115,12 @@
 import { ref, onMounted } from 'vue'
 import apiClient from '@/api/axios'
 import dayjs from 'dayjs'
+import UserCheckModalV2 from '@/components/UserCheckModalV2.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
+  const showModal = ref(false)
 
 const totalPages = ref(1)
 const searchType = ref('')
@@ -119,6 +128,7 @@ const searchKeyword = ref('')
 const scheduleList = ref([])
 const currentPage = ref(1)
 const hasMore = ref(true)
+const tempDeleteInfo = ref({ show: false, id: null })
 
 const changePage = (page) => {
   currentPage.value = page;
@@ -129,25 +139,50 @@ const changePage = (page) => {
   }
 }
 
+const handleSubmit = async ({ email, password }) => {
+  try {
+    const res = await apiClient.post('schedules/check', null, {
+      params: { email, password }
+    })
+    
+
+    // ✅ 검증 성공 → 삭제 수행
+    await deleteOff(tempDeleteInfo.value.id, email)
+
+    showModal.value = false
+    
+  } catch (err) {
+    alert('계정 확인 실패: ' + (err.response?.data || err.message))
+  }
+}
+
 const goToOffCalendar = () => {
   router.push({ path: '/OffCalendar' })
 }
 
-const deleteOff = async (scheduleTempId) => {
+const deleteBeforeCheck = (offScheduleTempId) => {
   const confirmed = confirm('정말로 이 오프 신청을 취소하시겠습니까?')
   if (!confirmed) return
+
+  tempDeleteInfo.value = { show: true, id: offScheduleTempId } // ID 저장
+  showModal.value = true
+}
+
+const deleteOff = async (scheduleTempId, email) => {
   try {
-    await apiClient.delete(`/schedules/off/temp/${scheduleTempId}`)
+    await apiClient.delete(`/schedules/off/temp/${scheduleTempId}`, {
+      params: { email }
+    })
+
     alert('취소되었습니다.')
-    
-     // 검색 조건이 있을 경우만 검색 API 호출
+
     if (searchType.value && searchKeyword.value) {
       fetchListByEmailOrName(searchType.value, searchKeyword.value)
     } else {
-      fetchList() // 전체 목록 새로고침
+      fetchList()
     }
 
-
+    tempDeleteInfo.value = { show: false, id: null }
   } catch (err) {
     console.error('삭제 실패:', err)
     alert('삭제 중 오류가 발생했습니다.')
@@ -229,7 +264,7 @@ const fetchListByEmailOrName = async (type, keyword) => {
     scheduleList.value = content
     currentPage.value = 1 // ✅ 첫 페이지로 초기화
     hasMore.value = currentPage.value < totalPages.value
-
+    showModal.value = false
     
 
   } catch (err) {
