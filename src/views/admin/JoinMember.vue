@@ -28,7 +28,7 @@
             <span class="box-label">수간호사</span>
           </label>
           <label class="radio-box">
-            <input type="radio" name="type" value="HEAD_NURSE" v-model="type">
+            <input type="radio" name="type" value="NIGHT_NURSE" v-model="type">
             <span class="box-label">야간 전담 간호사</span>
           </label>
 
@@ -154,6 +154,7 @@ const enroll = async() =>{
 
     message.value = '계정 생성이 완료되었습니다'
     success.value = true
+   
 
     alert('계정 생성이 완료되었습니다.');
     router.push('/memberList')
