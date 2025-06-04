@@ -57,17 +57,14 @@
           <thead>
           <tr>
             <th>간호사</th>
-            <div v-if="status === 'ON'">
-            <th>Day</th>
-            <th>Evening</th>
-            <th>Night</th>
-            </div>
-            <div v-else-if="status === 'IN_SURGERY'">
-            <th>Surgery</th>
-            </div>
-            <div v-else-if="status === 'OFF'">
-            <th>Off</th>
-            </div>
+            <!-- ON 상태일 때 -->
+            <th v-if="status === 'ON'">Day</th>
+            <th v-if="status === 'ON'">Evening</th>
+            <th v-if="status === 'ON'">Night</th>
+            <!-- IN_SURGERY 상태일 때 -->
+            <th v-else-if="status === 'IN_SURGERY'">Surgery</th>
+            <!-- OFF 상태일 때 -->
+            <th v-else-if="status === 'OFF'">Off</th>
           </tr>
           </thead>
           <tbody>
@@ -88,9 +85,9 @@
             </template>
 
             <!-- OFF: Off only -->
-            <div v-else-if="status === 'OFF'">
+            <template v-else-if="status === 'OFF'">
               <td>{{ stat.offCount }}</td>
-            </div>
+            </template>
           </tr>
           </tbody>
         </table>

@@ -97,7 +97,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import '@flaticon/flaticon-uicons/css/all/all.css'
 import hospitalPhoneUrl from '@/api/icons/hospital-phone.png'
 
 const SORT_OPTIONS = ['DISTANCE', 'ER_COUNT']
