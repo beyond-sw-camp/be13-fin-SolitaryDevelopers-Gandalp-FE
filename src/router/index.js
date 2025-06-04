@@ -119,20 +119,13 @@ const routes = [
         path: '/updateEr',
         name: 'UpdateEr',
         component: UpdateEr
-      }
-
-    ],
-  },
-  {
-    path: '/calendar',
-    name: 'Calendarbase',
-    component: CalendarBaseLayout,
-    children: [
+      },
       {
         path: '',
         name: 'playground',
         component: () => import('@/documentation/examples/playground.vue')
       }
+
     ],
   },
   {
