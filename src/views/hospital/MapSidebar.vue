@@ -25,13 +25,13 @@
     </div>
 
     <div class="hospital-list-wrapper">
-      <!-- (C-1) 로딩 중 -->
+      <!--  로딩 중 -->
 <!--      <div v-if="isLoading" class="loader-container">-->
 <!--        <v-progress-circular indeterminate color="gray" size="36" />-->
 <!--        <p class="loader-text">데이터를 불러오고 있습니다...</p>-->
 <!--      </div>-->
 
-      <!-- (C-2) 로딩 끝났으나 hospitals 배열이 비어있다면 -->
+      <!-- 로딩 끝났으나 hospitals 배열이 비어있다면 -->
       <div v-if="!isLoading && hospitals.length === 0" class="loader-container">
         <p class="loader-text">주변 병원이 없습니다</p>
       </div>
