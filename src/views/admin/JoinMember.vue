@@ -99,6 +99,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import apiClient from '@/api/axios.js'
+import { useRouter } from 'vue-router'
 
 const type = ref('NURSE')
 const hospital = ref('')
@@ -108,6 +109,7 @@ const departmentList = ref([]) // 부서 리스트
 const department = ref('')
 const message = ref('')
 const success = ref(false)
+const router = useRouter()
 
 onMounted(async() => {
   try {
@@ -153,8 +155,11 @@ const enroll = async() =>{
     message.value = '계정 생성이 완료되었습니다'
     success.value = true
 
+    alert('계정 생성이 완료되었습니다.');
+    router.push('/memberList')
+
   }catch(err){
-    message.value = err.response?.data?.message || "계정을 생성할 수 없습니다";
+    message.value = err.response?.data;
     success.value = false
   }
 

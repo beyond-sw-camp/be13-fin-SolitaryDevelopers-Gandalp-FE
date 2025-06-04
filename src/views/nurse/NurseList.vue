@@ -65,7 +65,7 @@
               :total-visible="5"
               color="black"
               size="small"
-              @update:modelValue="changePage"
+              @update:modelValue="fetchNurses" 
             />
           </div>
           </div>
@@ -101,6 +101,9 @@ try {
         size: 10,
     },
     })
+    console.log('nurses = ', res.data.content);
+  console.log('totalElements = ', res.data.total);
+
     nurses.value = res.data.content
     totalPages.value = res.data.totalPages
 } catch (e) {
@@ -128,9 +131,9 @@ const deleteNurse = async (nurse) => {
 const changePage = (p) => {
   page.value = p
 }
-
-
-watch(page, fetchNurses, { immediate: true })
+onMounted(() => {
+  fetchNurses();
+});
 </script>
 
 <style scoped>
