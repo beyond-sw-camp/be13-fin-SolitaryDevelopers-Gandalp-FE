@@ -4,7 +4,7 @@
     v-card(style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;")
       v-row(justify="end" align="center")
         v-col(cols="auto")
-          v-btn(size="small" variant="tonal" color="success" class="custom-btn" @click="addAndSaveEvent") 일정 생성
+          v-btn(size="default" style="font-size: 14px;" variant="tonal" color="success" class="custom-btn" @click="addAndSaveEvent") 일정 생성
   
         v-col(cols="auto")
           v-btn-toggle(v-model="scheduleType" mandatory density="compact")
@@ -51,18 +51,18 @@
             @event-click="log('event-click', $event)"
             @event-delayed-click="eventSelection.onEventDelayedClick"
             @event-hold="log('event-hold', $event)"
-            @event-drag-start="log('event-drag-start', $event)"
-            @event-drag="log('event-drag', $event)"
-            @event-drag-end="log('event-drag-end', $event)"
-            @event-drop="log('event-drop', $event)"
-            @event-dropped="log('event-dropped', $event)"
-            @event-resize="log('event-resize', $event)"
-            @event-resize-end="log('event-resize-end', $event)"
+            @event-drag-start="() => false"
+            @event-drag="() => false"
+            @event-drag-end="() => false"
+            @event-drop="() => false"
+            @event-dropped="() => false"
+            @event-resize="() => false"
+            @event-resize-end="() => false"
             @event-contextmenu="log('event-contextmenu', $event)"
             @cell-click="log('cell-click', $event)"
             @cell-dblclick="log('cell-dblclick', $event)"
             @cell-drag="log('cell-drag', $event)"
-            @cell-hold="log('cell-hold', $event)"
+            @cell-hold="() => false"
             @cell-mousedown="log('cell-mousedown', $event)"
             @cell-mouseup="log('cell-mouseup', $event)"
             @cell-touchstart="log('cell-touchstart', $event)"
@@ -77,62 +77,63 @@
     width="420"
     @close="eventCreation.cancel"
   )
-    .w-flex.column
-      label.text-sm.font-semibold.mb2 제목
-      input(
-        v-model="eventCreation.event.title"
-        placeholder="일정 제목을 입력하세요"
-        class="input-basic"
-      )
-  
-    .time-input-row
-      .time-input-column
-        label.text-sm.font-medium.mb1 시작 시간
-        Datepicker(
-          v-model="formStart"
-          :max-date="formEnd"
-          locale="ko"
-          teleport
-          time-picker-inline
-          :enable-time-picker="true"
-          :is-24="true"
-          :format="'yyyy-MM-dd HH:mm'"
-          auto-apply
+    .event-detail(style="padding-left: 12px; padding-top: 8px; font-size: 18px")
+      .w-flex.column
+        label.text-sm.font-semibold.mb2 제목
+        input(
+          v-model="eventCreation.event.title"
+          placeholder="일정 제목을 입력하세요"
+          class="input-basic"
         )
-      .time-input-column
-        label.text-sm.font-medium.mb-1 종료 시간
-        Datepicker(
-          v-model="formEnd"
-          :min-date="formStart"
-          locale="ko"
-          teleport
-          time-picker-inline
-          :enable-time-picker="true"
-          :is-24="true"
-          :format="'yyyy-MM-dd HH:mm'"
-          auto-apply
-        )
-  
-    label.text-sm.font-semibold.mt1 간호사 이름
-    w-select(
-      v-model="eventCreation.event.name"
-      :items="nurseFilterOptions"
-      placeholder="간호사를 선택하세요"
-      :disabled="eventCreation.isEdit"
-    )
-  
-    .w-flex.column
-      label.text-sm.font-semibold.mt3.mb2 비밀번호
-      input(
-        v-model="userPassword"
-        type="password"
-        placeholder="간호사 비밀번호 입력"
-        class="input-basic"
+    
+      .time-input-row.mt4.mb4
+        .time-input-column
+          label.text-sm.font-medium.mb1 시작 시간
+          Datepicker(
+            v-model="formStart"
+            :max-date="formEnd"
+            locale="ko"
+            teleport
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          )
+        .time-input-column
+          label.text-sm.font-medium.mb-1 종료 시간
+          Datepicker(
+            v-model="formEnd"
+            :min-date="formStart"
+            locale="ko"
+            teleport
+            time-picker-inline
+            :enable-time-picker="true"
+            :is-24="true"
+            :format="'yyyy-MM-dd HH:mm'"
+            auto-apply
+          )
+    
+      label.text-sm.font-semibold.mt3 간호사 이름
+      w-select(
+        v-model="eventCreation.event.name"
+        :items="nurseFilterOptions"
+        placeholder="간호사를 선택하세요"
+        :disabled="eventCreation.isEdit"
       )
+    
+      .w-flex.column
+        label.text-sm.font-semibold.mt4.mb2 비밀번호
+        input(
+          v-model="userPassword"
+          type="password"
+          placeholder="간호사 비밀번호 입력"
+          class="input-basic"
+        )
   
     .modal-btns.mt4
-      v-btn(size="small" variant="tonal" color="primary" @click="eventCreation.save") 저장
-      v-btn(size="small" variant="tonal" color="error" @click="eventCreation.cancel") 취소
+      v-btn(size="default" variant="tonal" color="primary" @click="eventCreation.save") 저장
+      v-btn(size="default" variant="tonal" color="error" @click="eventCreation.cancel") 취소
 
 
   //- .modal-mask(v-if="eventCreation.event && eventCreation.show" @click.self="eventCreation.cancel")
@@ -236,61 +237,62 @@
     v-if="eventSelection.event"
     v-model="eventSelection.showDialog"
     width="420"
-    content-class="custom-dialog"
   )
-    //- .w-flex.column
-    label.text-sm.font-semibold.mb1 제목:&nbsp
-    span.input-basic {{ eventSelection.event.title }}
-    
-    .w-flex.row
-      label.text-sm.font-semibold.mb1 이름:&nbsp
-      span.input-basic {{ getClassLabel(eventSelection.event.name) }}
-    
-    .time-input-row
-      .time-input-column
-        //- label.text-sm.font-medium.mb1 시작 시간
-        span.input-basic {{ eventSelection.event.start.format('YYYY-MM-DD HH:mm') }} - {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
-      //- .time-input-column
-        //- label.text-sm.font-medium.mb1 종료 시간
-        //- span.input-basic {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
+    .event-detail(style="padding-left: 12px; padding-top: 8px; font-size: 18px")
+      label.text-sm.font-semibold.mb1 제목:&nbsp
+      span.input-basic {{ eventSelection.event.title }}
+
+      .w-flex.row.mt2
+        label.text-sm.font-semibold.mb1 이름:&nbsp
+        span.input-basic {{ getClassLabel(eventSelection.event.name) }}
+
+      .time-input-row.mt2
+        .time-input-column
+          //- label.text-sm.font-medium.mb1 시작 시간
+          span.input-basic {{ eventSelection.event.start.format('YYYY-MM-DD HH:mm') }} - {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
+        //- .time-input-column
+          //- label.text-sm.font-medium.mb1 종료 시간
+          //- span.input-basic {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
 
 
     .modal-btns.mt4
       template(v-if="eventSelection.event.class === 'personal'")
         v-btn(
           v-if="!eventSelection.event.originalId"
-          size="small"
+          size="default"
           variant="tonal"
           color="primary"
           @click="updateSelectedEvent"
         ) 수정
         v-btn(
           v-if="!eventSelection.event.originalId"
-          size="small"
+          size="default"
           variant="tonal"
           color="error"
           @click="openDeleteDialog"
         ) 삭제
-      v-btn(size="small" variant="tonal" @click="eventSelection.showDialog = false") 닫기
+      v-btn(size="default" variant="tonal" @click="eventSelection.showDialog = false") 닫기
 
   
   w-dialog(
     v-model="deleteConfirm.show"
     title="비밀번호 입력"
+    style="font-size: 16px;"
     width="300"
   )
     w-input(
       v-model="userPassword"
       type="password"
       label="비밀번호"
+      style="font-size: 16px; padding: 10px 0px;"
       placeholder="비밀번호를 입력하세요"
     )
     .w-flex.justify-end.mt2.gap2
-      v-btn(size="small" variant="tonal" @click="deleteConfirm.show = false") 닫기
+      v-btn(size="default" variant="tonal" @click="deleteConfirm.show = false") 닫기
       //- w-button(@click="deleteConfirm.show = false") 취소
       v-btn(
         v-if="!eventSelection.event.originalId"
-        size="small"
+        size="default"
         variant="tonal"
         color="error"
         @click="confirmDeleteEvent"
@@ -311,7 +313,7 @@
 
   const isLoading = ref(false)
 
-  const scheduleType = ref('personal'); // 'work', 'personal', 'surgery'
+  const scheduleType = ref('work'); // 'work', 'personal', 'surgery'
 
   const allCalendarEvents = ref([]);
 
@@ -483,7 +485,7 @@
   
   const mainVuecalConfig = reactive({
     views,
-    view: ref('week'),
+    view: ref('month'),
     // dark: computed(() => store.darkMode),
     selectedDate: ref(null),
     viewDate: ref(new Date()),
@@ -526,7 +528,7 @@
     //     sun: { from: 7 * 60, to: 20 * 60, class: 'closed', label: '<strong>Closed</strong>' }
     //   } : undefined
     // }),
-    editableEvents: computed(() => false) // 달력 편집 이벤트 실행
+    editableEvents: computed(() => true) // 달력 편집 이벤트 실행
   })
   
   let eventCounter = 2 // Starts with 2 events in the array.
@@ -1055,10 +1057,6 @@ onMounted(async () => {
   font-size: 13px;
   margin-top: 8px;
 }
-.custom-dialog {
-  background-color: white !important;
-  color: black !important;
-}
 
 .modal-content input {
   width: 220px;
@@ -1098,9 +1096,9 @@ onMounted(async () => {
     /* padding: 40px 0 8px; */
     padding: 0 0 8px;
     border-left: none;
-    /* overflow: auto; */
+    overflow: auto;
     max-width: none;
-    height: 100dvh;
+    height: auto;
   
     // Global.
     ~ footer, aside, h1 {display: none;}
