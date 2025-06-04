@@ -47,8 +47,8 @@
             <v-select
               v-model="department"
               :items="departmentList"
-              item-title="departmentName"       
-              item-value="departmentName"   
+              item-title="departmentName"
+              item-value="departmentName"
               label="진료과를 선택해주세요."
               class="small-select"
               variant="solo"
@@ -104,14 +104,14 @@ const type = ref('NURSE')
 const hospital = ref('')
 const accountId = ref('')
 const password = ref('')
-const departmentList = ref([]) // 부서 리스트 
+const departmentList = ref([]) // 부서 리스트
 const department = ref('')
 const message = ref('')
 const success = ref(false)
 
 onMounted(async() => {
   try {
-    
+
     const response = await apiClient.get('/members/myInfo')
     hospital.value = response.data.hospitalName
 
