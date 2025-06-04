@@ -37,7 +37,7 @@
     </v-card>
     
 
-    <!-- 댓글 카드 -->
+    <!-- 요청 카드 -->
     <h2 class="text-h6 font-weight-bold mb-4">교환 요청</h2>
       <v-row justify="end" class="mb-2" >
         <v-btn size="small" variant="tonal" color="success" class="write-btn" @click="openWriteForm" v-if="!showWriteForm">
@@ -46,7 +46,7 @@
       </v-row>
     
       
-    <!-- 댓글 리스트 -->
+    <!-- 요청 리스트 -->
       <v-card
         v-for="comment in detail.comments"
         :key="comment.commentId"
@@ -62,7 +62,7 @@
   
       <v-row class="pa-4" align="center" justify="space-between">
 
-  <!-- 왼쪽: 댓글 내용 (수직 가운데 정렬) -->
+  <!-- 왼쪽: 요청 내용 (수직 가운데 정렬) -->
     <v-col class="d-flex align-center">
       <div class="comment-content">{{ comment.content }}</div>
       
@@ -102,7 +102,7 @@
 
   
 
-  <!-- 댓글 작성 폼 v2-->
+  <!-- 요청 작성 폼 v2-->
   
   <div v-if="showWriteForm" class="comment-form-wrapper">
   <div class="comment-form-title">작성</div>
@@ -148,7 +148,7 @@
 
 
 
-    <!-- 댓글 수정 폼 -->
+    <!-- 요청 수정 폼 -->
     <div v-if="editingComment" class="comment-form-wrapper">
       <div class="comment-form-title">수정</div>
 
@@ -230,7 +230,7 @@ const isPast = (month, day, time) => {
 const months = Array.from({ length: 12 }, (_, i) => i + 1)
 const times = ['데이', '이브닝', '나이트']
 
-// 댓글 작성 폼
+// 요청 작성 폼
 const showWriteForm = ref(false)
 const writeMonth = ref('')
 const writeDay = ref('')
@@ -254,7 +254,7 @@ function commentCancelWrite() {
 }
 
 
-// 댓글 수정 폼
+// 요청 수정 폼
 const editingComment = ref(null)
 const editMonth = ref('')
 const editDay = ref('')
@@ -284,7 +284,7 @@ function cancelEdit() {
   editTime.value = ''
 }
 
-// 댓글 수정
+// 요청 수정
 
 async function submitEdit() {
   if (!editMonth.value || !editDay.value || !editTime.value) {
@@ -297,7 +297,7 @@ async function submitEdit() {
   }
   // *** 교대 종류 검증 ***
   if (!isValidCommentShift(detail.value.content, editTime.value)) {
-    alert('게시글에는 데이/이브닝, 나이트 각각에 해당하는 근무 종류의 댓글만 작성할 수 있습니다.')
+    alert('게시글에는 데이/이브닝, 나이트 각각에 해당하는 근무 종류의 요청청만 작성할 수 있습니다.')
     return
   }
   showModal.value = true
@@ -325,12 +325,12 @@ async function submitEditWithNurse() {
       content: `${editMonth.value}월 ${editDay.value}일 ${editTime.value}`,
       nurseId: nurseInfo.value.id
     })
-    alert('댓글이 수정되었습니다.')
+    alert('요청이 수정되었습니다.')
     await fetchDetail()
     cancelEdit()
   } catch (e) {
     alert(typeof e.response?.data === 
-    'object' ? JSON.stringify(e.response.data) : e.response?.data || '댓글 수정 실패')
+    'object' ? JSON.stringify(e.response.data) : e.response?.data || '요청 수정 실패')
     console.error(e)
   }
 }
@@ -340,7 +340,7 @@ const deleteTargetComment = ref(null)
 
 function openCommentDeleteModal(comment) {
   showModal.value = true
-  deleteTargetComment.value = comment // 댓글 삭제
+  deleteTargetComment.value = comment // 요청 삭제
 }
 
 const hoveredCommentId = ref(null)
@@ -351,7 +351,7 @@ async function trySelectComment(comment) {
     alert('이 게시물은 이미 채택된 상태입니다.')
     return
   }
-  if (!confirm('이 댓글을 채택하시겠습니까?')) return
+  if (!confirm('이 요청을 채택하시겠습니까?')) return
   // 인증 모달 띄우기 (채택 시도)
   selectedCommentForSubmit.value = comment
   showModal.value = true
@@ -376,7 +376,7 @@ function isValidCommentShift(boardContent, commentTime) {
   return false
 }
 
-// 1. 댓글 작성 버튼 클릭
+// 1. 요청 작성 버튼 클릭
 function submitComment() {
   if (!writeMonth.value || !writeDay.value || !writeTime.value) {
     alert('월, 일, 타임을 모두 선택해 주세요.')
@@ -388,7 +388,7 @@ function submitComment() {
   }
   // *** 교대 종류 검증 ***
   if (!isValidCommentShift(detail.value.content, writeTime.value)) {
-    alert('게시글에는 데이/이브닝, 나이트 각각에 해당하는 근무 종류의 댓글만 작성할 수 있습니다.')
+    alert('게시글에는 데이/이브닝, 나이트 각각에 해당하는 근무 종류의 요청만 작성할 수 있습니다.')
     return
   }
   isWritingComment.value = true
@@ -416,10 +416,10 @@ const handleSubmit = async ({ email, password }) => {
     } else if (deleteTargetComment.value) {
       await deleteCommentConfirmed(deleteTargetComment.value)
     } else if (selectedCommentForSubmit.value) {
-      // 댓글 채택 로직
+      // 요청 채택 로직
       // 1. nurseId 비교
       if (String(detail.value.nurseId) !== String(nurseInfo.value.id)) {
-        alert('게시글 작성자만 댓글을 채택할 수 있습니다.')
+        alert('게시글 작성자만 요청을 채택할 수 있습니다.')
         selectedCommentForSubmit.value = null
         return
       }
@@ -428,11 +428,11 @@ const handleSubmit = async ({ email, password }) => {
         await apiClient.post(`/shifts/comments/${selectedCommentForSubmit.value.commentId}/submit`, null, {
           params: { boardId }
         })
-        alert('댓글이 채택되었습니다.')
+        alert('요청이 채택되었습니다.')
         router.push({ name: 'shift-list' })
         await fetchDetail()
       } catch (e) {
-        alert(e.response?.data || '댓글 채택 실패')
+        alert(e.response?.data || '요청 채택 실패')
         console.error(e)
       }
       selectedCommentForSubmit.value = null
@@ -450,11 +450,11 @@ const handleSubmit = async ({ email, password }) => {
 }
 
 
-// 3. nurseId 포함해서 댓글 작성
+// 3. nurseId 포함해서 요청 작성
   async function submitCommentWithNurse() {
-  // 1. 자기 글에 댓글 작성 방지
+  // 1. 자기 글에 요청 작성 방지
   if (String(detail.value.nurseId) === String(nurseInfo.value.id)) {
-    alert('자신의 게시글에 댓글을 작성하실 수 없습니다.')
+    alert('자신의 게시글에 요청을 작성하실 수 없습니다.')
     return
   }
 
@@ -470,18 +470,18 @@ const handleSubmit = async ({ email, password }) => {
     return
   }
 
-  // 3. 댓글 등록
+  // 3. 요청 등록
   try {
     await apiClient.post(`/shifts/comments/${boardId}`, { 
       boardId, 
       content: `${writeMonth.value}월 ${writeDay.value}일 ${writeTime.value}`, 
       nurseId 
     })
-    alert('댓글이 작성되었습니다.')
+    alert('요청이 작성되었습니다.')
     await fetchDetail()
     commentCancelWrite()
   } catch (e) {
-    alert('댓글 등록 실패')
+    alert('요청 등록 실패')
     console.error(e)
   }
 }
@@ -496,7 +496,7 @@ function openDeleteModal() {
 }
 
 
-// 댓글 삭제
+// 요청 삭제
 async function deleteCommentConfirmed(comment) {
   try {
     // await apiClient.delete(`/shifts/comments/${comment.commentId}`, {
@@ -507,12 +507,12 @@ async function deleteCommentConfirmed(comment) {
     })
 
     await fetchDetail()
-    alert('댓글이 삭제되었습니다.')
+    alert('요청이 삭제되었습니다.')
   } catch (e) {
     alert(
     typeof e.response?.data === 'object'
     ? JSON.stringify(e.response.data)
-    : e.response?.data || '댓글 삭제를 실패했습니다.'
+    : e.response?.data || '요청 삭제를 실패했습니다.'
     )
 
     console.error(e)
