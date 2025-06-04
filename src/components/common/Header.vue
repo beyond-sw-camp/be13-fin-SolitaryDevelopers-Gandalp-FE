@@ -203,10 +203,9 @@ onMounted(async () => {
 }
 
 .header-right {
-  min-width: 1200px;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: flex-start;
 }
 
 
@@ -220,7 +219,7 @@ onMounted(async () => {
   color: white !important;
   font-size: 14px;
   text-transform: none;
-
+  margin-right: 70px;
   padding: 0 12px;
   height: 36px;
 }

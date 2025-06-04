@@ -41,7 +41,7 @@ function initMap(lat, lng) {
     useStyleMap: true,
     zoom: 10,
     // 최소·최대 줌 레벨 지정
-    minZoom: 6,
+    minZoom: 8,
     maxZoom: 16,
     //mapTypeControl: true,
     mapTypeControlOptions: {
