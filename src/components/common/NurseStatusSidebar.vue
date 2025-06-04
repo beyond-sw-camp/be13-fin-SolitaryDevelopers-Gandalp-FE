@@ -129,7 +129,6 @@ const form = reactive({
 const fetchStatus = async () => {
   const res = await apiClient.get('/nurses/status')
   nurses.value = res.data
-  console.log(nurses.value);
 }
 
 const getColor = (status) => {
@@ -161,7 +160,7 @@ const submitStatus = async () => {
     const payload = {
       nurseId: selectedNurseId.value,
       password: form.password,
-      codeLabel: form.codeLabel
+      workingStatus: form.codeLabel
     }
 
     console.log(payload)
