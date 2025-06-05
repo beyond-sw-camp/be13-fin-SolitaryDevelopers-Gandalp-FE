@@ -6,6 +6,7 @@
   <v-col class="text-end">
     <v-btn class="me-2" size="small" variant="tonal" color="primary" @click="onClickGenerate" :disabled="isLoading">자동 생성</v-btn>
     <v-btn class="mx-2" size="small" variant="tonal" color="warning" @click="modify" :disabled="isLoading">근무 수정</v-btn>
+    <v-btn class="mx-2" size="small" variant="tonal" color="warning" @click="fairness" >공정도 조회</v-btn>
     <v-btn class="ms-2" size="small" variant="tonal" color="success" @click="goToCreateShift" :disabled="isLoading">근무 반영</v-btn>
   </v-col>
 </v-row>
@@ -35,6 +36,12 @@
       @close="showEditModal = false"
       @save="handleWorkUpdate"
     />
+    <FairnessModal
+      v-if="showFairnessModal"
+      :show="showFairnessModal"
+      :fairness-list="fairnesses"
+      @close="showFairnessModal = false"
+    />
 
     <!-- ✅ 로딩 오버레이 -->
     <v-overlay :model-value="isLoading" persistent class="d-flex align-center justify-center" style="z-index: 9999; pointer-events: all;">
@@ -52,7 +59,9 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/axios'
 import EditWorkModal from '@/components/common/EditWorkModal.vue'
+import FairnessModal from '@/components/common/FairnessModal.vue'
 
+const showFairnessModal = ref(false)
 const router = useRouter()
 const selectedDate = ref(null)
 const selectedWork = ref([])
@@ -61,7 +70,7 @@ const vueCalRef = ref(null)
 const eventKey = ref(0)
 const isLoading = ref(false) // ✅ 로딩 상태 추가
 const generatedWorkIds = ref([]) // ✅ 생성된 workTempId 저장용
-
+const fairnesses = ref([])
 const workEvents = ref([])
 
 function onCellClick({ cell }) {
@@ -103,7 +112,7 @@ const goToCreateShift = async () => {
     alert('근무 반영 실패: ' + (err.response?.data || err.message))
   } finally {
     isLoading.value = false
-    router.push('/calendar');
+    router.push('/');
   }
 }
 
@@ -148,6 +157,17 @@ const loadWorkSchedules = async () => {
 onMounted(async () => {
   await loadWorkSchedules()
 })
+
+
+const fairness = async () => {
+ try {
+    const { data } = await apiClient.get('/gpt/fairness')
+    fairnesses.value = data
+    showFairnessModal.value = true
+  } catch (e) {
+    alert('공정도 불러오기 실패: ' + (e.response?.data || e.message))
+  }
+}
 
 const modify = () => {
   if (!selectedDate.value) {
