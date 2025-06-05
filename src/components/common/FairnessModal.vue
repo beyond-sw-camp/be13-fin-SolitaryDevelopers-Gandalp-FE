@@ -11,9 +11,9 @@
                     cols="12"
                     sm="6"
                     md="4"
-                    class="pa-3"
+                    class="pa-2"
                     >
-                <v-card outlined class="pa-3" style="background-color: #f9f9f9; border-radius: 12px; box-shadow: 2px 2px 8px rgba(0,0,0,0.05);">
+                <v-card outlined class="pa-3" style="background-color: #f9f9f9; border-radius: 12px; box-shadow: 2px 2px 8px rgba(0,0,0,0.05); width:max-content;">
                     <h3 style="font-weight: bold; font-size: 16px; margin-top: 5px;">{{ n.nurseName }}</h3>
                     <v-divider class="my-2" />
                     <div><span style="font-weight: bold;">데이</span> ➜ 누적: {{ n.dayWorked }} / 임시: {{ n.tempDayWorked }} / 합계: <span style="font-weight: bold;">{{ n.dayWorked + n.tempDayWorked }}</span></div>

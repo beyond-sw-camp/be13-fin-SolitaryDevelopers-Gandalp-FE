@@ -22,16 +22,16 @@
 
   // Dark theme.
   // ------------------------------------------------------
-  &.vuecal--dark {
-    --vuecal-primary-color: #316191;
-    --vuecal-secondary-color: #2e2e2e;
-    --vuecal-base-color: #fff;
-    --vuecal-contrast-color: #000;
-    --vuecal-border-color: color-mix(in srgb, var(--vuecal-base-color) 8%, transparent);
-    --vuecal-header-color: var(--vuecal-base-color);
-    --vuecal-event-color: var(--vuecal-base-color);
-    --vuecal-event-border-color: color-mix(in srgb, var(--vuecal-base-color) 50%, transparent);
-  }
+  // &.vuecal--dark {
+  //   --vuecal-primary-color: #316191;
+  //   --vuecal-secondary-color: #2e2e2e;
+  //   --vuecal-base-color: #fff;
+  //   --vuecal-contrast-color: #000;
+  //   --vuecal-border-color: color-mix(in srgb, var(--vuecal-base-color) 8%, transparent);
+  //   --vuecal-header-color: var(--vuecal-base-color);
+  //   --vuecal-event-color: var(--vuecal-base-color);
+  //   --vuecal-event-border-color: color-mix(in srgb, var(--vuecal-base-color) 50%, transparent);
+  // }
 
   // Calendar Header.
   // ------------------------------------------------------
@@ -471,20 +471,20 @@
     .vuecal__scrollable--years-view .vuecal__cell {font-size: 0.9em;}
     .vuecal__cell-date {font-weight: bold;}
 
-    &.vuecal--dark .vuecal__cell--today:before,
-    &.vuecal--dark .vuecal__cell--current-month:before,
-    &.vuecal--dark .vuecal__cell--current-year:before {background-color: color-mix(in srgb, var(--vuecal-primary-color) 50%, transparent)}
-    &.vuecal--dark .vuecal__scrollable--month-view .vuecal__cell--selected:before,
-    &.vuecal--dark .vuecal__scrollable--year-view .vuecal__cell--selected:before,
-    &.vuecal--dark .vuecal__scrollable--years-view .vuecal__cell--selected:before {background-color: var(--vuecal-primary-color);}
+    // &.vuecal--dark .vuecal__cell--today:before,
+    // &.vuecal--dark .vuecal__cell--current-month:before,
+    // &.vuecal--dark .vuecal__cell--current-year:before {background-color: color-mix(in srgb, var(--vuecal-primary-color) 50%, transparent)}
+    // &.vuecal--dark .vuecal__scrollable--month-view .vuecal__cell--selected:before,
+    // &.vuecal--dark .vuecal__scrollable--year-view .vuecal__cell--selected:before,
+    // &.vuecal--dark .vuecal__scrollable--years-view .vuecal__cell--selected:before {background-color: var(--vuecal-primary-color);}
   }
 
   &.vuecal--date-picker.vuecal--light {
     .vuecal__cell--today:before,
     .vuecal__cell--current-month:before,
     .vuecal__cell--current-year:before {background-color: color-mix(in srgb, var(--vuecal-primary-color) 12%, transparent);}
-    .vuecal--dark .vuecal__scrollable--month-view .vuecal__cell--selected:before,
-    .vuecal--dark .vuecal__scrollable--year-view .vuecal__cell--selected:before,
-    .vuecal--dark .vuecal__scrollable--years-view .vuecal__cell--selected:before {background-color: color-mix(in srgb, var(--vuecal-primary-color) 28%, transparent);}
+    // .vuecal--dark .vuecal__scrollable--month-view .vuecal__cell--selected:before,
+    // .vuecal--dark .vuecal__scrollable--year-view .vuecal__cell--selected:before,
+    // .vuecal--dark .vuecal__scrollable--years-view .vuecal__cell--selected:before {background-color: color-mix(in srgb, var(--vuecal-primary-color) 28%, transparent);}
   }
 }
