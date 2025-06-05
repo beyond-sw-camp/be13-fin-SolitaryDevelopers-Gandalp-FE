@@ -254,17 +254,6 @@
             variant="outlined"
             class="mt-4 password-field"
           /> -->
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title>비밀번호</v-list-item-title>
-              <input
-                v-model="deletePassword"
-                placeholder="비밀번호 입력"
-                type="password"
-                class="modal-input"
-              />
-            </v-list-item-content>
-          </v-list-item>
         </v-card-text>
         <!-- <label>비밀번호</label>
         <input
@@ -278,7 +267,27 @@
         <v-card-actions>
           <v-spacer />
           <v-btn text size="large" @click="closeDetailDialog">닫기</v-btn>
-          <v-btn color="error" size="large" @click="confirmDelete">삭제</v-btn>
+          <v-btn color="error" size="large" @click="openDeleteConfirmDialog">삭제</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="deleteConfirmDialogVisible" max-width="400px">
+      <v-card>
+        <v-card-title class="text-h6" style="padding: 25px 25px 0px">비밀번호 확인</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="deletePassword"
+            label="비밀번호"
+            type="password"
+            density="compact"
+            variant="outlined"
+          />
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn text @click="closeDeleteConfirmDialog">취소</v-btn>
+          <v-btn color="error" @click="confirmDelete">삭제</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -294,6 +303,8 @@
   const createDialogVisible = ref(false)
   const detailDialogVisible = ref(false)
 
+  const deleteConfirmDialogVisible = ref(false);
+
   const calendarView = ref('month')
   
   const selectedRoomId = ref(null);
@@ -304,6 +315,16 @@
   const vueCalRef = ref(null);
   const selectedEvent = ref(null);
   const deletePassword = ref('');
+
+  const openDeleteConfirmDialog = () => {
+    deleteConfirmDialogVisible.value = true;
+  };
+
+  const closeDeleteConfirmDialog = () => {
+    deleteConfirmDialogVisible.value = false;
+    deletePassword.value = '';
+  };
+
   
   const newEvent = ref({
     roomId: null,
@@ -447,6 +468,7 @@
           password: deletePassword.value
         }
       });
+      closeDeleteConfirmDialog();
       closeDetailDialog();
       await loadSchedules();
       alert('일정이 삭제되었습니다.');
