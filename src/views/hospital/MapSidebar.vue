@@ -48,7 +48,7 @@
           <img :src="hospitalPinSideUrl" style="width: 17px; height: 15px;"/>
           {{ h.address }}</p>
         <p class="phone">
-          <img :src="hospitalPhoneUrl" style="width: 14px; height: 14px; margin-right:5px;"/>
+          <img :src="hospitalPhoneUrl" style="width: 15px; height: 15px; margin-right:5px;"/>
           {{ h.phoneNumber }}</p>
         <p class="beds"> 가용 병상 수 {{ h.availableErCount }} / 전체 {{ h.totalErCount }}</p>
       <!--   NaN인 경우 - 대기 표시 -->
