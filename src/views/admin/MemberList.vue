@@ -94,7 +94,6 @@
         <thead>
         <tr>
           <th></th>
-          <th>병원명</th>
           <th>분류</th>
           <th>진료과</th>
           <th>아이디</th>
@@ -136,16 +135,6 @@
       @closed="editingMember = null"
     />
 
-<!--    <div class="pagination">-->
-<!--      <button :disabled="page===1" @click="changePage(page-1)">&lt;</button>-->
-<!--      <button-->
-<!--        v-for="p in totalPages"-->
-<!--        :key="p"-->
-<!--        :class="{ active: page===p }"-->
-<!--        @click="changePage(p)"-->
-<!--      >{{ p }}</button>-->
-<!--      <button :disabled="page===totalPages" @click="changePage(page+1)">&gt;</button>-->
-<!--    </div>-->
 
       <div class="pagination-bar">
         <v-pagination
@@ -188,7 +177,6 @@ const types = [
 
 const options = [
   { value: '',           text: '전체 검색' },
-  { value: 'HOSPITAL',   text: '병원명' },
   { value: 'DEPARTMENT', text: '진료과' },
   { value: 'ACCOUNT_ID', text: '아이디' },
 ]

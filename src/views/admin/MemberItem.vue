@@ -1,7 +1,6 @@
 <template>
   <tr>
     <td>{{ index }}</td>
-    <td>{{ member.hospitalName }}</td>
     <td>{{ member.codeLabel }}</td>
     <td>{{ member.departmentName }}</td>
     <td>{{ member.accountId }}</td>
