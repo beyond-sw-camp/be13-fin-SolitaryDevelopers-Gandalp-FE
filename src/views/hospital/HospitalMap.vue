@@ -268,7 +268,8 @@ function connectWebSocket() {
   if (stompClient.value && stompClient.value.connected) return;
 
   // ✅ SockJS 객체 생성
-  const socket = new SockJS('https://api.gandalp-service.com/connect');
+  // const socket = new SockJS('https://api.gandalp-service.com/connect');
+  const socket = new SockJS('http://localhost:8080/connect');
 
   // ✅ SockJS로 STOMP 클라이언트 생성 (factory 생략)
   stompClient.value = Stomp.over(socket);
