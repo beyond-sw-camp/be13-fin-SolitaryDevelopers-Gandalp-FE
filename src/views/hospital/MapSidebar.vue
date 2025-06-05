@@ -1,16 +1,12 @@
-<!-- src/components/MapSidebar.vue -->
 <template>
   <aside class="map-sidebar">
     <!-- 현위치 찾기 버튼 -->
-
       <div class="location-input">
         <button @click="$emit('locate-me')" :disabled="isLocating">
           <span v-if="isLocating">위치 확인 중</span>
           <span v-else>현재 위치 찾기</span>
         </button>
       </div>
-
-
 
     <!-- 정렬 버튼 ( 부모로 데이터, 이벤트 전달 ) -->
     <div class="tab-menu">
@@ -32,7 +28,7 @@
           color="gray"
           size="36"
           style=" position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 9999" />
-<!--        <p class="loader-text">데이터를 불러오고 있습니다...</p>-->
+     <!-- <p class="loader-text">데이터를 불러오고 있습니다...</p>-->
       </div>
 
       <!-- 로딩 끝났으나 hospitals 배열이 비어있다면 -->
@@ -146,7 +142,6 @@ const props = defineProps({
 const isSearching = computed(() => props.searchKeyword.trim().length > 0)
 
 // 페이징 처리
-
 const pagedHospitals = computed(() => {
   // sortBy, hospitals.length로 slice
   const start = props.currentPage * 10
@@ -172,7 +167,6 @@ function formatDuration(ms) {
 
 defineEmits(['locate-me', ' search', 'change-sort', 'select-hospital', 'change-page'])
 
-
 </script>
 
 <style scoped>
@@ -186,7 +180,6 @@ defineEmits(['locate-me', ' search', 'change-sort', 'select-hospital', 'change-p
   flex-direction: column;
   gap: 16px;
 }
-
 
 .location-input {
   display: flex;
