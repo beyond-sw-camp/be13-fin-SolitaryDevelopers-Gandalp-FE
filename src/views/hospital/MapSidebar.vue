@@ -1,14 +1,14 @@
 <template>
   <aside class="map-sidebar">
     <!-- 현위치 찾기 버튼 -->
-      <div class="location-input">
-        <button @click="$emit('locate-me')" :disabled="isLocating">
-          <span v-if="isLocating">위치 확인 중</span>
-          <span v-else>현재 위치 찾기</span>
-        </button>
-      </div>
+    <div class="location-input">
+      <button @click="$emit('locate-me')" :disabled="isLocating">
+        <span v-if="isLocating">위치 확인 중</span>
+        <span v-else>현재 위치 찾기</span>
+      </button>
+    </div>
 
-    <!-- 정렬 버튼 ( 부모로 데이터, 이벤트 전달 ) -->
+    <!-- 정렬 버튼 -->
     <div class="tab-menu">
       <button
         v-for="option in SORT_OPTIONS"
@@ -16,83 +16,109 @@
         :class="{ active: sortBy === option }"
         @click="$emit('change-sort', option)"
       >
-        {{option === 'DISTANCE' ? '거리순': '가용 병상 순'}}
+        {{ option === 'DISTANCE' ? '거리순' : '가용 병상 순' }}
       </button>
     </div>
 
+    <!-- 병원 리스트 영역 -->
     <div class="hospital-list-wrapper">
-      <!--  로딩 중 -->
+      <!-- 로딩 중 -->
       <div v-if="isLoading" class="loader-container">
         <v-progress-circular
           indeterminate
           color="gray"
           size="36"
-          style=" position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 9999" />
-     <!-- <p class="loader-text">데이터를 불러오고 있습니다...</p>-->
+          style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999"
+        />
       </div>
 
-      <!-- 로딩 끝났으나 hospitals 배열이 비어있다면 -->
+      <!-- 로딩 끝났으나 목록이 비어있다면 -->
       <div v-if="!isLoading && hospitals.length === 0" class="loader-container">
         <p class="loader-text">해당 병원이 없습니다</p>
       </div>
 
-    <!-- 병원 리스트 props.hospitals에서 가져옴 -->
-    <ul class="hospital-list">
-      <li
-        v-for="h in pagedHospitals"
-        :key="h.id"
-        @click="$emit('select-hospital', h)"
-      >
-        <h5 class="name">{{ h.name }}</h5>
-        <p class="addr">
-          <img :src="hospitalPinSideUrl" style="width: 17px; height: 15px;"/>
-          {{ h.address }}</p>
-        <p class="phone">
-          <img :src="hospitalPhoneUrl" style="width: 15px; height: 15px; margin-right:5px;"/>
-          {{ h.phoneNumber }}</p>
-        <p class="beds"> 가용 병상 수 {{ h.availableErCount }} / 전체 {{ h.totalErCount }}</p>
-      <!--   NaN인 경우 - 대기 표시 -->
-        <p class="km">
-          최단 거리
-          <span v-if="Number.isFinite(h.distanceKm)">
-            {{ h.distanceKm.toFixed(1) }} km
-          </span>
-          <span v-else>–</span>
-         </p>
-        <p class="duration">
-          예상 소요 시간
-          <span v-if="Number.isFinite(h.durationSec)">
-            {{ formatDuration(h.durationSec) }}
-          </span>
-          <span v-else>–</span>
+      <!-- 실제 병원 목록 -->
+      <ul class="hospital-list">
+        <li
+          v-for="h in pagedHospitals"
+          :key="h.id"
+          @click="$emit('select-hospital', h)"
+        >
+          <h5 class="name">{{ h.name }}</h5>
+          <p class="addr">
+            <img :src="hospitalPinSideUrl" style="width: 17px; height: 15px;" />
+            {{ h.address }}
           </p>
-      </li>
-    </ul>
-
+          <p class="phone">
+            <img
+              :src="hospitalPhoneUrl"
+              style="width: 15px; height: 15px; margin-right:5px;"
+            />
+            {{ h.phoneNumber }}
+          </p>
+          <p class="beds">
+            가용 병상 수 {{ h.availableErCount }} / 전체 {{ h.totalErCount }}
+          </p>
+          <p class="km">
+            최단 거리
+            <span v-if="Number.isFinite(h.distanceKm)">
+              {{ h.distanceKm.toFixed(1) }} km
+            </span>
+            <span v-else>–</span>
+          </p>
+          <p class="duration">
+            예상 소요 시간
+            <span v-if="Number.isFinite(h.durationSec)">
+              {{ formatDuration(h.durationSec) }}
+            </span>
+            <span v-else>–</span>
+          </p>
+        </li>
+      </ul>
     </div>
 
     <div class="pagination">
       <button
         class="page-btn"
+        :disabled="groupIndex === 0"
+        @click="prevGroup"
+      >
+        &laquo;
+      </button>
+
+      <button
+        class="page-btn"
         :disabled="currentPage === 0"
-        @click="$emit('change-page', currentPage -1)"
+        @click="$emit('change-page', currentPage - 1)"
       >
         &lt;
       </button>
 
       <button
-        v-for="p in totalPages"
+        v-for="p in pageNumbers"
         :key="p"
         class="page-btn"
-        :class="{ active: currentPage === p - 1 }"
-        @click="$emit('change-page', p - 1)"
-      >{{ p }}</button>
+        :class="{ active: currentPage === p }"
+        @click="$emit('change-page', p)"
+      >
+        {{ p + 1 }}
+      </button>
 
       <button
         class="page-btn"
         :disabled="currentPage >= totalPages - 1"
         @click="$emit('change-page', currentPage + 1)"
-      >&gt;</button>
+      >
+        &gt;
+      </button>
+
+      <button
+        class="page-btn"
+        :disabled="(groupStart + 10) >= totalPages"
+        @click="nextGroup"
+      >
+        &raquo;
+      </button>
     </div>
   </aside>
 </template>
@@ -104,7 +130,6 @@ import hospitalPhoneUrl from '@/api/icons/hospital-phone.png'
 
 const SORT_OPTIONS = ['DISTANCE', 'ER_COUNT']
 
-// props
 const props = defineProps({
   hospitals: {
     type: Array,
@@ -132,42 +157,68 @@ const props = defineProps({
     required: true,
     default: false
   },
-  isLocating: { // 현재 위치 조회 중인지 부모에서 전달받음
+  isLocating: {
     type: Boolean,
     required: true,
     default: false
   }
 })
 
-const isSearching = computed(() => props.searchKeyword.trim().length > 0)
+const emit = defineEmits(['locate-me', 'change-sort', 'select-hospital', 'change-page'])
 
-// 페이징 처리
+const groupIndex = computed(() => Math.floor(props.currentPage / 10))
+
+const groupStart = computed(() => groupIndex.value * 10)
+
+const groupEnd = computed(() =>
+  Math.min(groupStart.value + 9, props.totalPages - 1)
+)
+
+// 화면에 보여줄 페이지 번호를 10개까지만 배열로 생성
+const pageNumbers = computed(() => {
+  const arr = []
+  for (let i = groupStart.value; i <= groupEnd.value; i++) {
+    arr.push(i)
+  }
+  return arr
+})
+
+// << 버튼 클릭 시 이전 첫 페이지로 이동
+function prevGroup() {
+  if (groupIndex.value > 0) {
+    const target = (groupIndex.value - 1) * 10
+    emit('change-page', target)
+  }
+}
+
+// >> 버튼 클릭 시 다음 첫 페이지로 이동
+function nextGroup() {
+  const target = (groupIndex.value + 1) * 10
+  if (target < props.totalPages) {
+    emit('change-page', target)
+  }
+}
+
+//0개씩 보여주기
 const pagedHospitals = computed(() => {
-  // sortBy, hospitals.length로 slice
   const start = props.currentPage * 10
   return props.hospitals.slice(start, start + 10)
 })
 
-// 소요 시간 포맷
+// 예상 소요 시간(ms → 시:분) 포맷 함수
 function formatDuration(ms) {
-  const totalSec = Math.round(ms/1000)
+  const totalSec = Math.round(ms / 1000)
   const hours = Math.floor(totalSec / 3600)
-  const minutse = Math.floor((totalSec % 3600)/ 60)
-
-  if(hours === 0) {
-    // 1시간 이하
+  const minutes = Math.floor((totalSec % 3600) / 60)
+  if (hours === 0) {
     return `${Math.ceil(totalSec / 60)} 분`
   }
-
-  const hh = String(hours).padStart(2,'0' )
-  const mm = String(minutse).padStart(2,'0' )
-
+  const hh = String(hours).padStart(2, '0')
+  const mm = String(minutes).padStart(2, '0')
   return `${hh}시간 ${mm}분`
 }
-
-defineEmits(['locate-me', ' search', 'change-sort', 'select-hospital', 'change-page'])
-
 </script>
+
 
 <style scoped>
 .map-sidebar {
@@ -306,6 +357,7 @@ defineEmits(['locate-me', ' search', 'change-sort', 'select-hospital', 'change-p
   display: flex;
   justify-content: center;
   gap: 8px;
+  white-space: nowrap;
   margin-top: 12px;
 }
 
