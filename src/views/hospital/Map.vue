@@ -50,7 +50,7 @@ function initMap(lat, lng) {
     zoom: 11,
     // 최소·최대 줌 레벨 지정
     minZoom: 8,
-    maxZoom: 16,
+    maxZoom: 18,
     //mapTypeControl: true,
     mapTypeControlOptions: {
       style: naver.maps.MapTypeControlStyle.BUTTON,
