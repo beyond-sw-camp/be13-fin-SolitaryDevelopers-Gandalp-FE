@@ -392,8 +392,9 @@
   
   const loadNurses = async () => {
     try {
-      const response = await apiClient.get('/nurses');
-      nurseOptions.value = response.data.content.map(nurse => ({ id: nurse.id, name: nurse.name }));
+      const response = await apiClient.get('/nurses/list');
+      nurseOptions.value = response.data.map(nurse => ({ id: nurse.id, name: nurse.name }));
+      console.log(response);
     } catch (error) {
       console.error('간호사 목록 불러오기 실패:', error);
     }
