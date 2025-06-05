@@ -39,6 +39,7 @@
     <table class="nurse-table">
         <thead>
         <tr>
+            <th>타입</th>
             <th>이름</th>
             <th>이메일</th>
             <th style="text-align: center">관리</th>
@@ -46,6 +47,7 @@
         </thead>
         <tbody>
         <tr v-for="nurse in nurses" :key="nurse.email">
+            <td> {{ nurse.codeLabel }}</td>
             <td>{{ nurse.name }}</td>
             <td>{{ nurse.email }}</td>
             <td class="actions">
@@ -89,6 +91,7 @@ const searchOption = ref('NAME')
 const searchOptions = [
     { label: '이름', value: 'NAME' },
     { label: '이메일', value: 'EMAIL' },
+    { label: '타입', value: 'TYPE' },
 ]
 
 const fetchNurses = async () => {
