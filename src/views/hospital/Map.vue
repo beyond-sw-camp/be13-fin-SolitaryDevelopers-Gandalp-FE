@@ -11,26 +11,26 @@ import hospitalPhoneUrl from '@/api/icons/hospital-phone.png'
 import { ref, onMounted, watch } from 'vue'
 
 // 부모로부터 받을 병원 리스트 + 초기 지도 중심 좌표(위도, 경도)
- const props = defineProps({
-   hospitals: {
-     type: Array,
-       required: true,
-       default: () => []
-   },
-   centerLat: {
-       type: Number,
-         required: true
-   },
-   centerLng: {
-       type: Number,
-         required: true
-   },
-   showCurrent: { // 현재 위치에서 검색중인지 받음
-     type:Boolean,
-     required: false,
-     default: true
-   }
- })
+const props = defineProps({
+  hospitals: {
+    type: Array,
+    required: true,
+    default: () => []
+  },
+  centerLat: {
+    type: Number,
+    required: true
+  },
+  centerLng: {
+    type: Number,
+    required: true
+  },
+  showCurrent: { // 현재 위치에서 검색중인지 받음
+    type:Boolean,
+    required: false,
+    default: true
+  }
+})
 
 // 지도와 마커 보관
 let map = null
@@ -47,7 +47,7 @@ function initMap(lat, lng) {
   map = new naver.maps.Map('map', {
     center: new naver.maps.LatLng(lat, lng),
     useStyleMap: true,
-    zoom: 11,
+    zoom: 12,
     // 최소·최대 줌 레벨 지정
     minZoom: 8,
     maxZoom: 18,
@@ -128,15 +128,15 @@ function renderMarkers() {
             align-items: center;
             justify-content: center;
           ">
-            <span style="font-weight: bold;">
-              <img src="${hospitalIconUrl}" style="width:16px; height:16px; margin-right:2px;" />
+            <span style="font-weight: bold; display: flex; align-items: center;">
+              <img src="${hospitalIconUrl}" style="width:16px; height:16px; margin-right:5px;" />
               ${hospital.name}
             </span>
-            <span style="font-size: 13px; padding: 6px 22px 0 22px;">
-              <img src="${hospitalPhoneUrl}" style="width:14px; height:14px; margin-right:5px;" />
+            <span style="font-size: 13px; padding: 6px 22px 0 22px; display: flex;">
+              <img src="${hospitalPhoneUrl}" style="width:16px; height:16px; margin-right:5px;" />
               ${hospital.phoneNumber}
             </span>
-          </div>
+
         </div>
       `
     })
@@ -198,16 +198,16 @@ function renderCurrentLocation(lat, lng) {
     clickable: false
   })
 }
- // 외부에서 지도 제어할 수 있게 노출
- function centerOn(lat, lng) {
-   if (!map) return
-   map.panTo(new naver.maps.LatLng(lat, lng))
+// 외부에서 지도 제어할 수 있게 노출
+function centerOn(lat, lng) {
+  if (!map) return
+  map.panTo(new naver.maps.LatLng(lat, lng))
 
- }
+}
 
- function openInfoWindow(hospital) {
+function openInfoWindow(hospital) {
 
-   const found = markersInfo.value.find(i => i.id === hospital.id)
+  const found = markersInfo.value.find(i => i.id === hospital.id)
   if (found && map) {
     closeAllInfoWindows()
     found.infowindow.open(map, found.marker)
@@ -226,28 +226,28 @@ function renderCurrentLocation(lat, lng) {
 
   }
 
- }
+}
 
- onMounted(() => {
-   if(!window.naver || !window.naver.maps) {
-     console.error('네이버 맵 스크립트 로드 실패')
-     return
-   }
+onMounted(() => {
+  if(!window.naver || !window.naver.maps) {
+    console.error('네이버 맵 스크립트 로드 실패')
+    return
+  }
 
-   initMap(props.centerLat, props.centerLng)
+  initMap(props.centerLat, props.centerLng)
 
- })
+})
 
- watch(
+watch(
 
-   () => props.hospitals,
-   () => {
-     if (map) {
-       renderMarkers()
-     }
-   },
-   {immediate : true}
- )
+  () => props.hospitals,
+  () => {
+    if (map) {
+      renderMarkers()
+    }
+  },
+  {immediate : true}
+)
 // watch를 분리해서 사용
 watch(
   () => [props.centerLat, props.centerLng, props.showCurrent],
@@ -264,7 +264,7 @@ watch(
   }
 )
 
- defineExpose({centerOn, openInfoWindow})
+defineExpose({centerOn, openInfoWindow})
 
 
 </script>
