@@ -2,22 +2,16 @@
 
   <div class="join-page">
 
-
-
   <div class="title-container">
     <h2 class="title">계정 생성</h2>
   </div>
-
 
   <v-card class="join-content-card">
 
         <div class="join-box">
 
-
-
      <!-- 계정 생성-->
         <div class="select-job">
-
 
           <label class="radio-box">
             <input type="radio" name="type" value="NURSE" v-model="type">
@@ -154,7 +148,7 @@ const enroll = async() =>{
 
     message.value = '계정 생성이 완료되었습니다'
     success.value = true
-   
+
 
     alert('계정 생성이 완료되었습니다.');
     router.push('/memberList')
@@ -238,12 +232,10 @@ h2.title::before {
   cursor: pointer;
   user-select: none;
 
-  /* input 숨기기 */
   input {
     display: none;
   }
 
-  /* label 텍스트 스타일 */
   .box-label {
     padding: 5px 11px;
     border: 1px solid #ccc;
@@ -251,7 +243,6 @@ h2.title::before {
     transition: background 0.2s, border-color 0.2s, color 0.2s;
   }
 
-  /* 선택된 라디오의 + sibling 으로 붙어 있는 .box-label 스타일 */
   input:checked + .box-label {
     background: #8cbacf;
     color: #fff;
@@ -259,18 +250,11 @@ h2.title::before {
   }
 }
 
-/* 3) 그리드 폼: 첫/마지막은 전체폭, 중간 2개는 1열씩 */
 .member-input {
   display: grid;
   grid-template-columns: 1fr;  /* 한 열 */
   gap: 16px;
   margin-bottom: 24px;
-
-  /* 더 이상 nth-child override 불필요 */
-  /* > label:nth-child(1),
-     > label:nth-child(4) {
-     grid-column: 1 / -1;
-   } */
 
   label {
     display: flex;

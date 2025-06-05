@@ -4,32 +4,12 @@
 
     <v-card style="width: 75.5vw; background-color: white; padding: 2%; border-radius: 25px;">
 
-
     <!--  검색바-->
     <form class="search-bar"
           @submit.prevent="onSearch"
           @keydown.enter.prevent="onSearch"
     >
 
-<!--      <select v-model="selectedType">-->
-<!--        <option value="">전체 타입</option>-->
-<!--        <option v-for="t in types" :key="t.value" :value="t.value">-->
-<!--          {{ t.label }}-->
-<!--        </option>-->
-<!--      </select>-->
-
-<!--      <select v-model="selectedOption">-->
-<!--        <option value="">전체 검색</option>-->
-<!--        <option v-for="opt in options" :key="opt.value" :value="opt.value">-->
-<!--          {{ opt.label }}-->
-<!--        </option>-->
-<!--      </select>-->
-
-
-<!--      <input v-model="keyword"-->
-<!--             placeholder="검색어를 입력하세요" />-->
-
-<!--      <button class=search-btn type="submit">검색</button>-->
     <div class="search-container">
       <div>
           <v-select

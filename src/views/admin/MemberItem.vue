@@ -51,20 +51,17 @@ const onDelete = async () => {
 .actions {
   display: flex;
   gap: 8px;
-  /* 세로가 아니라 가로로 정렬 */
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
 }
 
-/* Vuetify 버튼 커스텀 여유 패딩 */
 .action-btn {
   min-width: 64px;
   font-weight: 600;
   text-transform: none;
 }
 
-/* Tonal variant 라운드 추가 */
 .v-btn[variant="tonal"] {
   border-radius: 8px;
 }

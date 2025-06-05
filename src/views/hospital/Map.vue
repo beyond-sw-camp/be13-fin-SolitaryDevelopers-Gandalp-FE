@@ -115,7 +115,6 @@ function renderMarkers() {
       markerAni.classList.add('show')
     })
 
-    // ← 수정: 사전에 한 번만 생성해 두되, 닫기 버튼 리스너는 마커 클릭 시점에 붙인다
     const infowindow = new naver.maps.InfoWindow({
       content: `
           <div class="info-content-box" style="
@@ -151,7 +150,7 @@ function renderMarkers() {
       infowindow.open(map, marker)
     })
 
-    // 마커+인포윈도우 정보를 전역 배열에 저장
+    // 마커+인포윈도우 정보를 배열에 저장
     markersInfo.value.push({
       id: hospital.id,
       marker,
@@ -159,7 +158,7 @@ function renderMarkers() {
     })
   })
 
-  // hospitals 배열에 항목이 하나라도 있으면 fitBounds
+  // hospitals 배열에 데이터가 하나라도 있으면 fitBounds
   if (props.hospitals.length > 0) {
     map.fitBounds(bounds, 0)
   }
@@ -170,7 +169,6 @@ function closeAllInfoWindows() {
     info.infowindow.close()
   })
 }
-  // 마커들이 지도에 들어올 수 있도록 범위 계산을 위한 LatLngBounds
 
 // 현재 위치 마커 생성
 function renderCurrentLocation(lat, lng) {
@@ -208,9 +206,7 @@ function renderCurrentLocation(lat, lng) {
  }
 
  function openInfoWindow(hospital) {
-  //if(!map) return
-   // map.panTo(new naver.maps.LatLng(hospital.latitude, hospital.longitude))
-   // closeAllInfoWindows()
+
    const found = markersInfo.value.find(i => i.id === hospital.id)
   if (found && map) {
     closeAllInfoWindows()
@@ -338,7 +334,5 @@ watch(
     opacity: 0;
   }
 }
-
-
 
 </style>

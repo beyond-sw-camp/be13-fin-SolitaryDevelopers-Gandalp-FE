@@ -1,7 +1,6 @@
 <template>
   <div class="hospital-map">
 
-
     <MapSidebar
       :hospitals = "sortedHospitals"
       :total-pages="totalPages"
@@ -30,9 +29,10 @@
         />
 
         <button class="btn-search" @click="onSearch(searchKeyword)">
-          검색</button>
-      </div>
+          검색
+        </button>
 
+      </div>
 
       <div class="map-wrapper">
         <Map
@@ -44,39 +44,34 @@
           :auto-fit-bounds="false"
           :show-current="!isSearching"
         />
-
       </div>
 
-      <!--      아이콘 저작권 표시 -->
+      <!-- 아이콘 저작권 표시 -->
       <div class="icon-attribution">
         아이콘 제작자
         <a
           href="https://www.flaticon.com/authors/i3oundless"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           I3oundless
         </a>,
         <a
           href="https://www.flaticon.com/authors/pixel-perfect"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           Pixel perfect
         </a>,
         <a
           href="https://www.flaticon.com/authors/meaicon"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           meaicon
         </a>
         from
         <a
           href="https://www.flaticon.com/"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           Flaticon
         </a>
       </div>
@@ -99,12 +94,10 @@ import apiClient from "@/api/axios.js";
 //  첫 로딩 시 마지막 위치 활용: onMounted에서 한 번만 위치 얻기
 //  이후 “현재 위치 찾기” 시, 이미 userPosition이 있으면 GPS 재호출 없이 fetchHospitals()
 
-
 // 소수점 5자리까지 반올림 (≈1.1m 단위)
 function roundToFiveDecimal(value) {
   return Math.round(value * 100000) / 100000;
 }
-
 
 // 상태 정의
 const searchKeyword = ref('')
@@ -113,10 +106,8 @@ const currentPage = ref(0)
 const pageSize = 10
 const totalPages = computed(() => Math.ceil(hospitals.value.length/ pageSize))
 const mapRef = ref(null)
-
 // 전달할 병원 리스트
 const hospitals = ref([])
-
 // 서버에서 받아온 데이터 정렬
 const sortedHospitals = computed(() => {
   const arr = [...hospitals.value]
@@ -136,14 +127,11 @@ const userPosition = reactive({lat: null, lon: null})
 // “마지막으로 서버에 병원 조회 요청을 보냈던” 위치를 저장
 const lastPosition = reactive({ lat: null, lon: null })
 const stompClient = ref(null)
-
 // 로딩 상태
 const isLoading = ref(false)
 // 현재 위치 조회 중 상태
 const isLocating = ref(false)
-
 const isSearching = ref(false)
-
 
 // Haversine 공식: 두 위경도 사이의 거리(m) 계산
 function calcDistance(lat1, lon1, lat2, lon2) {
@@ -160,7 +148,7 @@ function calcDistance(lat1, lon1, lat2, lon2) {
   return R * c
 }
 
-// ** 마지막 전송 시각과 마지막 전송 좌표 관리 (10초, 50m)
+//  마지막 전송 시각과 마지막 전송 좌표 관리 (10초, 50m)
 let lastSent = { lat: null, lon: null, time: 0 }
 const SEND_INTERVAL = 15_000  // 10초
 const SEND_DISTANCE  = 150    // 100m 이상으로 해야 gps 오차를 감안할 수 있음
@@ -174,7 +162,6 @@ function trySendLocation(lat, lon) {
   if (now - lastSent.time <= SEND_INTERVAL) {
     return
   }
-
   // 마지막으로 전송했던 좌표가 없으면 바로 전송 ( 처음 )
   if (lastSent.lat === null || lastSent.lon === null) {
     stompClient.value.publish({
@@ -185,7 +172,6 @@ function trySendLocation(lat, lon) {
     lastSent = { lat, lon, time: now }
     return
   }
-
   //  마지막 전송했던 좌표로부터 실제 이동 거리가 150m 이상이면 전송
   const distance = calcDistance(lastSent.lat, lastSent.lon, lat, lon)
   if (distance >= SEND_DISTANCE) {
@@ -198,7 +184,6 @@ function trySendLocation(lat, lon) {
   }
 }
 
-
 // 현재 위치 기반 데이터 조회 ( 페이지 첫 랜더링 시 보여줄 화면 데이터 )
 async function fetchHospitals() {
 
@@ -206,10 +191,8 @@ async function fetchHospitals() {
     console.warn('[fetchHospitals] 위치 정보가 설정되지 않아 API 호출을 건너뜁니다.')
     return
   }
-
   // API 호출 직전에 로딩 ON
   isLoading.value = true
-
 
   try {
     const res = await apiClient.post (
@@ -248,8 +231,6 @@ async function fetchHospitals() {
   }
 }
 
-
-
 function updateHospitalInList(updatedHospital) {
   // hospitals.value 배열에서 같은 id를 찾아서
   const idx = hospitals.value.findIndex(h => h.id === updatedHospital.id)
@@ -261,7 +242,6 @@ function updateHospitalInList(updatedHospital) {
 }
 
 // STOMP 연결 실시간 업데이트
-
 function connectWebSocket() {
   if (stompClient.value && stompClient.value.connected) return;
 
@@ -432,7 +412,6 @@ async function onLocateMe() {
 
 }
 
-
 // 검색 버튼 혹은 엔터 키 누른 경우
 async function onSearch(keyword) {
   isSearching.value = true
@@ -470,7 +449,6 @@ function onSelectHospital(hospital) {
     mapRef.value.openInfoWindow(hospital)
   }
 }
-
 
 onMounted(async () => {
   // 앱 구동 시, 마지막에 캐시된 위치(1분 이내 있으면)나 빠른 Wi-Fi 기반 위치를 얻어옴
@@ -554,7 +532,6 @@ onMounted(async () => {
   flex: 1;
 
 }
-
 
 #map {
   flex: 1;
