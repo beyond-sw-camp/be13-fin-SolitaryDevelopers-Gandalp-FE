@@ -7,7 +7,6 @@ import OffCalendarVue from '@/views/shedule/OffCalendar.vue'
 import ManageOff from '@/views/shedule/ManageOff.vue'
 import GenerationWork from '@/views/shedule/GenerationWork.vue'
 
-import Ex from '@/views/Ex.vue'
 import Login from '@/views/Login.vue'
 import JoinMember from "@/views/admin/JoinMember.vue"
 import MemberList from "@/views/admin/MemberList.vue"
@@ -33,11 +32,6 @@ const routes = [
     name: 'home',
     component: BaseLayout,
     children: [
-      {
-        path: 'ex',
-        name: 'ex',
-        component: Ex
-      },
       {
         path: 'showOff',
         name: 'showOff',
@@ -121,7 +115,7 @@ const routes = [
         component: UpdateEr
       },
       {
-        path: '',
+        path: '/calendar',
         name: 'playground',
         component: () => import('@/documentation/examples/playground.vue')
       }
