@@ -7,7 +7,6 @@
 <script setup>
 import customPinUrl from '@/api/icons/hospital-pin-red.png'
 import hospitalIconUrl from '@/api/icons/hospital-plus-green.png'
-import hospitalCloseUrl from '@/api/icons/hospital-close.png'
 import hospitalPhoneUrl from '@/api/icons/hospital-phone.png'
 import { ref, onMounted, watch } from 'vue'
 

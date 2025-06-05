@@ -94,8 +94,8 @@ import MapSidebar from "@/views/hospital/MapSidebar.vue";
 import Header from "@/components/common/Header.vue";
 import apiClient from "@/api/axios.js";
 
-//  네이버 내비/지도 앱 방식 반영
-//  소수점 5자리(≈1.1m) 반올림 : GPS 흔들림(±0.5m) 방지
+//  네이버 내비/지도 앱 방식
+//  소수점 5자리(1.1m) 반올림 : GPS 흔들림(±0.5m) 방지
 //  첫 로딩 시 마지막 위치 활용: onMounted에서 한 번만 위치 얻기
 //  이후 “현재 위치 찾기” 시, 이미 userPosition이 있으면 GPS 재호출 없이 fetchHospitals()
 
@@ -221,8 +221,6 @@ async function fetchHospitals() {
           lon: userPosition.lon,
           sortOption: sortBy.value,
           keyword: searchKeyword.value ? searchKeyword.value : undefined,
-          // page : currentPage.value,
-          // size : pageSize
         }
       }
     )
@@ -317,16 +315,10 @@ function onConnected() {
   }
 }
 
-// 📌 연결 실패 시 콜백
+// 연결 실패 시 콜백
 function onError(error) {
   console.error('❌ STOMP 연결 실패:', error);
 }
-
-
-// ----------------------------------------------------------------------------------
-// 현재 위치 찾기 버튼
-//  이미 userPosition이 세팅되어 있으면 바로 fetchHospitals()만 호출 (GPS 재호출 생략)
-// 아니면 getCurrentPosition → 반올림 → fetchHospitals → STOMP
 
 // 현재 위치 찾기 버튼
 // 사용자 위치 정보 허용
@@ -371,9 +363,6 @@ async function onLocateMe() {
       searchKeyword.value = ''
       // 페이지 0으로 초기화
       currentPage.value = 0
-
-      // 정렬 기준은 초기화 할까 말까...
-      //sortBy.value = 'DISTANCE'
 
       // 유저 위치 ( gps 좌표를 소수점 5자리로 반올림 )
       userPosition.lat = roundToFiveDecimal(coords.latitude);
