@@ -22,7 +22,7 @@
   const isProduction = import.meta.env.PROD
   
   const isCalendarBaseLayout = computed(() => {
-    return route.path === '/'
+    return route.path === '/calendar'
   })
   
   onMounted(() => {
