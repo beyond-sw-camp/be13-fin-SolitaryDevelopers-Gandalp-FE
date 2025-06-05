@@ -414,15 +414,15 @@ async function onLocateMe() {
 
 // 검색 버튼 혹은 엔터 키 누른 경우
 async function onSearch(keyword) {
-
-  const trimmed = keyword.trim()
-
-  if (['시', '군', '구'].includes(trimmed)) {
-    const lonword = confirm(`"${keyword}"보다 더 정확하게 검색해주세요`)
-    if(lonword) {
-      return
-    }
-  }
+  //
+  // const trimmed = keyword.trim()
+  //
+  // if (['시', '군', '구'].includes(trimmed)) {
+  //   const lonword = confirm(`"${keyword}"보다 더 정확하게 검색해주세요`)
+  //   if(lonword) {
+  //     return
+  //   }
+  // }
 
   isSearching.value = true
   searchKeyword.value = keyword.trim()
