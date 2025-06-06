@@ -95,24 +95,27 @@ const onClickGenerate = async () => {
   }
 }
 const goToCreateShift = async () => {
+  isLoading.value = true
+
+  const ids = await loadWorkSchedules()
+  generatedWorkIds.value = ids || [] // ✅ null 방지
+
   if (!generatedWorkIds.value.length) {
+    isLoading.value = false
     alert('자동 생성 후에만 반영할 수 있어요!')
     return
   }
 
-  isLoading.value = true
   try {
     const { data } = await apiClient.post('/schedules/accept-works', generatedWorkIds.value)
-    console.log('✅ 반영된 근무:', data)
-
     alert('근무 반영 완료!')
-    generatedWorkIds.value = [] // ✅ 반영 후 초기화
+    generatedWorkIds.value = []
     await loadWorkSchedules()
+    router.push('/calendar')
   } catch (err) {
     alert('근무 반영 실패: ' + (err.response?.data || err.message))
   } finally {
     isLoading.value = false
-    router.push('/calendar');
   }
 }
 
@@ -126,6 +129,7 @@ const getShiftType = (startDate, endDate) => {
 }
 
 const loadWorkSchedules = async () => {
+  const ids = []
   try {
     const { data } = await apiClient.get('/schedules/temp')
     workEvents.value = data.map(item => {
@@ -134,7 +138,7 @@ const loadWorkSchedules = async () => {
       const shift = getShiftType(start, end)
       const workTempId = item.workTempId
 
-      generatedWorkIds.value.push(workTempId)
+      ids.push(workTempId)
 
       let eventClass = ''
       if (shift === '데이') eventClass = 'shift-day'
@@ -149,8 +153,11 @@ const loadWorkSchedules = async () => {
         class: eventClass
       }
     })
+
+    return ids
   } catch (e) {
     alert('근무 일정 불러오기 실패: ' + (e.response?.data || e.message))
+    return [] // 반드시 빈 배열 반환
   }
 }
 
@@ -218,6 +225,7 @@ const handleWorkUpdate = (updatedWork) => {
   
   <style scoped>
   .title {
+    width: 150%;
     color: black;
     text-align: center;
     font-size: 18px;

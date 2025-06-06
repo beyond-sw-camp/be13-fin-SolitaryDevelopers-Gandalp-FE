@@ -40,5 +40,14 @@
       font-weight: normal;
       font-style: normal;
     }
+    .w-select__menu {
+  background-color: white !important;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  color: #000;
+}
+.w-dialog__content{
+    background-color: white !important;
+}
   </style>  
   

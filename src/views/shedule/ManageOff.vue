@@ -64,26 +64,38 @@
           </td>
           <td class="text-center">{{ formatDateTime(item.updatedAt) }}</td>
           <td class="text-center">
-            <v-btn
-              v-if="item.codeLabel === '대기중'"
-              class="accept-btn"
-              size="x-small"
-              variant="tonal"
-              color="primary"
-              @click="acceptOff(item.offScheduleTempId)"
-            >
-              승인
-            </v-btn>
-            <v-btn
-              v-if="item.codeLabel === '승인'"
-              class="reject-btn"
-              size="x-small"
-              variant="tonal"
-              color="error"
-              @click="rejectOff(item.offScheduleTempId)"
-            >
-              반려
-            </v-btn>
+            <template v-if="item.codeLabel === '대기중'">
+              <v-btn
+                class="accept-btn"
+                size="x-small"
+                variant="tonal"
+                color="primary"
+                @click="acceptOff(item.offScheduleTempId)"
+              >
+                승인
+              </v-btn>
+              <v-btn
+                class="reject-btn"
+                size="x-small"
+                variant="tonal"
+                color="error"
+                @click="rejectOff(item.offScheduleTempId)"
+              >
+                반려
+              </v-btn>
+            </template>
+            <!-- 승인 상태: 반려만 -->
+            <template v-else-if="item.codeLabel === '승인'">
+              <v-btn
+                class="reject-btn"
+                size="x-small"
+                variant="tonal"
+                color="error"
+                @click="rejectOff(item.offScheduleTempId)"
+              >
+                반려
+              </v-btn>
+            </template>
           </td>
         </tr>
       </tbody>

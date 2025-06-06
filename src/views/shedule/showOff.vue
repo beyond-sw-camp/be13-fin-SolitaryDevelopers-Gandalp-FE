@@ -397,6 +397,7 @@ onMounted(fetchList)
     font-size: 12px;
   }
   .title {
+    width: 150%;
     text-align: center;
     font-size: 18px;
     font-weight: bold;
