@@ -76,6 +76,7 @@
     v-model="eventCreation.show"
     width="420"
     @close="eventCreation.cancel"
+    bg-color="white"
   )
     .event-detail(style="padding-left: 12px; padding-top: 8px; font-size: 18px")
       .w-flex.column
@@ -121,7 +122,6 @@
         placeholder="간호사를 선택하세요"
         :disabled="eventCreation.isEdit"
       )
-    
       .w-flex.column
         label.text-sm.font-semibold.mt4.mb2 비밀번호
         input(
@@ -737,6 +737,9 @@
             startTime: startDate,
             endTime: endDate
           });
+
+          console.log(response);
+          
         }
   
         const newEvent = {
@@ -980,6 +983,7 @@ onMounted(async () => {
 }
 
   .title {
+    width: 150%;
     text-align: center;
     font-size: 18px;
     font-weight: bold;
@@ -987,6 +991,7 @@ onMounted(async () => {
     margin-top: 5px;
     color: black;
   }
+
 
 /* ::v-deep(.vuecal__event.shift-etc) {
   background-color: #f0f0f0;
@@ -1124,6 +1129,8 @@ onMounted(async () => {
       width: 215px;
       padding: 0;
     }
+
+
   
     /* .config-panel {
       padding: 12px;
@@ -1254,6 +1261,19 @@ onMounted(async () => {
                               } */
   }
   
+      /* w-select 내부 메뉴 배경색 흰색으로 */
+  ::v-deep(.w-select__menu) {
+    background-color: white !important;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    color: black;
+  }
+
+/* 선택 항목 hover 시 색상 */
+::v-deep(.w-select__option:hover) {
+  background-color: #f0f4ff;
+}
+
   // Media queries.
   // --------------------------------------------------------
   @media screen and (max-width: $sm) {
