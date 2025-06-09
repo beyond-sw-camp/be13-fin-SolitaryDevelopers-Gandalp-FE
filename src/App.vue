@@ -49,5 +49,8 @@
 .w-dialog__content{
     background-color: white !important;
 }
+.title {
+  width: 75.5vw;
+}
   </style>  
   
