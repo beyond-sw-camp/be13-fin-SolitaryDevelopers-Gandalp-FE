@@ -25,7 +25,7 @@
 
       <h4 class="notice-subtitle">일반 공지사항</h4>
       <ul class="general-notice-list">
-        <li v-for="notice in generalList" :key="notice.id">
+        <li v-for="notice in generalList" :key="notice.id" class="notice-item">
           {{ notice.content }}
         </li>
       </ul>
@@ -118,8 +118,8 @@ onMounted(fetchNotices)
 .notice-border {
   border: #ddd solid 1px;
   background-color: white;
-  border-radius: 10px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  border-radius: 10px; 
+  box-shadow: 3px 7px 5px rgba(0, 0, 0, 0.1);
 
 }
 .notice-header {
@@ -218,6 +218,7 @@ onMounted(fetchNotices)
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 7px;
 }
 
 .delete-btn {

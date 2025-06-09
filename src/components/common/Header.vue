@@ -219,6 +219,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: flex-start;
+  
 }
 
 
@@ -230,11 +231,12 @@ onMounted(async () => {
 
 .nav-btn {
   color: white !important;
-  font-size: 14px;
   text-transform: none;
   margin-right: 70px;
   padding: 0 12px;
   height: 36px;
+  font-weight: bold;
+  font-size: 14.5px;
 }
 
 .nav-btn:hover {
