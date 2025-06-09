@@ -458,7 +458,6 @@
   const closeDetailDialog = () => {
     detailDialogVisible.value = false;
     deletePassword.value = '';
-    selectedEvent.value = null;
   };
   
   const confirmDelete = async () => {

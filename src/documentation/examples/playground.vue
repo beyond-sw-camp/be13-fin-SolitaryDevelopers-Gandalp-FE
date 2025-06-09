@@ -76,7 +76,6 @@
     v-model="eventCreation.show"
     width="420"
     @close="eventCreation.cancel"
-    bg-color="white"
   )
     .event-detail(style="padding-left: 12px; padding-top: 8px; font-size: 18px")
       .w-flex.column
@@ -122,6 +121,7 @@
         placeholder="간호사를 선택하세요"
         :disabled="eventCreation.isEdit"
       )
+    
       .w-flex.column
         label.text-sm.font-semibold.mt4.mb2 비밀번호
         input(
@@ -244,7 +244,7 @@
 
       .w-flex.row.mt2
         label.text-sm.font-semibold.mb1 이름:&nbsp
-        span.input-basic {{ getClassLabel(eventSelection.event.name) }}
+        span.input-basic {{ eventSelection.event.nurseNames?.join(', ') || getClassLabel(eventSelection.event.name) }}
 
       .time-input-row.mt2
         .time-input-column
@@ -330,18 +330,19 @@
 
   
   const addAndSaveEvent = () => {
-    const start = new Date();
-    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    // const start = new Date();
+    // const end = new Date(start.getTime() + 60 * 60 * 1000);
 
-    cellDragStartTime.value = start;
-    cellDragEndTime.value = end;
+    cellDragStartTime.value = null;
+    cellDragEndTime.value = null;
+
 
     // selectedClassFilter.value = -1;
 
     const dummyEvent = {
       title: '',
-      start,
-      end,
+      start: null,
+      end: null,
       name: '',
       background: false
     };
@@ -737,9 +738,6 @@
             startTime: startDate,
             endTime: endDate
           });
-
-          console.log(response);
-          
         }
   
         const newEvent = {
@@ -883,18 +881,36 @@ const loadOrsSchedules = async () => {
     const response = await apiClient.get('/ors');
     const allEvents = response.data;
 
-    const orsEvents = allEvents.flatMap(event =>
-      event.nurseIds.map(nurseId => ({
-        id: `${event.surgeryScheduleId}-${nurseId}`,
-        title: event.content,
-        start: parseLocalDate(event.startTime),
-        end: parseLocalDate(event.endTime),
-        name: nurseId,
-        originalId: event.surgeryScheduleId,
-        editable: false,
-        class: 'surgery'
-      }))
-    );
+    const isAllFilter = selectedClassFilter.value === -1 || selectedClassFilter.value === null;
+
+    const orsEvents = allEvents.flatMap(event => {
+      if (isAllFilter) {
+        return [{
+          id: event.surgeryScheduleId,
+          title: event.content,
+          start: parseLocalDate(event.startTime),
+          end: parseLocalDate(event.endTime),
+          name: event.nurseIds, // 배열 그대로 저장
+          nurseNames: event.nurseNames || [], // 이름 배열도 저장
+          editable: false,
+          class: 'surgery'
+        }];
+      } else {
+        return event.nurseIds
+          .filter(nid => Number(nid) === Number(selectedClassFilter.value))
+          .map(nurseId => ({
+            id: `${event.surgeryScheduleId}-${nurseId}`,
+            title: event.content,
+            start: parseLocalDate(event.startTime),
+            end: parseLocalDate(event.endTime),
+            name: nurseId,
+            nurseNames: event.nurseNames || [],
+            originalId: event.surgeryScheduleId,
+            editable: false,
+            class: 'surgery'
+          }));
+      }
+    });
 
     // rawEvents.value = orsEvents;
     calendarEvents.value = [...filteredEvents.value];
@@ -983,7 +999,6 @@ onMounted(async () => {
 }
 
   .title {
-    width: 150%;
     text-align: center;
     font-size: 18px;
     font-weight: bold;
@@ -991,7 +1006,6 @@ onMounted(async () => {
     margin-top: 5px;
     color: black;
   }
-
 
 /* ::v-deep(.vuecal__event.shift-etc) {
   background-color: #f0f0f0;
@@ -1129,8 +1143,6 @@ onMounted(async () => {
       width: 215px;
       padding: 0;
     }
-
-
   
     /* .config-panel {
       padding: 12px;
@@ -1140,7 +1152,7 @@ onMounted(async () => {
   
     .vue-cal--main {--vuecal-height: 100%;}
   
-    // Min cell width example.
+    /* // Min cell width example.
     // --------------------------------------------------------
     // .vuecal__headings-bar {margin: auto;} // So it will fill up the whole available space.
     // .vuecal__weekday,
@@ -1148,12 +1160,12 @@ onMounted(async () => {
     // .vuecal--days-view .vuecal__cell {min-width: 300px;}
     // .vuecal--week-view .vuecal__cell,
     // .vuecal--days-view .vuecal__cell {min-height: 3000px;}
-    // --------------------------------------------------------
+    // -------------------------------------------------------- */
   
     .vuecal__special-hours {
       text-align: center;
   
-      // .business-hours {background-color: rgba(117, 176, 255, 0.2);color: hsl(217, 80%, 67%);}
+      /* // .business-hours {background-color: rgba(117, 176, 255, 0.2);color: hsl(217, 80%, 67%);} */
       &.doctor-1 {background-color: hsl(127deg 43% 60% / 15%);color: hsl(127, 50%, 67%);}
       &.doctor-2 {background-color: hsl(217deg 43% 60% / 15%);color: hsl(217, 80%, 67%);}
       &.doctor-3 {background-color: hsl(287deg 43% 60% / 15%);color: hsl(287, 80%, 67%);}
@@ -1172,13 +1184,13 @@ onMounted(async () => {
     .vuecal__schedule {
       &.dr-1 {background-color: rgba(134, 192, 253, 0.1);}
       &.dr-2 {background-color: rgba(187, 148, 255, 0.15);}
-      // .vuecal--dark &.dr-1 {background-color: rgba(143, 158, 196, 0.1);}
-      // .vuecal--dark &.dr-2 {background-color: rgba(131, 184, 255, 0.1);}
+      /* // .vuecal--dark &.dr-1 {background-color: rgba(143, 158, 196, 0.1);}
+      // .vuecal--dark &.dr-2 {background-color: rgba(131, 184, 255, 0.1);} */
     }
   
-    // .vuecal__event.leisure {background-color: #fd9c42d9;border-color: #e9882e;}
+    /* // .vuecal__event.leisure {background-color: #fd9c42d9;border-color: #e9882e;}
     // .vuecal__event.health {background-color: #57cea9cc;border-color: #90d2be;}
-    // .vuecal__event.sport {background-color: #ff6666d9;border-color: #eb5252;}
+    // .vuecal__event.sport {background-color: #ff6666d9;border-color: #eb5252;} */
     .vuecal__event.personal {background-color: #9b76d8d9;border-color: #9b76d8d9;font-weight: bold;
                               border-radius: 6px;
                               font-size: 12px;
@@ -1261,21 +1273,8 @@ onMounted(async () => {
                               } */
   }
   
-      /* w-select 내부 메뉴 배경색 흰색으로 */
-  ::v-deep(.w-select__menu) {
-    background-color: white !important;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    color: black;
-  }
-
-/* 선택 항목 hover 시 색상 */
-::v-deep(.w-select__option:hover) {
-  background-color: #f0f4ff;
-}
-
-  // Media queries.
-  // --------------------------------------------------------
+  /* // Media queries.
+  // -------------------------------------------------------- */
   @media screen and (max-width: $sm) {
     .main--playground aside {
       position: absolute;
