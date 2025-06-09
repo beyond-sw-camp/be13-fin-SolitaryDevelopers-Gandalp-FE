@@ -30,7 +30,7 @@ apiClient.interceptors.response.use(
 
     const status = error.response?.status;
 
-    if( status === 401 ){
+    if( status === 401 && router.currentRoute.value.path !== '/login'){
       // 로그인이 안된 상태 -> 로그인 페이지로 이동 
       router.push('/login')
     }
