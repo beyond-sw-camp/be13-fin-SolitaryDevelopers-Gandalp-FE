@@ -379,6 +379,7 @@ onMounted(fetchList)
   }
 
   .title {
+    width: 75.5vw;
     color: black;
     text-align: center;
     font-size: 18px;

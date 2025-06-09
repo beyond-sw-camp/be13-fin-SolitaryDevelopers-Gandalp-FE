@@ -150,7 +150,7 @@ const formatKST = (date) => {
 }
 
     .title {
-    width: 150%;
+    width: 75.5vw;
     color: black;
     text-align: center;
     font-size: 18px;
