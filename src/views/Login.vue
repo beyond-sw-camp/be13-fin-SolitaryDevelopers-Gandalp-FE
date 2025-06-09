@@ -1,24 +1,29 @@
 <template>
   <div class="login-wrapper">
-    <div class="logo-circle">
-      <img src="@/assets/sidebar/gandalp_login_logo.png" alt="로고" class="logo-img" />
-    </div>
-    <div class="login-box">
-      <form @submit.prevent="login">
-        <input v-model="accountId" placeholder="아이디" class="input-box" />
-        <input v-model="password" placeholder="비밀번호" type="password" class="input-box" />
-        <button type="submit" class="login-btn">확인</button>
-        <p v-if="errorMessage" class="error-text" v-html="errorMessage"></p>
-      </form>
+    <div class="glass-card">
+      <div class="left-content">
+        <h1 class="brand-title">Gandalp</h1>
+        <p class="brand-desc">Smart Scheduling for Healthcare Professionals</p>
+      </div>
+      <div class="right-content">
+        <div class="logo-wrapper">
+          <img src="@/assets/sidebar/image copy.png" alt="로고" class="login-logo" />
+        </div>
+        
+        <form @submit.prevent="login">
+          <input v-model="accountId" placeholder="아이디" class="input-box" />
+          <input v-model="password" placeholder="비밀번호" type="password" class="input-box" />
+          <button type="submit" class="login-btn">로그인</button>
+          <p v-if="errorMessage" class="error-text" v-html="errorMessage"></p>
+        </form>
+      </div>
     </div>
   </div>
 </template>
 
-
 <script setup>
-
 import { ref } from 'vue'
-import {useRouter} from "vue-router";
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
@@ -33,100 +38,120 @@ const login = async () => {
     return;
   }
 
-    try{
-      await auth.login({
-        accountId: accountId.value,
-        password: password.value,
-      })
-      errorMessage.value = '';
+  try {
+    await auth.login({
+      accountId: accountId.value,
+      password: password.value,
+    })
+    errorMessage.value = '';
 
-      const role = auth.userInfo.type
-      if(role === 'ADMIN') {
-        return router.push({name: 'memberList'})
-      }else if (role ==='PARAMEDIC') {
-        return router.push({name: 'hospitalMap'})
-      }
-
-      return router.push({name: 'playground'})
-    }catch (err){
-      const error = err.response?.data?.error;
-      errorMessage.value = typeof error === 'string' ? error : '로그인 실패';
-
+    const role = auth.userInfo.type
+    if (role === 'ADMIN') {
+      return router.push({ name: 'memberList' })
+    } else if (role === 'PARAMEDIC') {
+      return router.push({ name: 'hospitalMap' })
     }
+
+    return router.push({ name: 'playground' })
+  } catch (err) {
+    const error = err.response?.data?.error;
+    errorMessage.value = typeof error === 'string' ? error : '로그인 실패';
+  }
 }
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Pretendard&display=swap');
+
 .login-wrapper {
   height: 100vh;
+  width: 100%;
+  background-image: url('@/assets/sidebar/image copy 3.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Pretendard', 'Roboto', sans-serif;
+}
+
+.glass-card {
+  width: 800px;
+  height: 450px;
+  display: flex;
+  backdrop-filter: blur(20px);
+  background: rgba(237, 247, 255, 0.4); /* 하늘색 투명 */
+  border: 1px solid rgba(237, 247, 255, 0.6);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.left-content {
+  flex: 1.2;
+  padding: 40px;
+  color: #0d1b2a; /* 진한 남색 */
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  background: #5b7cff; /* 이미지와 동일한 파란색 */
-  position: relative;
-}
-
-.logo-circle {
-  width: 280px;
-  height: 280px;
-  background: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  margin-top: 48px;
-  margin-bottom: 32px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background: rgba(237, 247, 255, 0.5); /* 하늘색 좀 더 진하게 */
 }
 
-.logo-img {
-  width: 300px;
-  height: 300px;
-  object-fit: contain;
+.brand-title {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 20px;
 }
 
-.login-box {
-  border: none;
-  border-radius: 10px;
-  padding: 32px 32px 24px 32px;
-  width: 360px;
-  background: transparent;
-  box-shadow: none;
-  margin-top: 0;
-}
-
-.title {
-  text-align: center;
-  font-weight: bold;
+.brand-desc {
   font-size: 20px;
-  margin-bottom: 24px;
-  color: #fff;
+  opacity: 0.8;
+}
+
+.right-content {
+  flex: 1;
+  background: rgba(237, 247, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.login-logo {
+  width: 180px;
+  margin-bottom: 20px;
 }
 
 .input-box {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: white;
-  font-size: 14px;
+  padding: 14px;
+  margin-bottom: 20px;
+  border: 1px solid #a0d8ef; /* 테두리 살짝 진한 하늘색 */
+  border-radius: 10px;
+  background: white;
+  font-size: 16px;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); /* 인풋 그림자 강화 */
 }
 
 .login-btn {
   width: 100%;
-  padding: 12px;
-  background-color: #ffffff;
-  color: black;
+  padding: 14px;
+  background-color: #a0d8ef; /* 버튼 색 진하게 */
+  color: #1c2b4d;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 600;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
+
 .login-btn:hover {
-  background-color: #d4d8dd;
+  background-color: #8ecae6; /* hover 시 더 진한 하늘색 */
 }
+
 .error-text {
   color: #fff;
   background: #ff4d4f;
@@ -136,56 +161,4 @@ const login = async () => {
   white-space: pre-line;
   text-align: center;
 }
-
-/* .login-wrapper {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #fff;
-}
-
-.login-box {
-  border: 2px solid #53a8ff;
-  border-radius: 10px;
-  padding: 32px;
-  width: 360px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.title {
-  text-align: center;
-  font-weight: bold;
-  font-size: 20px;
-  margin-bottom: 24px;
-}
-
-.input-box {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.login-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #53a8ff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-}
-.login-btn:hover {
-  background-color: #3a91e8;
-}
-.error-text {
-  color: red;
-  margin-top: 8px;
-  white-space: pre-line;
-} */
-
 </style>

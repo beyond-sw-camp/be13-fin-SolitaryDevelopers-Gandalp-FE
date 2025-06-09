@@ -203,7 +203,7 @@ onBeforeUnmount(() => {
   border: #ddd solid 1px;
   background-color: white;
   border-radius: 10px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 3px 7px 5px rgba(0, 0, 0, 0.1);
 
 }
 .status-header {
@@ -229,7 +229,7 @@ onBeforeUnmount(() => {
 
 .status-label {
   width: 60px;
-  
+  font-size: 13px;
 }
 
 
@@ -244,7 +244,7 @@ onBeforeUnmount(() => {
 }
 .nurse-name {
   font-weight: normal;
-  font-size: 11px;
+  font-size: 13px;
 }
 .status-indicator {
   padding-left: 15%;

@@ -8,7 +8,7 @@
     </div>
 </template>
 <script setup>
-import gandalpLogo from '@/assets/sidebar/gandalp_logo.png'
+import gandalpLogo from '@/assets/sidebar/image copy.png'
 import NurseStatusSidebar from './NurseStatusSidebar.vue';
 import NoticeSidebar from './NoticeSidebar.vue';
 import {useAuthStore} from "@/stores/auth.js";
@@ -44,10 +44,11 @@ const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
   display: flex;
   justify-content: center;   /* 가운데 정렬 */
   align-items: center;
-  margin-top: 10px;
+  margin-top: 5px;
+  margin-left: 40px;
   margin-bottom: 16px;       /* 여백 살짝 늘리기 */
-  height: 100px;           /* 로고 영역 고정 높이 */
-  width: 200px;
+  height: 150px;           /* 로고 영역 고정 높이 */
+  width: 150px;
 }
 
 .logo img {
