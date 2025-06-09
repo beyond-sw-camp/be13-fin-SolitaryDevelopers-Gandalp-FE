@@ -329,6 +329,9 @@ h2.title::before {
 }
 ::v-deep .member-table td {
   padding: 8px;
+  height: 81.5px;
+  justify-content: center;
+  align-items: center;
   text-align: center;
   border-bottom: 1px solid #ddd; /* 본문 각 행 사이 가로선 */
 

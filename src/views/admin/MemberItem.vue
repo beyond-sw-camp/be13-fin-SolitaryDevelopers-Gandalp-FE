@@ -16,6 +16,7 @@
       </v-btn>
 
       <v-btn
+        v-if="member.codeLabel !== '관리자'"
         size = "small"
         variant="tonal"
         color="error"
@@ -30,8 +31,15 @@
 </template>
 
 <script setup>
-import { defineEmits, defineProps } from 'vue'
+import {computed, defineEmits, defineProps} from 'vue'
 import apiClient from '@/api/axios.js'
+import { useAuthStore } from '@/stores/auth'
+import {useRoute, useRouter} from "vue-router";
+
+const router = useRouter()
+const route = useRoute()
+const auth = useAuthStore()
+const isAdmin = computed(() => auth.userInfo.codeLabel === '관리자')
 
 const props = defineProps({
   member: Object,
@@ -65,4 +73,5 @@ const onDelete = async () => {
 .v-btn[variant="tonal"] {
   border-radius: 8px;
 }
+
 </style>
