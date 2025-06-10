@@ -120,7 +120,7 @@ const editNurse = (nurse) => {
 } 
 
 const deleteNurse = async (nurse) => {
-    if (!confirm(`${nurse.name} 간호사를 정말 삭제할까요?`)) return
+    if (!confirm(`${nurse.name} 간호사를 정말로 삭제하시겠습니까?`)) return
     try {
         await apiClient.delete(`/nurses/${nurse.id}`)
         alert('삭제되었습니다.')

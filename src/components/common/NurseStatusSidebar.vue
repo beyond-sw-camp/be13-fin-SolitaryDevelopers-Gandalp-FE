@@ -144,6 +144,7 @@ const closeModal = () => {
   form.password = ''
   form.codeLabel = 'ON'
   errorMessage.value = ''
+  nurseSearch.value = ''
 }
 
 const showToast = (message) => {
