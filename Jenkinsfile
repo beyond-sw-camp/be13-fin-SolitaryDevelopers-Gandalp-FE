@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'my-node-app'
+            image 'node:18'
         }
     }
 
