@@ -591,7 +591,7 @@ const displayedEvents = computed(() => {
           editable: false,
           class: response.data.originalId ? 'surgery' : 'work'
         };
-  
+   
         if (eventCreation.event.id) {
           // 기존 이벤트 교체
           const index = rawEvents.value.findIndex(e => e.id === eventCreation.event.id);
@@ -618,7 +618,7 @@ const displayedEvents = computed(() => {
         await nextTick();
         await loadAllEvents();
         calendarEvents.value = [...filteredEvents.value];
-        mainVuecalConfig.events = calendarEvents.value
+        // mainVuecalConfig.events = calendarEvents.value
         cellDragStartTime.value = null
         cellDragEndTime.value = null
         
