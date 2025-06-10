@@ -39,7 +39,7 @@ apiClient.interceptors.response.use(
       // 로그인이 안된 상태 -> 로그인 페이지로 이동
       router.push('/login')
     }
-    return Promise.reject(error);
+    // return Promise.reject(error);
   }
 )
 
