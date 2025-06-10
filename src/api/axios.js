@@ -4,7 +4,7 @@ import axios from 'axios';
 const apiClient = axios.create({
   // baseURL: 'http://localhost:8080/api/v1',
   baseURL: 'https://api.gandalp-service.com/api/v1',
-  withCredentials: true  // refreshCookie 받아야 하니까 true 로 설정 
+  withCredentials: true  // refreshCookie 받아야 하니까 true 로 설정
 
 });
 
@@ -31,7 +31,7 @@ apiClient.interceptors.response.use(
     const status = error.response?.status;
 
     if( status === 401 && router.currentRoute.value.path !== '/login'){
-      // 로그인이 안된 상태 -> 로그인 페이지로 이동 
+      // 로그인이 안된 상태 -> 로그인 페이지로 이동
       router.push('/login')
     }
     return Promise.reject(error);
