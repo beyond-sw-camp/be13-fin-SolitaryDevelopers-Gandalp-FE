@@ -69,7 +69,6 @@
             @cell-contextmenu="log('cell-contextmenu', $event)")
 
           div(v-else style="min-height: 80vh; display: flex; align-items: center; justify-content: center;")
-            //- span 로딩 중...
     
   w-dialog(
     v-if="eventCreation.event"
@@ -135,104 +134,6 @@
       v-btn(size="default" variant="tonal" color="primary" @click="eventCreation.save") 저장
       v-btn(size="default" variant="tonal" color="error" @click="eventCreation.cancel") 취소
 
-
-  //- .modal-mask(v-if="eventCreation.event && eventCreation.show" @click.self="eventCreation.cancel")
-  //- .modal-wrapper
-  //-   .modal-container
-  //-     .modal-content
-  //-       .modal-title 일정 생성
-
-  //-       label 제목
-  //-       input(v-model="eventCreation.event.title" placeholder="일정 제목을 입력하세요")
-
-  //-       .time-input-row
-  //-         .time-input-column
-  //-           label 시작 시간
-  //-           Datepicker(
-  //-             v-model="formStart"
-  //-             locale="ko"
-  //-             teleport
-  //-             time-picker-inline
-  //-             :enable-time-picker="true"
-  //-             :is-24="true"
-  //-             :format="'yyyy-MM-dd HH:mm'"
-  //-             auto-apply)
-  //-         .time-input-column
-  //-           label 종료 시간
-  //-           Datepicker(
-  //-             v-model="formEnd"
-  //-             locale="ko"
-  //-             teleport
-  //-             time-picker-inline
-  //-             :enable-time-picker="true"
-  //-             :is-24="true"
-  //-             :format="'yyyy-MM-dd HH:mm'"
-  //-             auto-apply)
-
-  //-       label 간호사 이름
-  //-       w-select(
-  //-         v-model="eventCreation.event.name"
-  //-         :items="nurseFilterOptions"
-  //-         placeholder="간호사를 선택하세요")
-
-  //-       label 비밀번호
-  //-       input(type="password" v-model="userPassword" placeholder="간호사 비밀번호 입력")
-
-  //-       .modal-btns
-  //-         v-btn(size="small" variant="tonal" color="error" @click="eventCreation.cancel") 취소
-  //-         v-btn(size="small" variant="tonal" color="primary" @click="eventCreation.save") 저장
-  //- w-dialog(
-  //-   v-if="eventCreation.event"
-  //-   v-model="eventCreation.show"
-  //-   width="400"
-  //-   @close="eventCreation.cancel")
-  //-   label.text-sm.font-semibold.mb1 제목
-  //-   w-input(
-  //-     v-model="eventCreation.event.title"
-  //-     placeholder="일정 제목을 입력하세요")
-
-  //-   .w-flex.gap3
-  //-     .w-flex.column.flex-1
-  //-       label.text-sm.font-medium.text-gray-600.mb-1 시작 시간
-  //-       Datepicker(
-  //-         v-model="formStart"
-  //-         locale="ko"
-  //-         teleport  
-  //-         time-picker-inline
-  //-         :enable-time-picker="true"
-  //-         :is-24="true"
-  //-         :format="'yyyy-MM-dd HH:mm'"
-  //-         auto-apply)
-  //-     .w-flex.column.flex-1
-  //-       label.text-sm.font-medium.text-gray-600.mb-1 종료 시간
-  //-       Datepicker(
-  //-         v-model="formEnd"
-  //-         locale="ko"
-  //-         teleport
-  //-         time-picker-inline
-  //-         :enable-time-picker="true"
-  //-         :is-24="true"
-  //-         :format="'yyyy-MM-dd HH:mm'"
-  //-         auto-apply)
-
-  //-   label.text-sm.font-semibold.mb1 간호사 이름
-  //-   w-select(
-  //-     v-model="eventCreation.event.name"
-  //-     :items="nurseFilterOptions"
-  //-     placeholder="간호사를 선택하세요"
-  //-   )
-
-  //-   label.text-sm.font-semibold.mt3 비밀번호
-  //-   w-input(
-  //-     v-model="userPassword"
-  //-     type="password"
-  //-     placeholder="간호사 비밀번호 입력"
-  //-   )
-
-  //-   .w-flex.justify-end.mt4.gap2
-  //-     w-button(@click="eventCreation.cancel") 취소
-  //-     w-button.primary(@click="eventCreation.save") 저장
-  
   w-dialog(
     v-if="eventSelection.event"
     v-model="eventSelection.showDialog"
@@ -248,11 +149,7 @@
 
       .time-input-row.mt2
         .time-input-column
-          //- label.text-sm.font-medium.mb1 시작 시간
           span.input-basic {{ eventSelection.event.start.format('YYYY-MM-DD HH:mm') }} - {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
-        //- .time-input-column
-          //- label.text-sm.font-medium.mb1 종료 시간
-          //- span.input-basic {{ eventSelection.event.end.format('YYYY-MM-DD HH:mm') }}
 
 
     .modal-btns.mt4
@@ -289,7 +186,6 @@
     )
     .w-flex.justify-end.mt2.gap2
       v-btn(size="default" variant="tonal" @click="deleteConfirm.show = false") 닫기
-      //- w-button(@click="deleteConfirm.show = false") 취소
       v-btn(
         v-if="!eventSelection.event.originalId"
         size="default"
@@ -297,7 +193,6 @@
         color="error"
         @click="confirmDeleteEvent"
       ) 삭제
-      //- w-button.danger(@click="confirmDeleteEvent") 삭제
   </template>
   
   <script setup>
@@ -330,14 +225,10 @@
 
   
   const addAndSaveEvent = () => {
-    // const start = new Date();
-    // const end = new Date(start.getTime() + 60 * 60 * 1000);
 
     cellDragStartTime.value = null;
     cellDragEndTime.value = null;
 
-
-    // selectedClassFilter.value = -1;
 
     const dummyEvent = {
       title: '',
@@ -350,10 +241,6 @@
     eventCreation.open({
       event: dummyEvent,
       resolve: (createdEvent) => {
-        // if (createdEvent) {
-        //   eventSelection.event = createdEvent;
-        //   eventSelection.showDialog = true;
-        // }
       }
     });
   };
@@ -375,13 +262,6 @@
   
   const classFilterOptions = ref([
     { label: '전체', value: -1 },
-  //   ...nurseRes.data.map(nurse => ({
-  //   label: nurse.name,
-  //   value: nurse.id
-  // }))
-    // { label: '근무', value: 'work' },
-    // { label: '수술', value: 'surgery' },
-    // { label: '운동', value: 'sport' }
   ])
   
   const getClassLabel = (classValue) => {
@@ -399,9 +279,6 @@
   });
 
   
-  // watch(filteredEvents, (newEvents) => {
-  //   calendarEvents.value = newEvents
-  // })
   watch(filteredEvents, (newEvents) => {
     calendarEvents.value.splice(0, calendarEvents.value.length, ...newEvents)
   })
@@ -434,18 +311,6 @@
     return new Date(utcString);
   }
   
-  
-  // const locales = [
-  //   { value: 'ko', label: 'ko' },
-  //   { value: 'en-gb', label: 'en-gb' },
-  //   { value: 'en-us', label: 'en-us' },
-  //   { value: 'ja', label: 'ja' },
-  //   { value: 'zh-cn', label: 'zh-cn' },
-  //   { value: 'ar', label: 'ar' },
-  //   { value: 'fr', label: 'fr' },
-  //   { value: 'ca', label: 'ca' }
-  // ]
-  
   const views = {
     day: { label: '일' },
     // days: { label: 'Days', cols: 365, rows: 1 },
@@ -466,15 +331,8 @@
   const weekdays = [{ label: '월' }, { label: 'tue' }, { label: 'wed' }, { label: 'thu' }, { label: 'fri' }, { label: 'sat' }, { label: 'sun' }]
   const hideWeekdays = ref([])
   
-  // const eventClasses = [
-  //   { value: 'work', label: 'Work' },
-  //   { value: 'surgery', label: 'Surgery' },
-  //   { value: 'sport', label: 'Sport' }
-  // ]
-  
   const pickerConfig = reactive({
     datePicker: true,
-    // dark: computed(() => store.darkMode),
     selectedDate: computed(() => mainVuecalConfig.selectedDate),
     locale: computed(() => mainVuecalConfig.locale),
     startWeekOnSunday: computed(() => mainVuecalConfig.startWeekOnSunday),
@@ -484,10 +342,16 @@
     viewDayOffset: computed(() => mainVuecalConfig.viewDayOffset)
   })
   
+const displayedEvents = computed(() => {
+  const view = mainVuecalConfig.view;
+  if (view === 'year' || view === 'years') return []; // 연간 뷰에서는 일정 안 보이게
+  return calendarEvents.value;
+});
+
+
   const mainVuecalConfig = reactive({
     views,
     view: ref('month'),
-    // dark: computed(() => store.darkMode),
     selectedDate: ref(null),
     viewDate: ref(new Date()),
     locale: ref('ko'),
@@ -495,8 +359,6 @@
     todayButton: ref(true),
     xs: computed(() => size.value === 'xs'),
     sm: computed(() => size.value === 'sm'),
-    // timeFrom: 7 * 60,
-    // timeTo: 20 * 60,
     timeStep: 30,
     twelveHour: ref(false),
     hideWeekends: ref(false),
@@ -504,8 +366,7 @@
     viewDayOffset: ref(0),
     clickToNavigate: computed(() => mainVuecalConfig.view === 'year' || mainVuecalConfig.view === 'years'),
     watchRealTime: ref(true),
-    // events: filteredEvents,
-    events: calendarEvents,
+    events: displayedEvents,
     showSchedules: ref(false),
     schedules: computed(() => {
       return mainVuecalConfig.showSchedules ? [
@@ -514,21 +375,6 @@
       ] : undefined
     }),
     eventsOnMonthView: true,
-    // showSpecialHours: ref(false),
-    // specialHours: computed(() => {
-    //   return mainVuecalConfig.showSpecialHours ? {
-    //     mon: { from: 0 * 60, to: 23 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Full day shift</em>' },
-    //     tue: { from: 4 * 60, to: 5 * 60, class: 'doctor-2', label: '<strong>Doctor 2</strong><em>Full day shift</em>' },
-    //     wed: [
-    //       { from: 8 * 60, to: 12 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Morning shift</em>' },
-    //       { from: 14 * 60, to: 19 * 60, class: 'doctor-3', label: '<strong>Doctor 3</strong><em>Afternoon shift</em>' }
-    //     ],
-    //     thu: { from: 8 * 60, to: 17 * 60, class: 'doctor-1', label: '<strong>Doctor 1</strong><em>Full day shift</em>' },
-    //     fri: { from: 9 * 60, to: 18 * 60, class: 'doctor-3', label: '<strong>Doctor 3</strong><em>Full day shift</em>' },
-    //     sat: { from: 9 * 60, to: 18 * 60, class: 'doctor-2', label: '<strong>Doctor 2</strong><em>Full day shift</em>' },
-    //     sun: { from: 7 * 60, to: 20 * 60, class: 'closed', label: '<strong>Closed</strong>' }
-    //   } : undefined
-    // }),
     editableEvents: computed(() => true) // 달력 편집 이벤트 실행
   })
   
@@ -587,8 +433,6 @@
           if (index !== -1) {
             Object.assign(rawEvents.value[index], {
               ...updatedEvent,
-              // start: parseLocalDate(updatedEvent.startDate),
-              // end: parseLocalDate(updatedEvent.endDate),
               start: new Date(updatedEvent.start), 
               end: new Date(updatedEvent.end),
               editable: false
@@ -693,7 +537,7 @@
         const localDate = new Date(year, month - 1, day, hour, minute);
         return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000).toISOString();
       }
-
+      
 
       const startDate = toUTCISOStringFromLocalInput(formStart.value);
       const endDate = toUTCISOStringFromLocalInput(formEnd.value);
@@ -828,26 +672,6 @@ const loadWorkSchedules = async () => {
   }
 };
 
-// const loadWorkSchedules = async () => {
-//   try {
-//     const response = await apiClient.get('/schedules');
-//     return response.data.map(event => ({
-//       id: event.workScheduleId,
-//       title: event.content || event.codeLabel || '근무 일정',
-//       start: parseLocalDate(event.startTime),
-//       end: parseLocalDate(event.endTime),
-//       name: Number(event.nurseId),
-//       editable: false,
-//       class: 'work'
-//     }));
-//   } catch (error) {
-//     console.error('근무 일정 로딩 실패:', error);
-//     return [];
-//   }
-// };
-
-
-  // 일정 불러오기 함수
 const loadSchedules = async () => {
   try {
     let response;
@@ -867,7 +691,6 @@ const loadSchedules = async () => {
       class: 'personal'
     }));
 
-    // rawEvents.value = fetchedEvents;
     calendarEvents.value = fetchedEvents;
     return fetchedEvents;
   } catch (error) {
@@ -921,15 +744,6 @@ const loadOrsSchedules = async () => {
   }
 };
 
-// const loadAllEvents = async () => {
-//   const [scheduleEvents, orsEvents] = await Promise.all([
-//     loadSchedules(),
-//     loadOrsSchedules()
-//   ]);
-//   // allCalendarEvents.value = [...scheduleEvents, ...orsEvents];
-//   rawEvents.value = [...scheduleEvents, ...orsEvents];
-//   calendarEvents.value = [...filteredEvents.value];
-// };
 const loadAllEvents = async () => {
 
   isLoading.value = true
@@ -954,17 +768,12 @@ const loadAllEvents = async () => {
 };
 
 
-// watch(selectedClassFilter, async () => {
-//   await loadAllEvents();
-// });
 watch([selectedClassFilter, scheduleType], async () => {
   await loadAllEvents();
 });
 
   
 onMounted(async () => {
-  // await loadSchedules();
-  // await loadOrsSchedules(); 
   await loadAllEvents();
 
   try {
@@ -1006,21 +815,6 @@ onMounted(async () => {
     margin-top: 5px;
     color: black;
   }
-
-/* ::v-deep(.vuecal__event.shift-etc) {
-  background-color: #f0f0f0;
-  color: #666;
-  font-weight: bold;
-  border-radius: 6px;
-  font-size: 12px;
-  padding: 4px 6px;
-  margin: 5px;
-  display: inline-block;
-  white-space: normal;
-  word-break: break-word;
-  max-width: 80%;
-} */
-
 
   .modal-mask {
   position: fixed;
