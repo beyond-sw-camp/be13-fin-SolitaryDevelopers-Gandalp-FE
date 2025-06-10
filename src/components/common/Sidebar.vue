@@ -1,10 +1,10 @@
 <template>
   <div class="sidebar">
     <div class="logo">
-      <img :src="gandalpLogo" alt="GANDALP 로고" @click="router.push('/')" class="logo-img"/>
+      <img :src="gandalpLogo" alt="GANDALP 로고" @click="router.push(homePath)" class="logo-img"/>
     </div>
-      <NoticeSidebar v-if="!isAdmin"/>
-      <NurseStatusSidebar v-if="!isAdmin"/>
+      <NoticeSidebar v-if="!isAdmin && !isParamdeic"/>
+      <NurseStatusSidebar v-if="!isAdmin && !isParamdeic"/>
     </div>
 </template>
 <script setup>
@@ -15,10 +15,20 @@ import {useAuthStore} from "@/stores/auth.js";
 import {computed} from "vue";
 import { useRouter } from 'vue-router';
 
+
 const router = useRouter()
 const auth    = useAuthStore()
 const isAdmin = computed(() => auth.userInfo.type === 'ADMIN')
+const isParamdeic = computed(() => auth.userInfo.type === 'PARAMEDIC')
 
+const homePath = computed(() =>{
+  const type = auth.userInfo?.type
+  console.log('type:     ',type)
+  if(type === 'ADMIN' ) return '/memberList'
+  if(type === 'NURSE' || type === 'HEAD_NURSE' ) return '/calendar'
+  if(type === 'PARAMEDIC' ) return '/hospitalMap'
+  return '/'
+})
 
 </script>
 

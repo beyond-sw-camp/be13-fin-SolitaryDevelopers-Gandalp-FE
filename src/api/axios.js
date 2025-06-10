@@ -15,9 +15,14 @@ apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if(token){
     config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-}, (error) => {
+  }else{
+    if (router.currentRoute.value.path !== '/login') {
+      router.push('/login')
+    }
+
+    return Promise.reject(new Error('No access token'))
+
+  }}, (error) => {
 
 
   return Promise.reject(error);
