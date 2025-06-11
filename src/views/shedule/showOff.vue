@@ -198,23 +198,18 @@ const fetchList = async () => {
     },
   })
 
-  // console.log("📦 응답 데이터:", data)
+  console.log("📦 응답 데이터:", data)
 
   let content = []
-
   if (Array.isArray(data.content)) {
     content = data.content
-  } else if (Array.isArray(data.items?.content)) {
-    content = data.items.content
+    totalPages.value = data.totalPages ?? 1
   } else {
     console.warn("📛 예상하지 못한 응답 구조:", data)
   }
 
   scheduleList.value = content
-
-  totalPages.value = data.totalPages
-  ?? data.items?.totalPages
-  ?? 1;
+  totalPages.value = data.page?.totalPages ?? 1
   hasMore.value = currentPage.value < totalPages.value
 }
 
@@ -250,7 +245,7 @@ const fetchListByEmailOrName = async (type, keyword) => {
 
     if (Array.isArray(data.content)) {
       content = data.content
-      totalPages.value = data.totalPages ?? 1
+        totalPages.value = data.page?.totalPages ?? 1
     } else if (Array.isArray(data.items?.content)) {
       content = data.items.content
       totalPages.value = data.items.totalPages ?? 1
