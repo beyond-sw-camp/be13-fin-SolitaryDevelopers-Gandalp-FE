@@ -208,9 +208,7 @@ const fetchList = async () => {
 
   scheduleList.value = content
 
-  totalPages.value = data.totalPages
-  ?? data.items?.totalPages
-  ?? 1;
+  totalPages.value = data.page?.totalPages ?? 1
   hasMore.value = currentPage.value < totalPages.value
 }
 const fetchListByEmailOrName = async (type, keyword) => {
